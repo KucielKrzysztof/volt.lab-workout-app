@@ -1,0 +1,21 @@
+{
+	"name": "VOLT.LAB Training App",
+	"short_name": "VOLT.LAB",
+	"description": "Build your power with VOLT.LAB",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#141413",
+	"theme_color": "#141413",
+	"icons": [
+		{
+			"src": "/logos/mobile.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/logos/mobile.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}
