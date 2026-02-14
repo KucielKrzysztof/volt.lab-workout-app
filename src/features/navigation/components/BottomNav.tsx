@@ -6,19 +6,17 @@ import { LayoutGrid, TrendingUp, Dumbbell, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-	{ label: "Feed", href: "/feed", icon: LayoutGrid },
-	{ label: "Analytics", href: "/analytics", icon: TrendingUp },
-	{ label: "Workouts", href: "/workouts", icon: Dumbbell },
-	{ label: "More", href: "/more", icon: MoreHorizontal },
+	{ label: "Feed", href: "/dashboard/feed", icon: LayoutGrid },
+	{ label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
+	{ label: "Workouts", href: "/dashboard/workouts", icon: Dumbbell },
+	{ label: "More", href: "/dashboard/more", icon: MoreHorizontal },
 ];
 
 export const BottomNav = () => {
 	const pathname = usePathname();
 
-	if (pathname === "/") return null;
-
 	return (
-		<nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-background/80 backdrop-blur-md border-t border-border px-6 pb-safe-area-inset-bottom">
+		<nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full  bg-background/80 backdrop-blur-md border-t border-border px-6 pb-safe-area-inset-bottom">
 			<div className="flex items-center justify-between h-16">
 				{navItems.map((item) => {
 					const Icon = item.icon;
