@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { WelcomeHeader } from "./components/WelcomeHeader";
 import { RecentWorkouts } from "./components/RecentWorkouts";
+import { Hero } from "@/features/landing/components/Hero";
 
 const MOCK_USER = { name: "Krzysztof" };
 
@@ -27,7 +28,8 @@ const MOCK_WORKOUTS = [
 
 export default function FeedPage() {
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col items-center">
+			<Hero />
 			<WelcomeHeader name={MOCK_USER.name} />
 			<Separator />
 
