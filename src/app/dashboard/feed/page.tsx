@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { WelcomeHeader } from "./components/WelcomeHeader";
 import { RecentWorkouts } from "./components/RecentWorkouts";
-import { Hero } from "@/features/landing/components/Hero";
+import { Hero } from "@/components/ui/Hero";
 
 const MOCK_USER = { name: "Krzysztof" };
 

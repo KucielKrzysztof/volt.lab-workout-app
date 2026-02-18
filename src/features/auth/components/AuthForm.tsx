@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Logo } from "@/features/landing/components/Logo";
+import { Logo } from "@/components/ui/Logo";
 import Link from "next/link";
+import { Footer } from "@/components/ui/Footer";
 // import { supabase } from "@/core/supabase/client";
 
 interface AuthFormProps {
@@ -35,7 +36,7 @@ export const AuthForm = ({ formMode }: AuthFormProps) => {
 	};
 
 	return (
-		<div className="flex flex-col items-center justify-center min-h-[90vh] px-4">
+		<div className="flex flex-col items-center justify-center min-h-[90vh] px-4 relative">
 			<div className="w-full max-w-sm space-y-8">
 				<div className="flex flex-col items-center">
 					<Logo />
@@ -98,6 +99,7 @@ export const AuthForm = ({ formMode }: AuthFormProps) => {
 					)}
 				</p>
 			</div>
+			<Footer />
 		</div>
 	);
 };

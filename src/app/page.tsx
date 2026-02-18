@@ -1,6 +1,6 @@
-import { Footer } from "@/features/landing/components/Footer";
-import { Hero } from "@/features/landing/components/Hero";
-import { StartButton } from "@/features/landing/components/StartButton";
+import { Footer } from "@/components/ui/Footer";
+import { Hero } from "@/components/ui/Hero";
+import { StartButton } from "@/components/ui/StartButton";
 
 export default function Home(): React.JSX.Element {
 	return (

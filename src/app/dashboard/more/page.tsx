@@ -1,3 +1,5 @@
-export default function MorePage() {
-	return <div> More Page</div>;
+import { MoreClientView } from "./components/MoreClientView";
+
+export default async function MorePage() {
+	return <MoreClientView />;
 }
