@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Dumbbell, LayoutGrid, TrendingUp, Zap } from "lucide-react";
+import { Dumbbell, LayoutGrid, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
 

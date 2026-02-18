@@ -26,7 +26,7 @@ export default function AnalyticsClientView() {
 	const [year, setYear] = useState(new Date().getFullYear());
 
 	return (
-		<div className="space-y-6 animate-in fade-in duration-500">
+		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* GLOBAL Header*/}
 			<AnalyticsHeader>
 				<YearPicker year={year} onYearChange={setYear} />

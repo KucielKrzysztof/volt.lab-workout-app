@@ -6,7 +6,7 @@ interface WelcomeHeaderProps {
 
 export const WelcomeHeader = ({ name }: WelcomeHeaderProps) => {
 	return (
-		<div className="flex justify-between items-center py-6 gap-2 w-full">
+		<div className="flex justify-between items-center py-6 gap-6 w-full">
 			<div className="text-2xl font-black tracking-tight flex flex-col items-start gap-2 ">
 				<p>WELCOME BACK,</p>
 				<p className="text-primary underline decoration-2 underline-offset-4">{name.toUpperCase()}</p>

@@ -28,7 +28,7 @@ const MOCK_WORKOUTS = [
 
 export default function FeedPage() {
 	return (
-		<div className="flex flex-col items-center">
+		<div className="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500 ">
 			<Hero />
 			<WelcomeHeader name={MOCK_USER.name} />
 			<Separator />
