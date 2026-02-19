@@ -30,7 +30,7 @@ The `exerciseService` is the brain of the operation. It accepts a `supabase` ins
 
 ---
 
-### 🔄 Data Flow
+### Data Flow
 
 Here is how data travels from the database to the screen:
 
@@ -41,7 +41,7 @@ Here is how data travels from the database to the screen:
 
 ---
 
-### 📂 File Structure (Where is everything?)
+### File Structure (Where is everything?)
 
 ```text
 src/
@@ -64,7 +64,7 @@ src/
 
 ---
 
-### 📝 TODO / Next Steps
+### Next Steps
 
 - **MuscleGroupFilter:** Complete the implementation of the horizontal.
 - **UserAuth**: I think i will focus on google oauth and that's it.
