@@ -1,3 +1,7 @@
+/**
+ * Sticky header for the Analytics view.
+ * Provides context (Title) and an injection slot (children) for the YearPicker.
+ */
 export const AnalyticsHeader = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<header className="sticky top-0 z-10 bg-background/95 backdrop-blur pb-4 pt-2 ">

@@ -5,6 +5,10 @@ interface WorkoutHistoryProps {
 	workouts: Workout[];
 }
 
+/**
+ * Vertical list component for the user's workout history.
+ * Groups multiple SummaryWorkoutCards and provides a placeholder for pagination.
+ */
 export const WorkoutHistory = ({ workouts }: WorkoutHistoryProps) => {
 	return (
 		<section className="space-y-6 w-full">

@@ -4,6 +4,11 @@ interface WelcomeHeaderProps {
 	name: string;
 }
 
+/**
+ * User greeting component for the main feed.
+ * Displays the user's name in a bold, underlined style alongside an Avatar.
+ * Avatar includes a fallback mechanism using the user's initials.
+ */
 export const WelcomeHeader = ({ name }: WelcomeHeaderProps) => {
 	return (
 		<div className="flex justify-between items-center py-6 gap-6 w-full">

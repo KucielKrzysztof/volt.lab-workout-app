@@ -10,6 +10,10 @@ interface WorkoutClientViewProps {
 	workouts: Workout[];
 }
 
+/**
+ * Main Orchestrator for the Workouts view.
+ * Integrates the header, session initiation card, and history list.
+ */
 export const WorkoutsClientView = ({ workouts }: WorkoutClientViewProps) => {
 	return (
 		<div className="flex flex-col space-y-10 items-center animate-in fade-in slide-in-from-bottom-4 duration-500">

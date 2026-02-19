@@ -10,6 +10,17 @@ interface MoreItemProps {
 	variant?: "default" | "danger";
 }
 
+/**
+ * Reusable list item component for settings and navigation.
+ * * Capabilities:
+ * - Polymorphism: Renders as a Next.js <Link> if 'href' is provided,
+ * or a <button> if 'onClick' is provided.
+ * - Variants: Supports a 'danger' style for destructive actions like Logout.
+ * - Feedback: Includes a scale-down effect on press for mobile-first feel.
+ * * @param icon - Lucide icon component to display on the left.
+ * @param label - Text label for the item.
+ * @param variant - Visual style (default or danger).
+ */
 export const MoreItem = ({ icon: Icon, label, href, onClick, variant = "default" }: MoreItemProps) => {
 	const content = (
 		<div

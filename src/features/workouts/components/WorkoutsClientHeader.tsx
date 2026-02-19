@@ -1,3 +1,6 @@
+/**
+ * SIMPLE HEADER FOR THE WORKOUTS PAGE
+ */
 export const WorkoutsClientHeader = () => {
 	return (
 		<header>

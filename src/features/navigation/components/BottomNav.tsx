@@ -12,6 +12,14 @@ const navItems = [
 	{ label: "More", href: "/dashboard/more", icon: MoreHorizontal },
 ];
 
+/**
+ * Mobile-specific Bottom Navigation Bar.
+ * * Features:
+ * - Positioned: fixed bottom-0 for thumb reachability.
+ * - Safe Areas: Utilizes 'pb-safe-area-inset-bottom' for modern mobile displays (notches).
+ * - Feedback: Visual indicators for active routes using primary color and secondary backgrounds.
+ * - Responsive: Hidden on medium screens (md:hidden) in favor of DesktopNav.
+ */
 export const BottomNav = () => {
 	const pathname = usePathname();
 

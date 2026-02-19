@@ -12,6 +12,10 @@ const navItems = [
 	{ label: "Workouts", href: "/dashboard/workouts", icon: Dumbbell },
 ];
 
+/**
+ * Desktop-specific Navigation Bar.
+ * Active States: Uses a relative bottom border with a primary-colored glow (shadow).
+ */
 export const DesktopNav = () => {
 	const pathname = usePathname();
 

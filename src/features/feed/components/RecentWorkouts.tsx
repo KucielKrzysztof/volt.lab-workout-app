@@ -7,6 +7,10 @@ interface RecentWorkoutsProps {
 	workouts: Workout[];
 }
 
+/**
+ * Container for the workout history list.
+ * Orchestrates the display of workout cards and includes a "Show More" toggle.
+ */
 export const RecentWorkouts = ({ workouts }: RecentWorkoutsProps) => {
 	if (workouts.length === 0) {
 		return <p className="text-muted-foreground italic">No recent workouts yet!</p>;

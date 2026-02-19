@@ -7,6 +7,10 @@ interface ExerciseListProps {
 	onItemClick?: (exercise: Exercise) => void;
 }
 
+/**
+ * Renders a scrollable list of exercises.
+ * Handles the empty state gracefully when a search returns no results.
+ */
 export const ExerciseList = ({ exercises, searchQuery, onItemClick }: ExerciseListProps) => {
 	if (exercises.length === 0) {
 		return (

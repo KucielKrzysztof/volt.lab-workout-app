@@ -6,6 +6,14 @@ import { Separator } from "@/components/ui/separator";
 import { Footer } from "@/components/ui/Footer";
 import { MoreSection } from "./MoreSection";
 
+/**
+ * Main Client-Side View for the "More" (Settings) screen.
+ * Acts as a centralized hub for navigation to sub-features like Profile,
+ * Settings, and Training Tools.
+ * * Features:
+ * - Categorized sections (Training, Account, System).
+ * - Integration of the logout functionality.
+ */
 export const MoreClientView = () => {
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 relative">

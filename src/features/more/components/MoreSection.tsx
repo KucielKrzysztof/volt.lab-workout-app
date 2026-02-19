@@ -5,6 +5,12 @@ interface MoreSectionProps {
 	children: React.ReactNode;
 }
 
+/**
+ * Layout wrapper for grouping related MoreItem components.
+ * Provides a consistent labeling style for sections (e.g., "ACCOUNT", "SYSTEM").
+ * * @param desc - The category name displayed in small, uppercase font.
+ * @param children - The list of MoreItems.
+ */
 export const MoreSection = ({ desc, children }: MoreSectionProps) => {
 	return (
 		<section className="space-y-3">

@@ -2,6 +2,10 @@ import { BottomNav } from "@/features/navigation/components/BottomNav";
 import { DesktopNav } from "@/features/navigation/components/DesktopNav";
 import React from "react";
 
+/**
+ * Dashboard-specific layout wrapper.
+ * Handles responsive navigation: DesktopNav for large screens, BottomNav for mobile.
+ */
 export default function layout({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="flex flex-col">

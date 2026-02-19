@@ -2,6 +2,10 @@ interface ProgressChartsSectionProps {
 	year: number;
 }
 
+/**
+ * Placeholder for the future chart implementation.
+ * Designed to hold visual progression data like volume trends etc... we will see!
+ */
 export const ProgressChartsSection = ({ year }: ProgressChartsSectionProps) => {
 	return (
 		<div className="pb-20 text-center text-muted-foreground italic text-sm mt-4">

@@ -14,15 +14,34 @@ interface AuthFormProps {
 	formMode: "login" | "register";
 }
 
+/**
+ * Shared Authentication Form Component.
+ * Handles both Login and Registration flows based on the 'formMode' prop.
+ * * * Features:
+ * - Managed form state (email, password) using React hooks.
+ * - Dynamic UI content (labels, buttons, links) based on the active mode.
+ * - Integration point for Supabase Authentication (sign-in/sign-up).
+ * - Client-side navigation using Next.js router.
+ * * @param formMode - Determines whether the form acts as a 'login' or 'register' interface.
+ */
 export const AuthForm = ({ formMode }: AuthFormProps) => {
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const router = useRouter();
 
+	/**
+	 * Handles the authentication submission.
+	 * To be integrated with Supabase auth methods:
+	 * - mode === 'login' -> signInWithPassword()
+	 * - mode === 'register' -> signUp()
+	 */
 	const handleAuth = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
+
+		// TODO: Implement Supabase Auth logic here
+		// Upon success, the user should be redirected to the /feed page.
 
 		// const { error } =
 		// 	mode === "login" ? await supabase.auth.signInWithPassword({ email, password }) : await supabase.auth.signUp({ email, password });

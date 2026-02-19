@@ -22,21 +22,30 @@ const MOCK_STATS = {
 	volume: "185,852 kg",
 };
 
+/**
+ * Main Client-Side View for the Analytics dashboard.
+ * Orchestrates multiple data visualization sections using a collapsible Accordion.
+ * * * Features:
+ * - Local state management for year selection.
+ * - Integration of Summary, Activity, Progression, and Records sections.
+ */
 export default function AnalyticsClientView() {
 	const [year, setYear] = useState(new Date().getFullYear());
 
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-			{/* GLOBAL Header*/}
+			{/* Sticky header with Year selection capability */}
 			<AnalyticsHeader>
 				<YearPicker year={year} onYearChange={setYear} />
 			</AnalyticsHeader>
 			<Separator />
 
+			{/* High-level aggregate statistics */}
 			<SummarySection stats={MOCK_STATS} />
 
 			<Separator />
 
+			{/* Detailed sections grouped by category */}
 			<Accordion type="single" collapsible className="w-full space-y-4">
 				{/* ACTIVITY */}
 				<AccordionItem value="activity" className="border-none bg-secondary/10 rounded-xl px-4">

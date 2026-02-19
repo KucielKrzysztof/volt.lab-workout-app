@@ -2,6 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Play, ClipboardList } from "lucide-react";
 
+/**
+ * Call-to-Action card for starting a new workout.
+ * CURRENTLY: JUST UI
+ */
 export const StartWorkoutCard = () => {
 	return (
 		<Card className="border-primary/20 bg-primary/5 overflow-hidden border-2 border-dashed">

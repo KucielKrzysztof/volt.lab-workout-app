@@ -32,6 +32,11 @@ export const metadata: Metadata = {
 	manifest: "/manifest.json",
 };
 
+/**
+ * Main application shell (App Router).
+ * Sets up global providers, fonts, and SEO metadata.
+ * Includes NextTopLoader for progress indication during navigation.
+ */
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -51,6 +56,7 @@ export default function RootLayout({
 					speed={200}
 					shadow="0 0 10px hsl(var(--primary)),0 0 5px hsl(var(--primary))"
 				/>
+				{/* Global TanStack Query context provider */}
 				<QueryProvider>{children}</QueryProvider>
 			</body>
 		</html>

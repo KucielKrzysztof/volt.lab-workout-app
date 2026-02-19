@@ -7,6 +7,12 @@ interface ActivitySectionProps {
 	history: string[];
 }
 
+/**
+ * Renders the full-year activity heatmaps.
+ * Maps through the generated year structure to display individual MonthGrids.
+ * Optimized with useMemo to prevent unnecessary recalculations of calendar logic.
+ */
+
 export const ActivitySection = ({ year, history }: ActivitySectionProps) => {
 	const structure = useMemo(() => generateYearStructure(year), [year]);
 

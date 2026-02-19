@@ -1,5 +1,9 @@
 const MOCK_STREAK = 5;
 
+/**
+ * Motivation-focused header for the recent activity section.
+ * Displays a 'Workout Streak' with a flame emoji to encourage consistency.
+ */
 export const RecentWorkoutsHeader = () => {
 	return (
 		<header className="flex flex-col mb-8 gap-3">

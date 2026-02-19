@@ -21,6 +21,11 @@ interface SummarySectionProps {
 	};
 }
 
+/**
+ * Displays a grid of key performance indicators (KPIs).
+ * Provides a high-level overview of total volume, sets, reps, and duration.
+ */
+
 export const SummarySection = ({ stats }: SummarySectionProps) => {
 	return (
 		<div className="space-y-4">

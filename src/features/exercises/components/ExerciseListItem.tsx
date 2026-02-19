@@ -8,6 +8,14 @@ interface ExerciseListItemProps {
 	rightElement?: React.ReactNode;
 }
 
+/**
+ * Individual exercise row component.
+ * Features a high-contrast design with an icon and muscle group sub-label.
+ * Includes interactive states (hover/active) with a haptic-like scale effect.
+ * @param exercise - The exercise data to display.
+ * @param onClick - Optional callback for selection logic.
+ * @param rightElement - Slot for additional UI (e.g., arrows, checkboxes).
+ */
 export const ExerciseListItem = ({ exercise, onClick, rightElement }: ExerciseListItemProps) => {
 	return (
 		<div

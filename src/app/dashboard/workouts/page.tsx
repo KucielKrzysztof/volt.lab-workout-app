@@ -1,4 +1,4 @@
-import { WorkoutsClientView } from "@/app/dashboard/workouts/components/WorkoutsClientView";
+import { WorkoutsClientView } from "@/features/workouts/components/WorkoutsClientView";
 
 const MOCK_WORKOUTS = [
 	{
@@ -21,6 +21,11 @@ const MOCK_WORKOUTS = [
 	},
 ];
 
+/**
+ * Workouts History Page.
+ * Displays a list of completed workout sessions.
+ * Currently uses MOCK_WORKOUTS for UI development purposes.
+ */
 export default function WorkoutsPage() {
 	return <WorkoutsClientView workouts={MOCK_WORKOUTS} />;
 }

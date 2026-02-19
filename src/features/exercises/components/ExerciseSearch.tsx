@@ -7,6 +7,10 @@ interface ExerciseSearchProps {
 	resultsCount: number;
 }
 
+/**
+ * Sticky search interface for the exercise library.
+ * Includes a results counter and a 'Clear' button for better UX.
+ */
 export const ExerciseSearch = ({ value, onChange, resultsCount }: ExerciseSearchProps) => {
 	return (
 		<div className="sticky w-full top-0 md:top-20 z-40 bg-background/95 backdrop-blur-sm py-4">

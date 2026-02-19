@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
-import { WelcomeHeader } from "./components/WelcomeHeader";
-import { RecentWorkouts } from "./components/RecentWorkouts";
+import { WelcomeHeader } from "../../../features/feed/components/WelcomeHeader";
+import { RecentWorkouts } from "../../../features/feed/components/RecentWorkouts";
 import { Hero } from "@/components/ui/Hero";
 
 const MOCK_USER = { name: "Krzysztof" };
@@ -26,6 +26,14 @@ const MOCK_WORKOUTS = [
 	},
 ];
 
+/**
+ * Feed Page (Main Dashboard).
+ * Acts as the primary landing page after authentication.
+ * * Features:
+ * - Entry animations using Tailwind CSS (animate-in).
+ * - Displays a welcome header with the user's name.
+ * - Shows a list of recent workouts (currently using mock data).
+ */
 export default function FeedPage() {
 	return (
 		<div className="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500 ">

@@ -10,6 +10,13 @@ interface SummaryWorkoutCardProps {
 	muscles: string[];
 }
 
+/**
+ * Summarized view of a single completed workout session.
+ * * Data Display:
+ * - Badges: Visual indicators for muscle groups and progress percentages.
+ * - Stats: Displays duration and total volume (kg) with Lucide icons.
+ * - Interactive: Includes a subtle scale-down effect (active:scale-0.98) on touch.
+ */
 export const SummaryWorkoutCard = ({ title, date, duration, volume, muscles }: SummaryWorkoutCardProps) => {
 	return (
 		<Card className="bg-secondary/10 border-primary/10 overflow-hidden mb-4 active:scale-[0.98] transition-transform">

@@ -1,5 +1,9 @@
 import { Loader2 } from "lucide-react";
 
+/**
+ * Full-screen loading overlay with backdrop blur.
+ * Used for blocking transitions or global data fetching states.
+ */
 export default function GlobalLoading() {
 	return (
 		<div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/60 backdrop-blur-sm">
