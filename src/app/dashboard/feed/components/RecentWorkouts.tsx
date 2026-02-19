@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { SummaryWorkoutCard } from "@/features/workouts/components/SummaryWorkoutCard";
-import type { Workout } from "@/features/workouts/types/workouts";
+import type { Workout } from "@/types/workouts";
 import { RecentWorkoutsHeader } from "./RecentWorkoutsHeader";
 
 interface RecentWorkoutsProps {

@@ -1,5 +1,5 @@
 import { SummaryWorkoutCard } from "./SummaryWorkoutCard";
-import { Workout } from "../types/workouts";
+import { Workout } from "../../../types/workouts";
 
 interface WorkoutHistoryProps {
 	workouts: Workout[];

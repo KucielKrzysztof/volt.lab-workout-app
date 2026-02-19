@@ -3,7 +3,7 @@
 import { StartWorkoutCard } from "@/features/workouts/components/StartWorkoutCard";
 import { WorkoutHistory } from "@/features/workouts/components/WorkoutsHistory";
 
-import { Workout } from "@/features/workouts/types/workouts";
+import { Workout } from "@/types/workouts";
 import { WorkoutsClientHeader } from "./WorkoutsClientHeader";
 
 interface WorkoutClientViewProps {

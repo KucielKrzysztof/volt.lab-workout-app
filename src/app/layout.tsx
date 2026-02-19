@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
+import QueryProvider from "@/core/providers/QueryProvider";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -50,7 +51,7 @@ export default function RootLayout({
 					speed={200}
 					shadow="0 0 10px hsl(var(--primary)),0 0 5px hsl(var(--primary))"
 				/>
-				{children}
+				<QueryProvider>{children}</QueryProvider>
 			</body>
 		</html>
 	);
