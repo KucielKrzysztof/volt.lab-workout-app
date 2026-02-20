@@ -3,8 +3,6 @@ import { WelcomeHeader } from "../../../features/feed/components/WelcomeHeader";
 import { RecentWorkouts } from "../../../features/feed/components/RecentWorkouts";
 import { Hero } from "@/components/ui/Hero";
 
-const MOCK_USER = { name: "Krzysztof" };
-
 const MOCK_WORKOUTS = [
 	{
 		id: "1",
@@ -38,7 +36,7 @@ export default function FeedPage() {
 	return (
 		<div className="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500 ">
 			<Hero />
-			<WelcomeHeader name={MOCK_USER.name} />
+			<WelcomeHeader />
 			<Separator />
 
 			<Separator />

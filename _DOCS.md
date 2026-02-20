@@ -1,6 +1,6 @@
-## ⚡ VOLT.LAB - Architecture Documentation (As of Feb 19, 2026)
+# ⚡ VOLT.LAB - Progress Documentation
 
-### 🚀 Tech Stack
+## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
 - **Database:** Supabase (PostgreSQL)
@@ -9,6 +9,17 @@
 - **Icons:** Lucide React
 
 ---
+
+## Table of Contents
+
+| Date           | Milestone                                          | Key Features                                       |
+| :------------- | :------------------------------------------------- | :------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026) | SSR/CSR Hybrid, Supabase Trinity, Service Layer    |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)      | Auth Guard (Proxy), PKCE Flow, Global User Context |
+
+---
+
+## (Update: 19-02-2026)
 
 ### Data Architecture (The "Core")
 
@@ -64,9 +75,70 @@ src/
 
 ---
 
+## (Update: 20-02-2026)
+
+### Authentication & Security Layer
+
+The focus of this update was to secure the application and establish a robust **User Context**. We implemented a full authentication cycle using Supabase Auth with an emphasis on security and UI responsiveness.
+
+#### 1. The "Border Guard" (`src/proxy.ts`)
+
+In line with Next.js 16 conventions, we replaced the deprecated `middleware.ts` with `proxy.ts`. This file serves as the application's security gatekeeper:
+
+- **Auth Guarding:** Automatically redirects unauthenticated users away from `/dashboard/**` routes to `/auth/login`.
+- **Session Sync:** Ensures the user session is refreshed and cookies are synchronized before any page rendering or route handler execution.
+- **Redundancy Prevention:** Logged-in users are automatically diverted from the landing/auth pages back to the dashboard.
+
+#### 2. Error Handling (PKCE Flow)
+
+The `auth/callback` route was hardened to prevent "silent failures".
+
+- **Error Propagation**: If the PKCE code exchange fails (e.g., expired link or network error), the system now redirects to /auth/auth-error passing a dynamic error message via query parameters.
+- **Error UI**: A dedicated Client Component captures these parameters and displays a user-friendly explanation and recovery path.
+
+#### 3. Global User State (`src/core/providers/UserProvider.tsx`)
+
+We implemented a **UserProvider** using React Context to make the current session available throughout the entire component tree.
+
+- **useUser Hook:** Provides a clean interface to access `user` data and `isLoading` states in client components.
+- **Dynamic UI:** Integrated the session data into the `WelcomeHeader` and `DesktopNav`, using custom helpers to derive initials and display names from user emails.
+
+#### 4. Logic Decoupling (Custom Hooks)
+
+Following our clean architecture principles, we moved all authentication business logic into custom hooks:
+
+- `useAuthForm`: Manages login/registration state, loading status, and Supabase interaction.
+- `useLogout`: Handles secure sign-out, session clearing, and dashboard lock-down.
+
+---
+
+### Updated File Structure
+
+```text
+src/
+├── app/
+│   ├── auth/
+│   │   ├── login/page.tsx       <-- Moved to subfolder
+│   │   ├── register/page.tsx    <-- Moved to subfolder
+│   │   ├── auth-error/page.tsx  <-- NEW: Error visualization
+│   │   └── callback/route.ts    <-- PKCE Code Exchange handler
+├── core/
+│   ├── providers/
+│   │   └── UserProvider.tsx    <-- Global Auth Context
+│   └── supabase/
+│       └── middleware.ts       <-- Specialized client for Proxy/Middleware logic
+├── features/auth/
+│   ├── _hooks/use-auth-form.ts <-- Logic for sign-in and sign-up
+│   └── components/AuthForm.tsx <-- UI for Authentication
+├── lib/utils/helpers.ts        <-- helpers
+└── proxy.ts                    <-- Central Security Gatekeeper
+
+```
+
+---
+
 ### Next Steps
 
 - **MuscleGroupFilter:** Complete the implementation of the horizontal.
-- **UserAuth**: I think i will focus on google oauth and that's it.
 
 ---

@@ -1,69 +1,43 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/Logo";
 import Link from "next/link";
 import { Footer } from "@/components/ui/Footer";
-// import { supabase } from "@/core/supabase/client";
+import { useAuthForm } from "../_hooks/use-auth-form";
 
 interface AuthFormProps {
+	/** Determines if the form should handle user login or new account registration. */
 	formMode: "login" | "register";
 }
 
 /**
- * Shared Authentication Form Component.
- * Handles both Login and Registration flows based on the 'formMode' prop.
- * * * Features:
- * - Managed form state (email, password) using React hooks.
- * - Dynamic UI content (labels, buttons, links) based on the active mode.
- * - Integration point for Supabase Authentication (sign-in/sign-up).
- * - Client-side navigation using Next.js router.
- * * @param formMode - Determines whether the form acts as a 'login' or 'register' interface.
+ * AuthForm Presentational Component.
+ * It dynamically renders text and labels based on the `formMode` prop.
+ * * @design_pattern Container-Presenter (via custom hook).
+ * @logic_source {@link useAuthForm} - All business logic and Supabase calls are decoupled here.
+ * * @param {AuthFormProps} props - The properties for the authentication form.
+ * @returns {JSX.Element} A fully styled, responsive auth interface.
  */
 export const AuthForm = ({ formMode }: AuthFormProps) => {
-	const [email, setEmail] = useState<string>("");
-	const [password, setPassword] = useState<string>("");
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const router = useRouter();
-
-	/**
-	 * Handles the authentication submission.
-	 * To be integrated with Supabase auth methods:
-	 * - mode === 'login' -> signInWithPassword()
-	 * - mode === 'register' -> signUp()
-	 */
-	const handleAuth = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-
-		// TODO: Implement Supabase Auth logic here
-		// Upon success, the user should be redirected to the /feed page.
-
-		// const { error } =
-		// 	mode === "login" ? await supabase.auth.signInWithPassword({ email, password }) : await supabase.auth.signUp({ email, password });
-
-		// if (error) {
-		// 	alert(error.message);
-		// } else {
-		// 	router.push("/feed");
-		// }
-		// setLoading(false);
-	};
+	// Business logic extracted to custom hook for clean SoC (Separation of Concerns)
+	const { email, setEmail, password, setPassword, isLoading, errorMessage, handleAuth } = useAuthForm(formMode);
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-[90vh] px-4 relative">
 			<div className="w-full max-w-sm space-y-8">
+				{/* Header Section: Logo, Title and Error Handling */}
 				<div className="flex flex-col items-center">
 					<Logo />
 					<h2 className="mt-6 text-3xl font-extrabold tracking-tight">{formMode === "login" ? "Welcome back!" : "Join VOLT.LAB!"}</h2>
-					<p className="text-muted-foreground text-sm mt-2">
-						{formMode === "login" ? "Enter your credentials" : "Start building your strength today!"}
-					</p>
+					{errorMessage && (
+						<p className="mt-2 text-sm text-destructive font-bold bg-destructive/10 p-3 rounded-lg w-full text-center">{errorMessage}</p>
+					)}
 				</div>
+
+				{/* Interaction Section: Email/Password inputs and submission */}
 				<form onSubmit={handleAuth} className="mt-8 space-y-6">
 					<div className="space-y-4">
 						<div className="grid gap-2">
@@ -100,18 +74,19 @@ export const AuthForm = ({ formMode }: AuthFormProps) => {
 					</Button>
 				</form>
 
+				{/* Footer Section: Dynamic navigation link between auth modes */}
 				<p className="text-center text-sm text-muted-foreground">
 					{formMode === "login" ? (
 						<>
 							Dont have an account?{" "}
-							<Link href="/register" className="text-primary font-bold hover:underline">
+							<Link href="/auth/register" className="text-primary font-bold hover:underline">
 								Register
 							</Link>
 						</>
 					) : (
 						<>
 							Already a user?{" "}
-							<Link href="/login" className="text-primary font-bold hover:underline">
+							<Link href="/auth/login" className="text-primary font-bold hover:underline">
 								Login
 							</Link>
 						</>

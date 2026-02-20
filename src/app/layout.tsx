@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/core/providers/QueryProvider";
+import { UserProvider } from "@/core/providers/UserProvider";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -57,7 +58,10 @@ export default function RootLayout({
 					shadow="0 0 10px hsl(var(--primary)),0 0 5px hsl(var(--primary))"
 				/>
 				{/* Global TanStack Query context provider */}
-				<QueryProvider>{children}</QueryProvider>
+				<QueryProvider>
+					{/* User context provider */}
+					<UserProvider>{children}</UserProvider>
+				</QueryProvider>
 			</body>
 		</html>
 	);

@@ -5,6 +5,7 @@ import { MoreItem } from "./MoreItem";
 import { Separator } from "@/components/ui/separator";
 import { Footer } from "@/components/ui/Footer";
 import { MoreSection } from "./MoreSection";
+import { useLogout } from "@/features/auth/_hooks/use-logout";
 
 /**
  * Main Client-Side View for the "More" (Settings) screen.
@@ -15,6 +16,8 @@ import { MoreSection } from "./MoreSection";
  * - Integration of the logout functionality.
  */
 export const MoreClientView = () => {
+	const { logout, isLoggingOut } = useLogout();
+
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 relative">
 			<header className="text-center">
@@ -30,23 +33,16 @@ export const MoreClientView = () => {
 
 			{/* ACCOUNT*/}
 			<MoreSection desc="Account">
-				<MoreItem icon={User} label="Profile" href="/profile" />
-				<MoreItem icon={Settings} label="Settings" href="/settings" />
-				<MoreItem icon={ShieldCheck} label="Privacy & Security" href="/privacy" />
+				<MoreItem icon={User} label="Profile" href="/dashboard/profile" />
+				<MoreItem icon={Settings} label="Settings" href="/dashboard/settings" />
+				<MoreItem icon={ShieldCheck} label="Privacy & Security" href="/dashboard/privacy" />
 			</MoreSection>
 
 			{/* SYSTEM */}
 			<MoreSection desc="System">
-				<MoreItem icon={HelpCircle} label="Help & Feedback" href="/help" />
+				<MoreItem icon={HelpCircle} label="Help & Feedback" href="/dashboard/help" />
 				<Separator className="my-2 bg-white/5" />
-				<MoreItem
-					icon={LogOut}
-					label="Logout"
-					variant="danger"
-					onClick={() => {
-						console.log("logout");
-					}}
-				/>
+				<MoreItem icon={LogOut} label={isLoggingOut ? "Logging out..." : "Logout"} variant="danger" onClick={logout} />
 			</MoreSection>
 
 			<Footer />

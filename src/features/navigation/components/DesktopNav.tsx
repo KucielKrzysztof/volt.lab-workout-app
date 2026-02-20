@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { Dumbbell, LayoutGrid, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
+import { useUser } from "@/core/providers/UserProvider";
+import { getInitials } from "@/lib/helpers";
 
 const navItems = [
 	{ label: "Feed", href: "/dashboard/feed", icon: LayoutGrid },
@@ -18,6 +20,7 @@ const navItems = [
  */
 export const DesktopNav = () => {
 	const pathname = usePathname();
+	const { user, isLoading } = useUser();
 
 	return (
 		<nav className="hidden md:flex fixed top-0 left-0 right-0 h-16 border-b border-white/5 bg-background/60 backdrop-blur-xl z-[100] items-center">
@@ -64,7 +67,7 @@ export const DesktopNav = () => {
 						href="/dashboard/more"
 						className="h-8 w-8 rounded-full bg-secondary border border-white/10 flex items-center justify-center hover:border-primary/50 transition-colors"
 					>
-						<span className="text-[10px] font-black">KK</span>
+						<span className="text-[10px] font-black">{getInitials(isLoading, user)}</span>
 					</Link>
 				</div>
 			</div>
