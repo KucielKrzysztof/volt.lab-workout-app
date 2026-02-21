@@ -137,8 +137,86 @@ src/
 
 ---
 
+My apologies—you're right, let's switch to **English** and dial up the technical depth. This wasn't just a simple UI update; we built a high-performance synchronization engine for user identity and achievements.
+
+Here is the comprehensive technical documentation update for your `_DOCS.md` file.
+
+---
+
+## (Update: 21-02-2026)
+
+#### **1. The "Double-Sync" Database Strategy**
+
+To ensure the UI always reflects the user's latest identity (even in the Navbar), we implemented a bidirectional synchronization flow using PostgreSQL triggers.
+
+- **Profile Table Schema**: The `public.profiles` table acts as the primary source of truth for application-specific data, including `display_name`, `avatar_url`, and a `personal_records` JSONB column.
+- **Automatic Provisioning**: The `handle_new_user()` trigger ensures every new Auth signup immediately receives a corresponding profile record.
+- **Metadata Synchronization**: The `sync_profile_to_auth()` trigger replicates changes from the `profiles` table directly into `auth.users(raw_user_meta_data)`. This allows client-side components to read user data directly from the JWT session.
+
+#### **2. JSONB-Driven Record Management**
+
+Instead of a normalized table for Personal Records (PRs), we opted for a **JSONB array** inside the `profiles` table.
+
+- **Efficiency**: This allows the application to fetch the entire user profile and all personal bests in a single query, significantly reducing database round-trips.
+- **Upsert Logic**: The `profileService.addEditPersonalRecord` implements an intelligent "find-or-append" algorithm in JavaScript before pushing the updated array back to Supabase.
+
+#### **3. High-Performance SSR Hydration**
+
+To eliminate Cumulative Layout Shift (CLS) and "loading flickers," we implemented a specialized server-side data fetching layer.
+
+- **Request Memoization**: The `getServerProfile` helper uses React’s `cache()` function to ensure that multiple calls within a single request (e.g., in a layout and a page) only trigger one database fetch.
+- **Initial Data Injection**: Pages fetch profile data on the server and pass it as `initialProfile` to client components.
+- **TanStack Query Hydration**: The `useProfile` hook uses this initial data to populate the cache immediately, allowing for an "instant-on" user experience while fetching the freshest data in the background.
+
+#### **4. Storage & Media Pipeline**
+
+User avatars are managed through a dedicated Supabase Storage bucket with automated URL persistence.
+
+- **Avatar Orchestration**: The `uploadAvatar` method handles unique filename generation, binary upload to the `avatars` bucket, and public URL retrieval in a single transaction.
+- **Session Refreshing**: Since DB triggers update the `auth.users` table, the client hook calls `supabase.auth.refreshSession()` after successful uploads to force-update the local JWT token and the `UserProvider` state.
+
+---
+
+### **Detailed Component & Service Map**
+
+| Feature             | Location                                         | Technical Responsibility                                                        |
+| ------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------- |
+| **Server Helper**   | `features/profile/api/get-server-profile.ts`     | Server-side identity fetch with React `cache`.                                  |
+| **Profile Service** | `services/apiProfile.ts`                         | CRUD operations for profiles, JSONB record logic, and Storage uploads.          |
+| **Identity Hook**   | `features/profile/_hooks/use-profile.ts`         | State management, cache invalidation, and Auth session refreshing.              |
+| **Avatar UI**       | `features/profile/components/AvatarUpload.tsx`   | Interactive file selection using Shadcn `Avatar` primitives and loading states. |
+| **Shared Records**  | `features/analytics/sections/RecordsSection.tsx` | Reusable PR visualization with dynamic year filtering.                          |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/
+│   ├── (dashboard)/
+│   │   ├── analytics/page.tsx      <-- Injects SSR profile data
+│   │   └── profile/page.tsx        <-- Main identity management shell
+│   └── layout.tsx                  <-- Global Providers & Sonner Toast config
+├── core/
+│   └── providers/
+│       └── UserProvider.tsx        <-- React Context for real-time Auth session
+├── features/
+│   ├── profile/
+│   │   ├── _hooks/use-profile.ts   <-- Central state & mutation logic
+│   │   ├── api/get-server-profile.ts <-- Memoized server fetcher
+│   │   └── components/             <-- Atomic profile UI units
+│   └── analytics/
+│       └── components/sections/    <-- Shared achievement components
+└── services/
+    └── apiProfile.ts               <-- Core Supabase interaction layer
+
+```
+
+---
+
 ### Next Steps
 
-- **MuscleGroupFilter:** Complete the implementation of the horizontal.
+- ...
 
 ---

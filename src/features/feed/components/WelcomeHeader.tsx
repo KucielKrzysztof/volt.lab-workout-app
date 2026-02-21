@@ -13,6 +13,7 @@ export const WelcomeHeader = () => {
 
 	const displayName = getDisplayName(isLoading, user);
 	const displayInitials = getInitials(isLoading, user);
+	const avatarUrl = user?.user_metadata?.avatar_url;
 
 	return (
 		<div className="flex justify-between items-center py-6 gap-6 w-full">
@@ -22,7 +23,7 @@ export const WelcomeHeader = () => {
 			</div>
 
 			<Avatar className="h-12 w-12 sm:h-25 sm:w-25 border-2 border-primary/20 shadow-lg shadow-primary/10">
-				<AvatarImage src="" /> {/* Later from Supabase */}
+				<AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
 				<AvatarFallback className="bg-secondary text-primary font-bold sm:text-xl">{displayInitials}</AvatarFallback>
 			</Avatar>
 		</div>

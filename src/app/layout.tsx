@@ -4,6 +4,7 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/core/providers/QueryProvider";
 import { UserProvider } from "@/core/providers/UserProvider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -45,9 +46,11 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className="dark">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}>
+				{/* Progress bar for client-side navigation.
+				 */}
 				<NextTopLoader
-					color="#ffffff"
+					color="var(--primary)"
 					initialPosition={0.08}
 					crawlSpeed={200}
 					height={3}
@@ -55,11 +58,18 @@ export default function RootLayout({
 					showSpinner={false}
 					easing="ease"
 					speed={200}
-					shadow="0 0 10px hsl(var(--primary)),0 0 5px hsl(var(--primary))"
+					// Sync the glow effect with the theme's primary color
+					shadow="0 0 10px var(--primary), 0 0 5px var(--primary)"
 				/>
-				{/* Global TanStack Query context provider */}
+
+				{/* Global toast notification system */}
+				<Toaster theme="dark" position="bottom-right" closeButton richColors />
+
+				{/* Context Provider Layering:
+                  QueryProvider is placed at the top to allow UserProvider or any sub-component 
+                  to potentially pre-fetch or invalidate queries based on auth state.
+                */}
 				<QueryProvider>
-					{/* User context provider */}
 					<UserProvider>{children}</UserProvider>
 				</QueryProvider>
 			</body>

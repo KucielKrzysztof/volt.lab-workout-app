@@ -16,7 +16,10 @@ export const exerciseService = {
 	async getAllExercises(supabase: SupabaseClient): Promise<Exercise[]> {
 		const { data, error } = await supabase.from("exercises").select("*").order("name", { ascending: true });
 
-		if (error) throw new Error(error.message);
+		if (error) {
+			console.error("Supabase Error:", error.message);
+			throw new Error(error.message);
+		}
 		return data || [];
 	},
 

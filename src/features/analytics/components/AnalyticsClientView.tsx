@@ -10,6 +10,8 @@ import { ProgressChartsSection } from "./sections/ProgressChartsSection";
 import { RecordsSection } from "./sections/RecordsSection";
 import { SummarySection } from "./sections/SummarySection";
 import { Separator } from "@/components/ui/separator";
+import { UserProfile } from "@/types/profile";
+import { useProfile } from "@/features/profile/_hooks/use-profile";
 
 const MOCK_HISTORY = ["2026-02-16", "2026-02-14", "2026-02-12", "2026-02-11"];
 
@@ -22,15 +24,29 @@ const MOCK_STATS = {
 	volume: "185,852 kg",
 };
 
+interface AnalyticsClientViewProps {
+	userId: string | undefined;
+	/** Server-side fetched profile data to ensure instant UI hydration and zero CLS. */
+	initialProfile: UserProfile | null;
+}
+
 /**
- * Main Client-Side View for the Analytics dashboard.
- * Orchestrates multiple data visualization sections using a collapsible Accordion.
- * * * Features:
- * - Local state management for year selection.
- * - Integration of Summary, Activity, Progression, and Records sections.
+ * Main Client-Side Orchestrator for the Analytics Dashboard.
+ * * Features:
+ * - **Data Hydration**: Uses server-side initial profile data while maintaining real-time sync via useProfile.
+ * - **State Management**: Controls global year selection affecting all sub-sections.
+ * - **Dynamic Layout**: Organizes detailed metrics into collapsible segments for a clean, mobile-first experience.
+ * - **Records Integration**: Directly bridges the Profile JSONB records into the Analytics progression view.
+ * * @param {AnalyticsClientViewProps} props - Component properties.
  */
-export default function AnalyticsClientView() {
+export default function AnalyticsClientView({ userId, initialProfile }: AnalyticsClientViewProps) {
+	/** Local state for year-based filtering across all analytics modules. */
 	const [year, setYear] = useState(new Date().getFullYear());
+
+	/** * Synchronized profile data hook.
+	 * Ensures that any updates to Personal Records in other parts of the app are reflected here.
+	 */
+	const { profile } = useProfile(userId, initialProfile);
 
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -79,7 +95,7 @@ export default function AnalyticsClientView() {
 						</div>
 					</AccordionTrigger>
 					<AccordionContent>
-						<RecordsSection year={year} />
+						<RecordsSection records={profile?.personal_records || []} year={year} />
 					</AccordionContent>
 				</AccordionItem>
 			</Accordion>

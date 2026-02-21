@@ -6,8 +6,13 @@ import { Dumbbell, LayoutGrid, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
 import { useUser } from "@/core/providers/UserProvider";
-import { getInitials } from "@/lib/helpers";
+import { getDisplayName, getInitials } from "@/lib/helpers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+/**
+ * Navigation items configuration for the dashboard.
+ * Each item includes a label, destination path, and a Lucide icon component.
+ */
 const navItems = [
 	{ label: "Feed", href: "/dashboard/feed", icon: LayoutGrid },
 	{ label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
@@ -15,12 +20,20 @@ const navItems = [
 ];
 
 /**
- * Desktop-specific Navigation Bar.
- * Active States: Uses a relative bottom border with a primary-colored glow (shadow).
+ * Desktop-specific Navigation Bar component.
+ * * Features:
+ * - **Dynamic Active States**: Uses `usePathname` to identify and highlight the current route.
+ * - **Session Integration**: Consumes `useUser` to display the athlete's avatar and initials.
+ * - **Responsive Avatar**: Automatically switches between `AvatarImage` and `AvatarFallback`.
  */
 export const DesktopNav = () => {
 	const pathname = usePathname();
 	const { user, isLoading } = useUser();
+
+	// Extracting user metadata
+	const avatarUrl = user?.user_metadata?.avatar_url;
+	const displayName = getDisplayName(isLoading, user);
+	const displayInitials = getInitials(isLoading, user);
 
 	return (
 		<nav className="hidden md:flex fixed top-0 left-0 right-0 h-16 border-b border-white/5 bg-background/60 backdrop-blur-xl z-[100] items-center">
@@ -67,7 +80,10 @@ export const DesktopNav = () => {
 						href="/dashboard/more"
 						className="h-8 w-8 rounded-full bg-secondary border border-white/10 flex items-center justify-center hover:border-primary/50 transition-colors"
 					>
-						<span className="text-[10px] font-black">{getInitials(isLoading, user)}</span>
+						<Avatar className="h-12 w-12 border-2 border-primary/20 shadow-lg shadow-primary/5 transition-colors group-hover:border-primary/50">
+							<AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
+							<AvatarFallback className="bg-secondary text-primary font-bold text-xs uppercase">{displayInitials}</AvatarFallback>
+						</Avatar>
 					</Link>
 				</div>
 			</div>
