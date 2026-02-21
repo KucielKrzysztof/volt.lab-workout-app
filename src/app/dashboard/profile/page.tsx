@@ -1,5 +1,6 @@
 import { getServerProfile } from "@/features/profile/api/get-server-profile";
 import { ProfileClientView } from "@/features/profile/components/ProfileClientView";
+import { redirect } from "next/navigation";
 
 /**
  * Server-side Page Component for the User Profile view.
@@ -16,6 +17,12 @@ import { ProfileClientView } from "@/features/profile/components/ProfileClientVi
 export default async function ProfilePage() {
 	// Retrieve data on the server to prevent Layout Shift and provide instant content
 	const { user, profile } = await getServerProfile();
+	// Although the middleware handles this, we add a check here to ensure
+	// that 'user' is not null, turning 'user.id' from (string | undefined)
+	// into a strict (string).
+	if (!user) {
+		redirect("/auth/login");
+	}
 
 	return (
 		<div className="p-4 md:p-10 max-w-4xl mx-auto space-y-10">
@@ -26,7 +33,7 @@ export default async function ProfilePage() {
 			</header>
 
 			{/* CLIENT VIEW: Bridges the gap between static server data and dynamic user actions */}
-			<ProfileClientView userId={user?.id} initialProfile={profile} />
+			<ProfileClientView userId={user.id} initialProfile={profile} />
 		</div>
 	);
 }
