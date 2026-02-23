@@ -63,7 +63,7 @@ export default function RootLayout({
 				/>
 
 				{/* Global toast notification system */}
-				<Toaster theme="dark" position="bottom-right" closeButton richColors />
+				<Toaster theme="dark" position="top-center" closeButton richColors />
 
 				{/* Context Provider Layering:
                   QueryProvider is placed at the top to allow UserProvider or any sub-component 

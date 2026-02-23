@@ -6,16 +6,19 @@
 - **Database:** Supabase (PostgreSQL)
 - **State Management:** TanStack Query v5 (React Query)
 - **Styling:** Tailwind CSS 4 + Shadcn UI
+- **Alerts:** Sonner (Toast notifications)
 - **Icons:** Lucide React
 
 ---
 
 ## Table of Contents
 
-| Date           | Milestone                                          | Key Features                                       |
-| :------------- | :------------------------------------------------- | :------------------------------------------------- |
-| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026) | SSR/CSR Hybrid, Supabase Trinity, Service Layer    |
-| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)      | Auth Guard (Proxy), PKCE Flow, Global User Context |
+| Date           | Milestone                                                  | Key Features                                           |
+| :------------- | :--------------------------------------------------------- | :----------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)         | SSR/CSR Hybrid, Supabase Trinity, Service Layer        |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context     |
+| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache |
+| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration              |
 
 ---
 
@@ -213,10 +216,57 @@ src/
 
 ```
 
----
-
-### Next Steps
-
-- ...
+This update marks a critical expansion of the **VOLT.LAB** security infrastructure, adding self-service account recovery and hardening the cross-device authentication experience.
 
 ---
+
+## (Update: 23-02-2026)
+
+### **Advanced Auth Recovery**
+
+The focus of this update was to implement a secure password recovery pipeline.
+
+#### **1. Password Recovery Pipeline (Secure Reset)**
+
+We established a two-phase recovery system that leverages Supabase's secure SMTP and temporary recovery sessions.
+
+- **Phase 1: Recovery Request**: The `useAuthForm` hook was extended with `handleForgotPassword`. It triggers a secure email via `resetPasswordForEmail`, redirecting the user to a dedicated update route.
+- **Phase 2: Password Update**: A specialized Client Component at `/auth/reset-password` consumes the `useResetPassword` hook. This phase utilizes the `updateUser` method, which is only authorized during the temporary session established by the email recovery link.
+
+#### **2. UX Enhancements**
+
+- **Sonner Integration**: Replaced all native browser `alerts` with the Sonner notification system, providing non-blocking, theme-aware feedback for all auth events.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature           | File Location                                | Responsibility                                            |
+| ----------------- | -------------------------------------------- | --------------------------------------------------------- |
+| **Recovery Hook** | `features/auth/_hooks/use-reset-password.ts` | Manages the `updateUser` mutation and redirect logic.     |
+| **Reset UI**      | `app/auth/reset-password/page.tsx`           | Secure form for inputting and validating new credentials. |
+| **Auth Hook**     | `features/auth/_hooks/use-auth-form.ts`      | Dispatches reset emails and handles login/register state. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/
+│   └── auth/
+│       └── reset-password/
+│           └── page.tsx      <-- NEW: Secure password update form
+│
+├── features/auth/
+│   └── _hooks/
+│       ├── use-auth-form.ts  <-- UPDATED: Added forgotPassword logic
+│       └── use-reset-password.ts <-- NEW: Logic for updating credentials
+
+```
+
+---
+
+### **Next Steps**
+
+- **Active Workout Module**: Initialize the real-time training tracker with exercise set logging.

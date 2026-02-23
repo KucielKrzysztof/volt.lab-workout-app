@@ -27,9 +27,23 @@ export async function GET(request: Request) {
 			// Success: Redirect to the intended page
 			return NextResponse.redirect(`${origin}${next}`);
 		}
+
+		/**
+		 * LAZY FIX: Handle the PKCE "Cross-browser" Trap.
+		 * If the verifier is missing (flow_not_found), the email is likely
+		 * confirmed, but we just can't log them in automatically.
+		 */
+		const isPkceMismatch = error.code === "flow_not_found" || error.message === "PKCE code verifier not found in storage";
+
+		if (isPkceMismatch) {
+			// Instead of auth-error, send them to login
+			return NextResponse.redirect(`${origin}/auth/login`);
+		}
+
+		// HARD ERROR: For anything else, use the standard error visualization
 		return NextResponse.redirect(`${origin}/auth/auth-error?error=${encodeURIComponent(error.message)}`);
 	}
 
-	// Error: If exchange fails, redirect to an error page
+	// ERROR: No code provided at all
 	return NextResponse.redirect(`${origin}/auth/auth-error?error=No+code+provided`);
 }

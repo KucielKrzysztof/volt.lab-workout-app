@@ -23,19 +23,19 @@ interface AuthFormProps {
  */
 export const AuthForm = ({ formMode }: AuthFormProps) => {
 	// Business logic extracted to custom hook for clean SoC (Separation of Concerns)
-	const { email, setEmail, password, setPassword, isLoading, errorMessage, handleAuth } = useAuthForm(formMode);
+	const { email, setEmail, password, setPassword, isLoading, errorMessage, handleAuth, handleForgotPassword } = useAuthForm(formMode);
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-[90vh] px-4 relative">
 			<div className="w-full max-w-sm space-y-8">
 				{/* Header Section: Logo, Title and Error Handling */}
-				<div className="flex flex-col items-center">
+				<header className="flex flex-col items-center">
 					<Logo />
 					<h2 className="mt-6 text-3xl font-extrabold tracking-tight">{formMode === "login" ? "Welcome back!" : "Join VOLT.LAB!"}</h2>
 					{errorMessage && (
 						<p className="mt-2 text-sm text-destructive font-bold bg-destructive/10 p-3 rounded-lg w-full text-center">{errorMessage}</p>
 					)}
-				</div>
+				</header>
 
 				{/* Interaction Section: Email/Password inputs and submission */}
 				<form onSubmit={handleAuth} className="mt-8 space-y-6">
@@ -57,6 +57,7 @@ export const AuthForm = ({ formMode }: AuthFormProps) => {
 							<Input
 								id="password"
 								type="password"
+								placeholder="••••••••"
 								required
 								className="h-12 bg-secondary/20"
 								value={password}
@@ -72,6 +73,19 @@ export const AuthForm = ({ formMode }: AuthFormProps) => {
 					>
 						{isLoading ? "Loading..." : formMode === "login" ? "Log in" : "Create account"}
 					</Button>
+					<p className="flex items-center justify-center px-1">
+						{/* FORGOT PASSWORD TRIGGER (Login Mode Only) */}
+						{formMode === "login" && (
+							<button
+								type="button"
+								onClick={handleForgotPassword}
+								disabled={isLoading}
+								className="text-[12px] font-bold uppercase tracking-widest text-primary hover:underline disabled:opacity-50"
+							>
+								Forgot password?
+							</button>
+						)}
+					</p>
 				</form>
 
 				{/* Footer Section: Dynamic navigation link between auth modes */}

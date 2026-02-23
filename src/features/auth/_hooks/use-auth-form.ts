@@ -1,12 +1,16 @@
-/**
- * Custom hook to manage authentication logic.
- * Encapsulates Supabase auth methods, form state, and navigation.
- * * @param formMode - Determines whether the form acts as a 'login' or 'register' interface.
- */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/core/supabase/client";
+import { toast } from "sonner";
 
+/**
+ * Custom hook to manage authentication logic for login and registration forms.
+ * * @description
+ * This hook encapsulates Supabase auth methods, local form state, and navigation logic.
+ * It provides real-time feedback using the Sonner notification system.
+ * * @param {"login" | "register"} formMode - Determines the authentication method and UI feedback.
+ * * @returns {Object} State variables and the 'handleAuth' submission function.
+ */
 export const useAuthForm = (formMode: "login" | "register") => {
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
@@ -17,10 +21,12 @@ export const useAuthForm = (formMode: "login" | "register") => {
 	const supabase = createClient();
 
 	/**
-	 * Handles the authentication submission.
-	 * To be integrated with Supabase auth methods:
-	 * - mode === 'login' -> signInWithPassword()
-	 * - mode === 'register' -> signUp()
+	 * Handles the authentication submission process.
+	 * * @description
+	 * 1. **Login**: Authenticates via 'signInWithPassword'.
+	 * 2. **Registration**: Creates a new user with metadata synchronized to the 'profiles' table.
+	 * 3. **Feedback**: Displays success or error messages using Sonner toasts.
+	 * * @param {React.FormEvent} e - The form submission event.
 	 */
 	const handleAuth = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -35,6 +41,10 @@ export const useAuthForm = (formMode: "login" | "register") => {
 					password,
 				});
 				if (error) throw error;
+				// Success toast for login
+				toast.success("Welcome back!", {
+					description: "Redirecting to your dashboard...",
+				});
 			} else if (formMode === "register") {
 				const generatedDisplayName = email.split("@")[0];
 
@@ -51,7 +61,11 @@ export const useAuthForm = (formMode: "login" | "register") => {
 					},
 				});
 				if (error) throw error;
-				alert("Registration successful! Please check your email for confirmation.");
+				// Success toast for registration
+				toast.success("Registration successful!", {
+					description: "Please check your email to confirm your account.",
+					duration: 10000,
+				});
 			}
 
 			// If successful, redirect to the main feed
@@ -64,6 +78,46 @@ export const useAuthForm = (formMode: "login" | "register") => {
 				message = error.message;
 			}
 			setErrorMessage(message);
+			// Display error toast
+			toast.error("Authentication Error", {
+				description: message,
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	/**
+	 * Handles the "Forgot Password" request.
+	 * * @description
+	 * Sends a password reset link to the user's email.
+	 * The link redirects to /auth/reset-password upon clicking.
+	 */
+	const handleForgotPassword = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!email) {
+			toast.error("Email required", { description: "Please enter your email address first." });
+			return;
+		}
+		setIsLoading(true);
+		try {
+			const { error } = await supabase.auth.resetPasswordForEmail(email, {
+				// Redirects user to the password update form
+				redirectTo: `${window.location.origin}/auth/reset-password`,
+			});
+
+			if (error) throw error;
+
+			toast.success("Reset link sent!", {
+				description: "Check your inbox for the password recovery email.",
+				duration: 6000,
+			});
+		} catch (error: unknown) {
+			let message = "Failed to perform authentication";
+			if (error instanceof Error) {
+				message = error.message;
+			}
+			toast.error("Error", { description: message || "Failed to send reset link" });
 		} finally {
 			setIsLoading(false);
 		}
@@ -77,5 +131,6 @@ export const useAuthForm = (formMode: "login" | "register") => {
 		isLoading,
 		errorMessage,
 		handleAuth,
+		handleForgotPassword,
 	};
 };
