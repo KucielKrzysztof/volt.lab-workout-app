@@ -1,15 +1,24 @@
 import { SummaryWorkoutCard } from "./SummaryWorkoutCard";
-import { Workout } from "../../../types/workouts";
+import { WorkoutUI } from "../../../types/workouts";
 
 interface WorkoutHistoryProps {
-	workouts: Workout[];
+	/** An array of mapped workout data objects formatted for the UI. */
+	workouts: WorkoutUI[];
 }
 
 /**
  * Vertical list component for the user's workout history.
  * Groups multiple SummaryWorkoutCards and provides a placeholder for pagination.
+ * * This component is designed to be highly reusable across the Feed and History views
  */
 export const WorkoutHistory = ({ workouts }: WorkoutHistoryProps) => {
+	/** * Conditional Empty State:
+	 * Prevents rendering the section structure if no data is available,
+	 * which is common for new users or fresh accounts
+	 */
+	if (workouts.length === 0) {
+		return <p className="text-muted-foreground italic">No recent workouts yet!</p>;
+	}
 	return (
 		<section className="space-y-6 w-full">
 			<div className="flex items-start flex-col">
@@ -17,13 +26,17 @@ export const WorkoutHistory = ({ workouts }: WorkoutHistoryProps) => {
 				<p className="text-[10px] opacity-40 uppercase font-mono">Total: {workouts.length}</p>
 			</div>
 
+			{/* Iterative list of workout summaries */}
 			<div className="flex flex-col gap-2">
 				{workouts.map((workout) => (
-					<SummaryWorkoutCard key={workout.id} {...workout} />
+					<SummaryWorkoutCard key={workout.id} workout={workout} />
 				))}
 			</div>
 
-			{/* Placeholder */}
+			{/* Pagination Trigger:
+                This placeholder will eventually be replaced with an Intersection Observer 
+                to trigger infinite loading via TanStack Query / or simple pagination...
+            */}
 			<div className="w-full  text-center text-muted-foreground hover:text-primary uppercase text-[10px] tracking-widest font-bold py-8">
 				Loading Older Sessions...
 			</div>

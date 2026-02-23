@@ -1,31 +1,26 @@
+import { getWorkoutsServer } from "@/features/workouts/api/get-workouts-server";
 import { WorkoutsClientView } from "@/features/workouts/components/WorkoutsClientView";
 
-const MOCK_WORKOUTS = [
-	{
-		id: "1",
-		title: "Push Day - Chest/Triceps",
-		date: "2026-02-15",
-		duration: 65,
-		volume: "4,250",
-		exercises: ["Benchpress", "Incline Dumbbell Press", "Tricpes Extensions", "Lateral Rises"],
-		muscles: ["Chest", "Shoulders", "Triceps"],
-	},
-	{
-		id: "2",
-		title: "Pull Day - Back/Biceps",
-		date: "2026-02-16",
-		duration: 50,
-		volume: "3,800",
-		exercises: ["Pullups", "Dumbbell row", "Biceps curls", "Rear Delt Flys"],
-		muscles: ["Back", "Biceps", "Rear Delts"],
-	},
-];
-
 /**
- * Workouts History Page.
- * Displays a list of completed workout sessions.
- * Currently uses MOCK_WORKOUTS for UI development purposes.
+ * Workouts Page.
+ * This page serves as the entry point for viewing workout history and New workout creation. It leverages
+ * Next.js Server Components to fetch data on the server, ensuring rapid initial
+ * page loads.
+ * * Data Flow:
+ * 1. Invokes 'getWorkoutsServer' to retrieve authenticated and mapped workout data.
+ * 2. Passes the result as 'initialWorkouts' to the client view for hydration.
+ * * @returns {Promise<JSX.Element>} The rendered server-side shell for the Workouts view.
  */
-export default function WorkoutsPage() {
-	return <WorkoutsClientView workouts={MOCK_WORKOUTS} />;
+export default async function WorkoutsPage() {
+	/** * Initial Fetch:
+	 * Retrieves the first page of workout history using the server-side utility.
+	 * This call includes authentication checks and data mapping.
+	 */
+	const initialWorkouts = await getWorkoutsServer();
+
+	/** * Client View Rendering:
+	 * Transfers the server-fetched data to the client-side orchestrator.
+	 * The 'initialWorkouts' prop seeds the TanStack Query cache.
+	 */
+	return <WorkoutsClientView initialWorkouts={initialWorkouts} />;
 }

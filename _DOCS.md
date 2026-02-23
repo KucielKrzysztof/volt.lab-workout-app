@@ -267,6 +267,72 @@ src/
 
 ---
 
+## (Update: 24-02-2026)
+
+### **Workouts & History Infrastructure**
+
+This update establishes the backbone of the training experience, moving from static mockups to a high-performance, relational data pipeline for workout tracking and history.
+
+#### **1. Relational Deep-Join Architecture**
+
+To optimize performance, we implemented a nested relational fetch strategy using PostgREST. This allows the application to retrieve a complete "snapshot" of a workout in a single database round-trip.
+
+- **Schema Design**: The `public.workouts` table (header) is linked to `public.workout_sets` (line items), which in turn joins with `public.exercises`.
+- **Nested Selection**: The `workoutService.getWorkouts` method uses a deep-select string (`*, workout_sets(*, exercises(name, muscle_group))`) to pull exercise names and muscle groups directly through the set relationship.
+- **Bulk Persistence**: The `finishWorkout` method implements a "Bulk Insert" strategy, injecting the parent `workout_id` into a local array of sets and persisting them in one multi-row transaction to minimize network latency.
+
+#### **2. The Data Mapping Layer**
+
+To keep the UI components "dumb" and performant, we introduced a specialized mapping utility (`mapWorkoutForUI`).
+
+- **Data Aggregation**: The mapper calculates total volume, set counts, and unique exercise counts on the fly.
+- **Muscle Group Deduplication**: By utilizing the JavaScript `Set` object, the mapper distills dozens of individual sets into a unique list of targeted muscle groups (e.g., 10 sets of different chest exercises are flattened into a single "Chest" badge).
+- **Localization**: Timestamps are converted into human-readable Polish locales (`pl-PL`) directly within the mapper, ensuring consistent date formatting across the Feed and History views.
+
+#### **3. Hybrid SSR-to-CSR Hydration Pipeline**
+
+We leveraged TanStack Query v5 to bridge the gap between initial server rendering and client-side interactivity.
+
+- **Server Utility**: `getWorkoutsServer` provides a secure, memoized fetcher for Server Components, handling authentication and mapping before the page reaches the browser.
+- **Cache Seeding**: The `useWorkouts` hook accepts `initialData` from the server to "prime" the React Query cache. This eliminates "loading flickers" and ensures that navigating feels good.
+- **Stale-Time Management**: Data is marked as "fresh" for 5 minutes, reducing database load while maintaining high data accuracy.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature             | File Location                                         | Responsibility                                                       |
+| ------------------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
+| **Workout Service** | `services/apiWorkouts.ts`                             | Pure Supabase logic: Deep Joins, Range Pagination, and Bulk Inserts. |
+| **Data Mapper**     | `features/workouts/helpers/workoutHelpers.ts`         | Aggregation logic, unique muscle extraction, and date localization.  |
+| **Server Utility**  | `features/workouts/api/get-workouts-server.ts`        | Authenticated server-side fetcher for SSR Hydration.                 |
+| **History Hook**    | `features/workouts/_hooks/use-workouts.ts`            | TanStack Query management, cache keys, and hydration logic.          |
+| **Summary UI**      | `features/workouts/components/SummaryWorkoutCard.tsx` | High-contrast visualization of workout stats and muscle badges.      |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/(dashboard)/
+│   ├── feed/page.tsx               <-- Injects SSR workouts into the Feed
+│   └── workouts/page.tsx           <-- Main History entry point (Server Component)
+├── features/workouts/
+│   ├── _hooks/use-workouts.ts      <-- Client-side cache management
+│   ├── api/get-workouts-server.ts  <-- Server-side data fetcher
+│   ├── helpers/workoutHelpers.ts   <-- Data transformation logic (Mapper)
+│   └── components/
+│       ├── WorkoutsClientView.tsx  <-- CSR Orchestrator (Hydration)
+│       ├── WorkoutHistory.tsx      <-- Vertical list container
+│       └── SummaryWorkoutCard.tsx  <-- Atomic stat visualization
+└── types/
+    └── workouts.ts                 <-- Interfaces (Workout, WorkoutUI, WorkoutSet)
+
+```
+
+---
+
 ### **Next Steps**
 
-- **Active Workout Module**: Initialize the real-time training tracker with exercise set logging.
+- **Active Workout Module**: Initialize the training tracker.
