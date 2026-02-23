@@ -19,6 +19,7 @@
 | **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context     |
 | **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache |
 | **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration              |
+| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)         | Relational Joins, UI Mapping, SSR Hydration Cache      |
 
 ---
 

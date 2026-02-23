@@ -1,4 +1,4 @@
-import { Workout, WorkoutUI } from "@/types/workouts";
+import { Workout, WorkoutSet, WorkoutUI } from "@/types/workouts";
 
 /**
  * Transforms a raw Workout database record into a simplified UI-ready object.
@@ -43,4 +43,34 @@ export const mapWorkoutForUI = (workout: Workout): WorkoutUI => {
 			year: "numeric",
 		}),
 	};
+};
+
+interface GroupedExercise {
+	exerciseId: string;
+	name: string;
+	muscle_group: string;
+	sets: WorkoutSet[];
+}
+
+export const groupSetsByExercise = (sets: WorkoutSet[]): GroupedExercise[] => {
+	const groups: Record<string, GroupedExercise> = {};
+
+	sets.forEach((set) => {
+		const exerciseId = set.exercise_id;
+		if (!groups[exerciseId]) {
+			groups[exerciseId] = {
+				exerciseId,
+				name: set.exercises?.name ?? "Unknown Exercise",
+				muscle_group: set.exercises?.muscle_group ?? "Mixed",
+				sets: [],
+			};
+		}
+		groups[exerciseId].sets.push(set);
+	});
+
+	return Object.values(groups).sort((a, b) => {
+		const orderA = a.sets[0]?.set_order ?? 0;
+		const orderB = b.sets[0]?.set_order ?? 0;
+		return orderA - orderB;
+	});
 };

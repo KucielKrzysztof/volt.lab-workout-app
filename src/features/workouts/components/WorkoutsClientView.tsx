@@ -6,7 +6,7 @@ import { WorkoutHistory } from "@/features/workouts/components/WorkoutsHistory";
 import { WorkoutUI } from "@/types/workouts";
 import { WorkoutsClientHeader } from "./WorkoutsClientHeader";
 import { useUser } from "@/core/providers/UserProvider";
-import { useWorkouts } from "../_hooks/use-workout";
+import { useWorkouts } from "../_hooks/use-workouts";
 
 interface WorkoutClientViewProps {
 	/** * Initial workout data fetched on the server to hydrate the client cache.

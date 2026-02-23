@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { YearPicker } from "@/features/analytics/components/YearPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CalendarDays, BarChart3, Trophy } from "lucide-react";
@@ -13,19 +13,11 @@ import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "@/types/profile";
 import { useProfile } from "@/features/profile/_hooks/use-profile";
 
-const MOCK_HISTORY = ["2026-02-16", "2026-02-14", "2026-02-12", "2026-02-11"];
-
-const MOCK_STATS = {
-	workouts: 12,
-	duration: "8:41:00",
-	exercises: 26,
-	sets: 155,
-	reps: "1,520",
-	volume: "185,852 kg",
-};
+import { useWorkouts } from "@/features/workouts/_hooks/use-workouts";
+import { formatDuration, formatVolume } from "@/lib/formatter";
 
 interface AnalyticsClientViewProps {
-	userId: string | undefined;
+	userId: string;
 	/** Server-side fetched profile data to ensure instant UI hydration and zero CLS. */
 	initialProfile: UserProfile | null;
 }
@@ -48,6 +40,40 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 	 */
 	const { profile } = useProfile(userId, initialProfile);
 
+	const { data: workouts } = useWorkouts(userId);
+
+	const stats = useMemo(() => {
+		const defaultStats = {
+			workouts: 0,
+			duration: "0:00:00",
+			sets: 0,
+			volume: "0 kg",
+		};
+
+		if (!workouts) return defaultStats;
+
+		// Filtrujemy po roku (korzystając z displayDate lub started_at)
+		const filteredWorkouts = workouts.filter((w) => w.displayDate.includes(year.toString()));
+
+		const totals = filteredWorkouts.reduce(
+			(acc, w) => ({
+				volume: acc.volume + w.total_volume,
+				duration: acc.duration + w.duration_seconds,
+				sets: acc.sets + w.totalSets,
+			}),
+			{ volume: 0, duration: 0, sets: 0 },
+		);
+
+		return {
+			workouts: filteredWorkouts.length,
+			duration: formatDuration(totals.duration),
+			sets: totals.sets,
+			volume: formatVolume(totals.volume),
+		};
+	}, [workouts, year]);
+
+	if (!workouts || !userId) return;
+
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* Sticky header with Year selection capability */}
@@ -57,7 +83,7 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 			<Separator />
 
 			{/* High-level aggregate statistics */}
-			<SummarySection stats={MOCK_STATS} />
+			<SummarySection stats={stats} />
 
 			<Separator />
 
@@ -71,7 +97,7 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 						</div>
 					</AccordionTrigger>
 					<AccordionContent>
-						<ActivitySection year={year} history={MOCK_HISTORY} />
+						<ActivitySection year={year} workouts={workouts} />
 					</AccordionContent>
 				</AccordionItem>
 

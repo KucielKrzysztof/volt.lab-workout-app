@@ -40,40 +40,37 @@ export const workoutService = {
 			.range(from, to); // Applies server-side pagination to limit payload size.
 	},
 
-	/**
-	 * Initializes a new workout session in the database.
-	 * Sets the initial status to 'in_progress' to represent an active training session.
-	 * * @param supabase - The authenticated Supabase client instance.
-	 * @param userId - The ID of the user starting the workout.
-	 * @param name - The name/title of the workout session (e.g., "Leg Day").
-	 * @returns A promise resolving to the newly created workout record.
-	 */
-	startWorkout: async (supabase: SupabaseClient, userId: string, name: string) => {
+	getWorkoutById: async (supabase: SupabaseClient, workoutId: string) => {
 		return supabase
 			.from("workouts")
-			.insert([{ user_id: userId, name, status: "in_progress" }])
-			.select()
-			.single(); // Returns the created object directly instead of an array.
+			.select(
+				`
+            *,
+            workout_sets (
+                *,
+                exercises (
+                    name,
+                    muscle_group
+                )
+            )
+        `,
+			)
+			.eq("id", workoutId)
+			.single();
 	},
 
 	/**
-	 * Finalizes an active workout session and persists all recorded sets.
-	 * Employs a "Bulk Insert" strategy for the workout sets to minimize network latency
-	 * and ensure atomic data consistency across the session.
-	 * * @param supabase - The authenticated Supabase client instance.
-	 * @param workoutId - The ID of the workout session being finalized.
-	 * @param finalData - Metadata for the completed session, including duration and total volume.
-	 * @param sets - An array of exercise sets collected locally during the active session.
-	 * @throws Will throw an error if either the workout update or the sets insertion fails.
-	 * @returns A promise resolving to a success indicator object.
+	
 	 */
 	finishWorkout: async (
 		supabase: SupabaseClient,
-		workoutId: string,
-		finalData: {
+		userId: string,
+		data: {
+			name: string;
+			start_time: string;
+			completed_at: string;
 			duration_seconds: number;
 			total_volume: number;
-			completed_at: string;
 		},
 		sets: Array<{
 			exercise_id: string;
@@ -82,25 +79,29 @@ export const workoutService = {
 			set_order: number;
 		}>,
 	) => {
-		// 1. Update the workout header to mark it as completed and store summary stats
-		const { error: workoutError } = await supabase
+		// 1.
+		const { data: workout, error: workoutError } = await supabase
 			.from("workouts")
-			.update({
-				...finalData,
-				status: "completed",
-			})
-			.eq("id", workoutId);
+			.insert([
+				{
+					user_id: userId,
+					name: data.name,
+					duration_seconds: data.duration_seconds,
+					total_volume: data.total_volume,
+					started_at: data.start_time,
+					completed_at: data.completed_at,
+					status: "completed",
+				},
+			])
+			.select()
+			.single();
 
 		if (workoutError) throw workoutError;
 
-		/**
-		 * 2. Prepare sets for bulk insertion.
-		 * Since sets are tracked locally without a workout_id reference, we inject the
-		 * parent workoutId into each set object to satisfy the Database Foreign Key constraint.
-		 */
+		// 2.
 		const setsToInsert = sets.map((set) => ({
 			...set,
-			workout_id: workoutId,
+			workout_id: workout.id,
 		}));
 
 		// Executes a single multi-row INSERT statement for maximum network efficiency.

@@ -7,3 +7,17 @@ export interface Exercise {
 	name: string;
 	muscle_group: string;
 }
+
+export interface ActiveSet {
+	id: string;
+	weight: number;
+	reps: number;
+	isCompleted: boolean;
+}
+
+export interface ActiveExercise {
+	id: string; // Lokalny unikalny ID dla UI (randomUUID)
+	exercise_id: string; // ID z bazy danych (do zapisu w historii)
+	name: string;
+	sets: ActiveSet[];
+}

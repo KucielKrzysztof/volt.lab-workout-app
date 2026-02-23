@@ -2,7 +2,7 @@
 
 import { Hero } from "@/components/ui/Hero";
 import { useUser } from "@/core/providers/UserProvider";
-import { useWorkouts } from "@/features/workouts/_hooks/use-workout";
+import { useWorkouts } from "@/features/workouts/_hooks/use-workouts";
 import { WorkoutUI } from "@/types/workouts";
 import { WelcomeHeader } from "./WelcomeHeader";
 import { Separator } from "@/components/ui/separator";
