@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Main View for the active training workspace.
+ * Provides the interactive interface for tracking a live workout session,
+ * aggregating real-time exercise cards and the finalization workflow.
+ * @module features/workouts/components
+ */
+
 "use client";
 
 import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
@@ -18,11 +25,39 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+/**
+ * Primary view component for an ongoing workout session.
+ * * @description
+ * This component serves as the central "command center" during a workout. It dynamically
+ * renders exercise tracking cards based on the current Zustand store state and manages
+ * the high-stakes finalization process via a confirmation dialog.
+ * * **Key Features:**
+ * 1. **Zero-Session Handling**: Automatically detects empty states and redirects users
+ * to select a routine if no session is active.
+ * 2. **Real-time Card List**: Maps the active exercises into interactive `ActiveExerciseCard`
+ * components for immediate data entry.
+ * 3. **Guarded Finalization**: Implements an `AlertDialog` to prevent accidental
+ * session completions, requiring explicit user intent to trigger the persistence mutation.
+ * 4. **Mutation Integration**: Hooks into `useFinishWorkout` to handle the asynchronous
+ * transition from local state to database record.
+ * * @returns {JSX.Element} The rendered active workout interface or an empty-state prompt.
+ */
 export const ActiveWorkoutView = () => {
 	const router = useRouter();
+
+	/** * Access the reactive list of exercises from the persistent store.
+	 * Changes here (e.g., adding sets) trigger immediate re-renders of the list.
+	 */
 	const { exercises } = useActiveWorkoutStore();
+
+	/** * Initialize the finalization mutation.
+	 * `isPending` state is used to disable the finish button and prevent duplicate submissions.
+	 */
 	const { mutate: finish, isPending } = useFinishWorkout();
 
+	/** * Fallback UI for inactive states.
+	 * Prevents the application from rendering a blank tracking screen if the store is empty.
+	 */
 	if (!exercises.length) {
 		return (
 			<div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
@@ -34,12 +69,18 @@ export const ActiveWorkoutView = () => {
 
 	return (
 		<div className="space-y-6 mt-30">
+			{/* Live exercise tracking list.
+                Utilizes Tailwind's 'animate-in' for a smooth transition when the session starts.
+            */}
 			<div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
 				{exercises.map((ex) => (
 					<ActiveExerciseCard key={ex.id} exercise={ex} />
 				))}
 			</div>
 
+			{/* Fixed-position action footer.
+                Contains the primary "Finish Workout" button and its associated confirmation logic.
+            */}
 			<div className="fixed bottom-20 left-4 right-4 max-w-xl mx-auto">
 				<AlertDialog>
 					<AlertDialogTrigger asChild>

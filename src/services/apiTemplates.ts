@@ -1,19 +1,36 @@
+/**
+ * @fileoverview Service for managing training blueprints and routine configurations.
+ * Orchestrates high-performance data retrieval and multi-stage persistence
+ * for the workout template engine in the VOLT.LAB ecosystem.
+ * @module services/apiTemplates
+ */
+
 import { CreateTemplateInput, WorkoutTemplateTable } from "@/types/templates";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Service for managing workout blueprints (templates).
- * Handles high-performance relational fetching and atomic bulk persistence
- * for workout routines.
+ * Core service for handling workout routine definitions (blueprints).
+ * * @description
+ * This service manages the lifecycle of training templates, utilizing optimized
+ * relational joins for fetching and atomic batch operations for persistence
+ * to ensure a seamless "blueprint-to-session" workflow.
  */
 export const templateService = {
 	/**
-	 * Retrieves all templates for a specific user with full exercise metadata.
-	 * Uses a double-nested join to fetch template lines and their exercise details
-	 * in a single request.
-	 * * @param supabase - Authenticated Supabase client.
-	 * @param userId - ID of the user owning the templates.
-	 * @returns A promise resolving to a list of joined template objects.
+	 * Retrieves all workout templates for a specific user, including deep exercise metadata.
+	 * * @description
+	 * Executes a double-nested relational join to reconstruct the full routine
+	 * hierarchy in a single network round-trip.
+	 * * **Query Architecture:**
+	 * 1. Selects the base `workout_templates`.
+	 * 2. Joins `template_exercises` (junction table).
+	 * 3. Joins `exercises` library to retrieve movement names and target muscles.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} userId - UUID of the user requesting their routine library.
+	 * @returns {Promise<Object>} A promise resolving to an array of relational `WorkoutTemplateJoined` objects.
+	 * * @example
+	 * const templates = await templateService.getTemplates(supabase, 'user-123');
+	 * // Returns templates with nested exercises sorted by creation date (descending).
 	 */
 	getTemplates: async (supabase: SupabaseClient, userId: string) => {
 		return supabase
@@ -27,19 +44,25 @@ export const templateService = {
                 )
             `,
 			)
-			.eq("user_id", userId) // This string returns the 'WorkoutTemplateJoined' structure.
+			.eq("user_id", userId) // Scopes results to the authenticated user's ID.
 			.order("created_at", { ascending: false });
 	},
 
 	/**
-	 * Persists a new workout routine header and its associated exercise lines.
-	 * Employs a two-step process: header creation followed by a bulk insert of lines
-	 * to ensure data integrity.
-	 * * @param supabase - Authenticated Supabase client.
-	 * @param userId - ID of the user creating the template.
-	 * @param name - The title of the routine (e.g., "Upper Body Power").
-	 * @param exercises - Array of exercise configurations to be linked to this template.
-	 * @returns The newly created template header record.
+	 * Persists a new workout routine header and its associated exercise configurations.
+	 * * @description
+	 * Implements a robust two-stage atomic persistence workflow to ensure data integrity:
+	 * * **Stage 1: Header Initialization**
+	 * Creates the parent record in `workout_templates` and retrieves the unique UUID.
+	 * * **Stage 2: Relational Bulk Insert**
+	 * Maps the input array to inject the parent `template_id` and performs a
+	 * single multi-row insert into `template_exercises` for maximum efficiency.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} userId - UUID of the user creating the blueprint.
+	 * @param {string} name - The descriptive title of the routine (e.g., "Push Day Focus").
+	 * @param {CreateTemplateInput["exercises"]} exercises - Array of exercise IDs and suggested volumes (sets/reps).
+	 * @returns {Promise<WorkoutTemplateTable>} The newly created template header record.
+	 * * @throws Will throw an error if either the header creation or the bulk line insert fails.
 	 */
 	createTemplate: async (
 		supabase: SupabaseClient,
@@ -48,8 +71,8 @@ export const templateService = {
 		exercises: CreateTemplateInput["exercises"],
 	): Promise<WorkoutTemplateTable> => {
 		/**
-		 * 1. Create the template header.
-		 * We use .single() to return the object directly for immediate use in the next step.
+		 * Stage 1: Create the template header.
+		 * Uses `.single()` to return the object directly for FK injection in Stage 2.
 		 */
 		const { data: template, error: tError } = await supabase
 			.from("workout_templates")
@@ -60,20 +83,20 @@ export const templateService = {
 		if (tError) throw tError;
 
 		/**
-		 * 2. Prepare and Bulk Insert exercise lines.
-		 * We map the input array to inject the 'template_id' and satisfy the
-		 * Database Foreign Key constraint.
+		 * Stage 2: Prepare and Bulk Insert exercise configuration lines.
+		 * Maps the input to the database schema, satisfying Foreign Key constraints.
 		 */
 		const exercisesToInsert = exercises.map((ex, index) => ({
 			template_id: template.id,
-			exercise_id: ex.exercise_id, // Zmienione z .id
-			order: index,
-			suggested_sets: ex.suggested_sets, // Zmienione z .sets
-			suggested_reps: ex.suggested_reps, // Zmienione z .reps
+			exercise_id: ex.exercise_id,
+			order: index, // Preserves the intended exercise sequence.
+			suggested_sets: ex.suggested_sets,
+			suggested_reps: ex.suggested_reps,
 			notes: ex.notes || null,
 		}));
 
-		const { error: eError } = await supabase.from("template_exercises").insert(exercisesToInsert); // Single multi-row insert for network efficiency.
+		// Multi-row INSERT statement reduces network latency and transaction time.
+		const { error: eError } = await supabase.from("template_exercises").insert(exercisesToInsert);
 
 		if (eError) throw eError;
 

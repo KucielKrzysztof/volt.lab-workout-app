@@ -1,20 +1,32 @@
+/**
+ * @fileoverview Core database service for workout session management.
+ * Orchestrates high-performance relational data retrieval and atomic persistence
+ * strategies using the Supabase PostgREST interface.
+ * @module services/apiWorkouts
+ */
+
 import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Service for managing the lifecycle of workout sessions and their associated sets.
- * This service handles high-performance data retrieval through nested relational joins
- * and optimized bulk persistence strategies.
+ * Service object containing methods to manage the lifecycle of workout sessions.
+ * * @description
+ * This service handles the complex mapping between the flat physical database
+ * and the hierarchical training models used in the UI. It is optimized to
+ * minimize network round-trips through deep relational selection.
  */
 export const workoutService = {
 	/**
 	 * Fetches a paginated list of workout sessions for a specific user.
+	 * ** @description
 	 * Uses a deep relational join to retrieve all associated sets and exercise data
 	 * (names and muscle groups) in a single database call.
-	 * * @param supabase - The authenticated Supabase client instance.
-	 * @param userId - The unique identifier of the user whose history is being retrieved.
-	 * @param page - The current page index for pagination (starts at 0).
-	 * @param limit - The number of records to retrieve per request (default: 10).
-	 * @returns A promise resolving to a PostgREST response containing raw Workout data.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} userId - The unique UUID of the user owning the history.
+	 * @param {number} [page=0] - The zero-based index for server-side pagination.
+	 * @param {number} [limit=10] - Maximum number of workout records per payload.
+	 * @returns {Promise<Object>} A PostgREST response containing the raw joined Workout data.
+	 * * @example
+	 * const { data } = await workoutService.getWorkouts(supabase, 'user-uuid', 0, 20);
 	 */
 	getWorkouts: async (supabase: SupabaseClient, userId: string, page = 0, limit = 10) => {
 		// PostgREST uses 0-based inclusive range indexing (e.g., 0-9 for the first 10 items).
@@ -40,6 +52,15 @@ export const workoutService = {
 			.range(from, to); // Applies server-side pagination to limit payload size.
 	},
 
+	/**
+	 * Fetches the full details of a specific workout session by its unique identifier.
+	 * * @description
+	 * Leverages the same deep-selection string as `getWorkouts` to provide a
+	 * consistent data structure for the `WorkoutDetailView`.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} workoutId - The UUID of the session to retrieve.
+	 * @returns {Promise<Object>} A PostgREST response for a single relational workout record.
+	 */
 	getWorkoutById: async (supabase: SupabaseClient, workoutId: string) => {
 		return supabase
 			.from("workouts")
@@ -60,7 +81,20 @@ export const workoutService = {
 	},
 
 	/**
-	
+	 * Finalizes and persists an active workout session along with all performed sets.
+	 * * @description
+	 * Implements a critical two-stage persistence strategy to maintain referential integrity:
+	 * 1. **Header Creation**: Inserts the main record into the `workouts` table and retrieves the generated ID.
+	 * 2. **Performance Bulk Insert**: Injects the new `workout_id` into each set and performs a single
+	 * multi-row INSERT into `workout_sets` for maximum network efficiency.
+	 * * **Mathematical Aggregation**:
+	 * The `total_volume` is persisted as a pre-calculated sum of $(\text{weight} \times \text{reps})$ for all sets.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} userId - UUID of the user completing the session.
+	 * @param {Object} data - The session metadata (name, timestamps, total volume).
+	 * @param {Array<Object>} sets - An array of exercise performance data to be persisted.
+	 * @returns {Promise<{success: boolean}>} Object indicating the successful atomic completion of the save operation.
+	 * * @throws Will throw a PostgREST error if either the header or the sets fail to persist.
 	 */
 	finishWorkout: async (
 		supabase: SupabaseClient,
@@ -79,7 +113,7 @@ export const workoutService = {
 			set_order: number;
 		}>,
 	) => {
-		// 1.
+		// Stage 1: Persist the Workout Session Header
 		const { data: workout, error: workoutError } = await supabase
 			.from("workouts")
 			.insert([
@@ -98,10 +132,10 @@ export const workoutService = {
 
 		if (workoutError) throw workoutError;
 
-		// 2.
+		// Stage 2: Map and Bulk Insert Performance Sets
 		const setsToInsert = sets.map((set) => ({
 			...set,
-			workout_id: workout.id,
+			workout_id: workout.id, // Injecting the parent FK derived from Stage 1.
 		}));
 
 		// Executes a single multi-row INSERT statement for maximum network efficiency.

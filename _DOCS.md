@@ -334,6 +334,78 @@ src/
 
 ---
 
+## (Update: 25-02-2026)
+
+### **Active Training Ecosystem & Persistence**
+
+This milestone transformed the application from a history viewer into an interactive training workstation. The focus was on data reliability in low-connectivity environments (gym basements) and the automation of training volume analytics.
+
+#### **1. Live Session Orchestration (Zustand + Persistence)**
+
+The core of the training module is the `useActiveWorkoutStore`, which orchestrates the real-time session state.
+
+- **Session Persistence**: Implemented the `persist` middleware to synchronize the store with `localStorage`. This ensures that "screen timeouts" or accidental browser refreshes do not result in data loss.
+- **Dynamic UI State**: The store manages set additions, removals, and completion toggles in real-time, utilizing `crypto.randomUUID()` for stable React reconciliation.
+- **Global Status Banner**: Introduced the `ActiveWorkoutBanner`, which calculates elapsed time relative to a fixed `startTime` ISO string, ensuring timer continuity across navigation.
+
+#### **2. Routine Blueprints (Templates CRUD)**
+
+Developed a high-performance routine builder (`TemplateCreator`) for pre-defining training protocols.
+
+- **Relational Persistence**: The `templateService.createTemplate` method utilizes a two-stage transaction—persisting the header (`workout_templates`) followed by a multi-row Bulk Insert for `template_exercises` to minimize network overhead.
+- **Interactive Selection**: Integrated a Shadcn `Sheet` based `ExerciseSelector` with real-time filtering to streamline the blueprint creation process.
+
+#### **3. High-Precision Volume & Duration Formatting**
+
+To maintain readability during high-tonnage sessions, we implemented advanced formatting logic in `src/lib/formatter.ts`:
+
+- **Volume Normalization**: Automatic conversion of kilograms to tons (`formatVolume`) upon exceeding 1,000 kg (e.g., "12t 450kg").
+- **Duration Mapping**: Decomposed raw seconds into a scalable `Xd Hh Mm` format (`formatDuration`), replacing standard colon-based counters with intuitive units.
+
+#### **4. Database Relational Integrity (Bulk Inserts)**
+
+Optimized the workout finalization pipeline within `workoutService.finishWorkout`:
+
+- **Atomic Operations**: The entire session, including all performance sets, is persisted in a single transactional flow. The system automatically maps the parent `workout_id` to each child set to guarantee referential integrity.
+- **Numeric Precision**: Fields for `total_volume` and `weight` utilize the `numeric` Postgres type, supporting fractional plate loading (e.g., 12.5 kg) without floating-point errors.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature              | File Location                                           | Responsibility                                          |
+| -------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
+| **Active Store**     | `features/workouts/_hooks/use-active-workout-store.ts`  | Session state, hydration, and localStorage persistence. |
+| **Routine Builder**  | `features/templates/components/TemplateCreator.tsx`     | Complex form state management for training blueprints.  |
+| **Analytics Engine** | `features/analytics/components/AnalyticsClientView.tsx` | Global year filtering and aggregate KPI calculations.   |
+| **Bulk Service**     | `services/apiWorkouts.ts`                               | High-performance batch inserts for session completion.  |
+| **Calendar Logic**   | `features/analytics/utils/calendar-logic.ts`            | Grid generation with localized `DD.MM.YYYY` formatting. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/dashboard/
+│   ├── active-workout/     <-- Dedicated workspace for live sessions
+│   ├── templates/          <-- Routine management and creation
+├── features/
+│   ├── templates/          <-- Blueprint logic and exercise mapping
+│   ├── workouts/
+│   │   ├── _hooks/         <-- Active session state and finish mutations
+│   │   └── components/     <-- ActiveExerciseCard, SetRows, and Banners
+├── lib/
+│   └── formatter.ts        <-- Unit conversion (Tons, Days, Hours)
+└── types/
+    ├── templates.ts        <-- Relational interfaces for routines
+
+```
+
+---
+
+---
+
 ### **Next Steps**
 
-- **Active Workout Module**: Initialize the training tracker.
+- Infinite scrolling/pagination for prev workouts.
