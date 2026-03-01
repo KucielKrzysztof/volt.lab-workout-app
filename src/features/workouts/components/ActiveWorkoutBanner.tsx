@@ -1,11 +1,15 @@
+/**
+ * @fileoverview Persistent session monitor UI (Presentational Layer).
+ * Acts as the visual interface for the global active workout state,
+ * delegating all temporal calculations and state orchestration to
+ * the `useActiveWorkoutBanner` logic hook.
+ * @module features/workouts/components
+ */
 "use client";
 
-import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
 import Link from "next/link";
 import { Activity, AlertTriangle, Timer, X } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -17,42 +21,38 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useActiveWorkoutBanner } from "../_hooks/use-active-workout-banner";
 
+/**
+ * A floating, high-visibility banner component for active session tracking.
+ * * @description
+ * This component serves as a global "Sticky Anchor" across the dashboard.
+ * Following its refactor, it is now a pure view component that consumes
+ * computed data (timer strings, visibility flags) from a headless hook.
+ * * **Visual & Interaction Features:**
+ * 1. **Contextual Awareness**: Automatically renders or unmounts based on the
+ * `isVisible` flag, which accounts for both session activity and store hydration.
+ * 2. **Deep Linking**: Provides a seamless transition to the detailed tracking
+ * workspace via an encapsulated Next.js `Link`.
+ * 3. **Real-time Performance Display**: Renders the formatted `elapsed` time string
+ * updated at a 1Hz frequency by the underlying logic hook.
+ * 4. **Safety Discard Workflow**: Integrates a Shadcn/UI `AlertDialog` to wrap
+ * the destructive `handleDiscard` action, ensuring data loss requires explicit confirmation.
+ * * @returns {JSX.Element | null} The themed banner or null if no session is active.
+ */
 export const ActiveWorkoutBanner = () => {
-	const router = useRouter();
-	const startTime = useActiveWorkoutStore((state) => state.startTime);
-	const workoutName = useActiveWorkoutStore((state) => state.name);
-	const hasHydrated = useActiveWorkoutStore((state) => state._hasHydrated);
-	const cancelWorkout = useActiveWorkoutStore((state) => state.cancelWorkout);
+	const { workoutName, elapsed, isVisible, handleDiscard } = useActiveWorkoutBanner();
 
-	const [elapsed, setElapsed] = useState("");
-
-	useEffect(() => {
-		if (!startTime) return;
-		const interval = setInterval(() => {
-			const start = new Date(startTime).getTime();
-			const now = new Date().getTime();
-			const diff = now - start;
-			const mins = Math.floor(diff / 60000);
-			const secs = Math.floor((diff % 60000) / 1000);
-			setElapsed(`${mins}:${secs < 10 ? "0" : ""}${secs}`);
-		}, 1000);
-		return () => clearInterval(interval);
-	}, [startTime]);
-
-	const onConfirmCancel = () => {
-		cancelWorkout();
-		router.push("/dashboard/workouts");
-		toast.error("Workout discarded.");
-	};
-
-	if (!hasHydrated || !startTime) return null;
+	/** * Guard Clause:
+	 * Centralized visibility logic handled by the hook (startTime && hasHydrated).
+	 */
+	if (!isVisible) return null;
 
 	return (
 		<div className="fixed top-4 md:top-16 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-md animate-in fade-in slide-in-from-top-4 duration-500">
-			{/* GŁÓWNY KONTENER - to on ma styl karty */}
+			{/* Themed container with primary accent border and shadow glow. */}
 			<div className="flex items-center justify-between gap-3 p-4 bg-zinc-950 border-2 border-primary rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.2)] group hover:scale-[1.02] transition-all">
-				{/* KLIKALNA STREFA INFO (Link) - zajmuje całą wolną przestrzeń */}
+				{/* Information Link: Redirects to the detailed session workspace. */}
 				<Link href="/dashboard/active-workout" className="flex flex-1 items-center gap-3 overflow-hidden">
 					<div className="relative flex shrink-0">
 						<div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
@@ -67,7 +67,7 @@ export const ActiveWorkoutBanner = () => {
 					</div>
 				</Link>
 
-				{/* STREFA AKCJI - timer i przycisk cancel (osobno poza Linkiem) */}
+				{/* Action Zone: Live timer and destructive toggle control. */}
 				<div className="flex items-center gap-2 shrink-0">
 					<div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
 						<Timer size={14} className="text-primary" />
@@ -95,7 +95,7 @@ export const ActiveWorkoutBanner = () => {
 									Keep training
 								</AlertDialogCancel>
 								<AlertDialogAction
-									onClick={onConfirmCancel}
+									onClick={handleDiscard}
 									className="bg-destructive! hover:bg-destructive/90! text-white uppercase font-semibold! italic tracking-tighter"
 								>
 									Discard anyway

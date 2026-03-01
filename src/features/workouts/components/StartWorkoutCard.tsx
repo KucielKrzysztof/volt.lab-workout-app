@@ -1,41 +1,57 @@
+/**
+ * @fileoverview Launchpad component for initiating workout sessions.
+ * Refactored to separate visual representation from orchestration logic.
+ * Delegating state management to the `useStartWorkoutFlow` hook ensures
+ * a clean separation of concerns.
+ * @module features/workouts/components
+ */
+
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Play, ClipboardList, Loader2, ChevronRight, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useTemplates } from "@/features/templates/_hooks/use-templates";
 import { useUser } from "@/core/providers/UserProvider";
-import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
-import { useRouter } from "next/navigation";
-import { WorkoutTemplateUI } from "@/types/templates";
+import { useStartWorkoutFlow } from "../_hooks/use-start-workout-flow";
 
+/**
+ * An interactive card component that facilitates the initiation of new workouts.
+ * * @description
+ * This component acts as the "Launchpad" for training sessions. Following the
+ * refactor, it now serves primarily as a UI Orchestrator, consuming state and
+ * handlers from the `useStartWorkoutFlow` hook.
+ * * **Architectural Role:**
+ * - **View Layer**: Renders the card, status headers, and the routine selection sheet.
+ * - **Logic Delegation**: Offloads session conflict detection, hydration, and
+ * navigation to a specialized business logic hook.
+ * * **Key Behavioral Logic (via Hook):**
+ * 1. **Active Session Guard**: Disables interaction if a workout is already running.
+ * 2. **Contextual Hydration**: Populates the selection sheet with user-specific templates.
+ * 3. **Session Handover**: Executes the transition from blueprint to active state.
+ * * @returns {JSX.Element} A themed action card with conditional states for active/inactive sessions.
+ */
 export const StartWorkoutCard = () => {
+	/** * User context for scoping routine data fetching. */
 	const { user } = useUser();
-	const router = useRouter();
-	const [open, setOpen] = useState(false);
 
-	/** * Check Active Session:
-	 * We pull startTime to determine if a session is currently running.
+	/**
+	 * Primary Logic Orchestrator.
+	 * Consumes the refined workout start flow, decoupling the UI from:
+	 * - Template fetching (React Query)
+	 * - Session status (Zustand)
+	 * - Navigation (Next.js Router)
 	 */
-	const startTime = useActiveWorkoutStore((state) => state.startTime);
-	const isWorkoutActive = !!startTime;
-
-	const { data: templates, isLoading } = useTemplates(user?.id || "");
-	const startFromTemplate = useActiveWorkoutStore((state) => state.startFromTemplate);
-
-	const handleSelectTemplate = async (template: WorkoutTemplateUI) => {
-		startFromTemplate(template);
-		setOpen(false);
-		router.push("/dashboard/active-workout");
-	};
+	const { templates, isLoading, isWorkoutActive, isSheetOpen, setIsSheetOpen, handleSelectTemplate } = useStartWorkoutFlow(user?.id || "");
 
 	return (
 		<Card className="border-primary/20 bg-primary/5 overflow-hidden border-2 border-dashed">
 			<CardContent className="p-6">
 				<div className="flex flex-col gap-4">
+					{/* Dynamic Status Header:
+                        Provides clear instructions based on whether a workout is currently running.
+                    */}
 					<div className="flex justify-between items-start">
 						<div className="space-y-1">
 							<h3 className="text-xl font-black italic uppercase tracking-tight">Ready to train?</h3>
@@ -47,13 +63,12 @@ export const StartWorkoutCard = () => {
 					</div>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-						{/* MODAL / SHEET TRIGGER */}
-						<Sheet open={open} onOpenChange={setOpen}>
+						{/* SELECT ROUTINE TRIGGER:
+                            The master trigger for starting a workout. Disabled if a session exists.
+                        */}
+						<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
 							<SheetTrigger asChild>
 								<Button
-									/** * Disable Logic:
-									 * Prevents starting a new workout if one is already in progress.
-									 */
 									disabled={isWorkoutActive}
 									className="h-14 gap-2 font-bold uppercase tracking-tighter text-lg shadow-lg shadow-primary/20 cursor-pointer disabled:opacity-50"
 								>
@@ -66,6 +81,10 @@ export const StartWorkoutCard = () => {
 									<SheetTitle className="text-2xl font-black italic uppercase tracking-tighter">Choose Routine</SheetTitle>
 								</SheetHeader>
 
+								{/* Routine Selection List:
+                                    Renders interactive buttons for each available template. 
+                                    Includes a loading state for data transitions.
+                                */}
 								<div className="space-y-3 overflow-y-auto pb-10">
 									{isLoading ? (
 										<div className="flex justify-center py-10">
@@ -92,7 +111,9 @@ export const StartWorkoutCard = () => {
 							</SheetContent>
 						</Sheet>
 
-						{/* LINK DO LISTY TEMPLATE'ÓW */}
+						{/* NAVIGATIONAL LINK:
+                            Provides quick access to the Template management library.
+                        */}
 						<Button
 							variant="outline"
 							disabled={isWorkoutActive}

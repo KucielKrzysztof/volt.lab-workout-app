@@ -1,3 +1,10 @@
+/**
+ * @fileoverview High-fidelity detail view for historical workout sessions.
+ * Orchestrates the display of individual session performance, including
+ * aggregate KPIs and hierarchical exercise/set breakdowns.
+ * @module features/workouts/components
+ */
+
 "use client";
 
 import { useWorkout } from "../_hooks/use-workout";
@@ -6,16 +13,48 @@ import Link from "next/link";
 import { groupSetsByExercise } from "../helpers/workoutHelpers";
 import { Workout, WorkoutSet } from "@/types/workouts";
 
+/**
+ * A comprehensive view component that renders the full history of a specific session.
+ * * @description
+ * This component acts as the primary analytical interface for past workouts. It implements
+ * a seamless SSR-to-CSR transition, ensuring that deep relational data is rendered
+ * instantly while maintaining background synchronization with the global cache.
+ * * **Core Functional Units:**
+ * 1. **Data Orchestration**: Interacts with `useWorkout` to handle hydration and
+ * error states for individual session records.
+ * 2. **Relational Transformation**: Utilizes `groupSetsByExercise` to reverse the flat
+ * database set array into a hierarchical, exercise-first structure optimized for
+ * reading
+ * 3. **KPI Dashboard**: Decomposes raw session metrics into visual "Stat Cards"
+ * covering Total Volume, Duration (minutes), and Total Set count.
+ * 4. **Anatomical Mapping**: Displays exercises with their associated muscle groups
+ * and chronologically ordered performance rows.
+ * * @param {WorkoutDetailViewProps} props - Component properties.
+ * @returns {JSX.Element | null} The rendered detail interface or null if no data is available.
+ */
 export const WorkoutDetailView = ({ id, initialData }: { id: string; initialData: Workout }) => {
+	/** * Reactive Data Fetching:
+	 * Synchronizes the component with the TanStack Query cache.
+	 * Prioritizes 'initialData' for the first render to eliminate layout shifts.
+	 */
 	const { data: workout } = useWorkout(id, initialData);
 
+	/** * Guard Clause:
+	 * Prevents rendering cycles if the record is missing or deleted.
+	 */
 	if (!workout) return null;
 
+	/** * Data Hierarchization:
+	 * Converts the flat list of sets into a structured format where each
+	 * exercise header contains its specific performance rows
+	 */
 	const exercises = groupSetsByExercise(workout.workout_sets);
 
 	return (
 		<div className="space-y-6 animate-in fade-in duration-500">
-			{/* Header z powrotem */}
+			{/* Navigational Header:
+                Includes a return path to the history feed and localized date stamp.
+            */}
 			<div className="flex items-center gap-4">
 				<Link href="/dashboard/workouts" className="p-2 bg-secondary/20 rounded-xl hover:bg-secondary/40 transition-colors">
 					<ChevronLeft size={20} />
@@ -28,18 +67,25 @@ export const WorkoutDetailView = ({ id, initialData }: { id: string; initialData
 				</div>
 			</div>
 
-			{/* Statystyki sesji */}
+			{/* Session KPI Grid:
+                Visual breakdown of the three primary training pillars.
+            */}
 			<div className="grid grid-cols-3 gap-3">
-				<div className="bg-secondary/10 p-4 rounded-2xl border border-white/5  flex flex-col justify-center items-center">
+				{/* Cumulative Volume Card (Weight x Reps) */}
+				<div className="bg-secondary/10 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
 					<Weight className="text-success mb-2" size={20} />
 					<p className="text-2xl font-black italic">{workout.total_volume}kg</p>
 					<p className="text-[10px] uppercase opacity-40 font-bold">Volume</p>
 				</div>
+
+				{/* Temporal Card: Converts raw duration seconds to minutes */}
 				<div className="bg-secondary/10 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
 					<Timer className="text-primary mb-2" size={20} />
 					<p className="text-2xl font-black italic">{Math.floor(workout.duration_seconds / 60)}m</p>
 					<p className="text-[10px] uppercase opacity-40 font-bold">Duration</p>
 				</div>
+
+				{/* Density Card: Total completed sets count */}
 				<div className="bg-secondary/10 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
 					<Activity className="text-blue-500 mb-2" size={20} />
 					<p className="text-2xl font-black italic">{workout.workout_sets.length}</p>
@@ -47,11 +93,15 @@ export const WorkoutDetailView = ({ id, initialData }: { id: string; initialData
 				</div>
 			</div>
 
-			{/* Lista Ćwiczeń */}
+			{/* Structured Exercise History:
+                Renders individual cards for each movement performed in the session.
+            */}
 			<div className="space-y-6">
 				{exercises.map((ex, idx) => (
 					<div key={idx} className="bg-secondary/5 border border-white/5 rounded-3xl overflow-hidden shadow-sm">
-						{/* Nagłówek ćwiczenia */}
+						{/* Exercise Meta Header: 
+                            Includes movement name and primary muscle group focus.
+                        */}
 						<div className="p-4 bg-secondary/10 flex items-center justify-between border-b border-white/5">
 							<div className="flex items-center gap-3">
 								<div className="p-2 bg-primary/10 rounded-xl">
@@ -64,7 +114,9 @@ export const WorkoutDetailView = ({ id, initialData }: { id: string; initialData
 							</div>
 						</div>
 
-						{/* Lista serii [cite: 24-02-2026] */}
+						{/* Performance Set List:
+                            A read-only grid presenting the weight/rep metrics for each set
+                        */}
 						<div className="p-4 space-y-3">
 							<div className="grid grid-cols-3 text-[9px] uppercase font-black text-muted-foreground px-2 opacity-50">
 								<span>Set</span>

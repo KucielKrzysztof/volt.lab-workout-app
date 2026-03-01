@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Editable row component for the Workout Template Creator.
+ * Handles the granular configuration of suggested volume (sets and reps)
+ * for a specific movement within a routine blueprint.
+ * @module features/templates/components
+ */
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -8,6 +15,22 @@ interface TemplateExerciseRowProps {
 	onRemove: (id: string) => void;
 }
 
+/**
+ * Renders an interactive configuration card for an exercise in a template draft.
+ * * @description
+ * This component acts as a controlled input group. It allows users to define the
+ * "suggested volume" that will later be used to hydrate an active workout session.
+ * It ensures that every movement in a routine has a baseline set/rep target.
+ * * **Key Operational Features:**
+ * 1. **Atomic Updates**: Uses a partial update pattern via `onUpdate` to modify
+ * specific numeric fields without affecting other properties of the exercise.
+ * 2. **Input Sanitization**: Explicitly casts string input values to `Number`
+ * before bubbling state changes up to the `TemplateCreator`.
+ * 3. **Sequence Management**: Provides a destructive action (`onRemove`) to
+ * prune the routine's exercise list.
+ * * @param {TemplateExerciseRowProps} props - Component properties.
+ * @returns {JSX.Element} A themed card with numeric inputs for sets/reps and a removal trigger.
+ */
 export const TemplateExerciseRow = ({ exercise, onUpdate, onRemove }: TemplateExerciseRowProps) => {
 	return (
 		<div className="p-4 bg-secondary/10 border border-primary/10 rounded-xl space-y-4 animate-in fade-in zoom-in-95 duration-300">

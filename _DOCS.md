@@ -4,7 +4,7 @@
 
 - **Framework:** Next.js 16 (App Router)
 - **Database:** Supabase (PostgreSQL)
-- **State Management:** TanStack Query v5 (React Query)
+- **State Management:** TanStack Query v5 & Zustand (Persistent)
 - **Styling:** Tailwind CSS 4 + Shadcn UI
 - **Alerts:** Sonner (Toast notifications)
 - **Icons:** Lucide React
@@ -13,13 +13,14 @@
 
 ## Table of Contents
 
-| Date           | Milestone                                                  | Key Features                                           |
-| :------------- | :--------------------------------------------------------- | :----------------------------------------------------- |
-| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)         | SSR/CSR Hybrid, Supabase Trinity, Service Layer        |
-| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context     |
-| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache |
-| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration              |
-| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)         | Relational Joins, UI Mapping, SSR Hydration Cache      |
+| Date           | Milestone                                                  | Key Features                                              |
+| :------------- | :--------------------------------------------------------- | :-------------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)         | SSR/CSR Hybrid, Supabase Trinity, Service Layer           |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context        |
+| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache    |
+| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration                 |
+| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)         | Relational Joins, UI Mapping, SSR Hydration Cache         |
+| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)    | Zustand Persistence, Routine Blueprints, Analytics Engine |
 
 ---
 
@@ -409,3 +410,4 @@ src/
 ### **Next Steps**
 
 - Infinite scrolling/pagination for prev workouts.
+- Different PR for different year(change the PR field in db)

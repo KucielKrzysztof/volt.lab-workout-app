@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Vertical feed component for chronological workout history.
+ * Manages the iterative rendering of workout summaries and provides
+ * architectural hooks for infinite pagination and empty-state handling.
+ * @module features/workouts/components
+ */
+
 import { SummaryWorkoutCard } from "./SummaryWorkoutCard";
 import { WorkoutUI } from "../../../types/workouts";
 
@@ -8,8 +15,11 @@ interface WorkoutHistoryProps {
 
 /**
  * Vertical list component for the user's workout history.
+ * * * @description
  * Groups multiple SummaryWorkoutCards and provides a placeholder for pagination.
  * * This component is designed to be highly reusable across the Feed and History views
+ * * @param {WorkoutHistoryProps} props - Component properties.
+ * @returns {JSX.Element} A structured section containing the workout feed or a fallback message.
  */
 export const WorkoutHistory = ({ workouts }: WorkoutHistoryProps) => {
 	/** * Conditional Empty State:
@@ -33,7 +43,7 @@ export const WorkoutHistory = ({ workouts }: WorkoutHistoryProps) => {
 				))}
 			</div>
 
-			{/* Pagination Trigger:
+			{/* Pagination Trigger: #TODO
                 This placeholder will eventually be replaced with an Intersection Observer 
                 to trigger infinite loading via TanStack Query / or simple pagination...
             */}

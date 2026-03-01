@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Responsive layout container for workout routine blueprints.
+ * Orchestrates the display of a user's template library, handling the transition
+ * between populated grid views and informative empty states.
+ * @module features/templates/components
+ */
+
 import { WorkoutTemplateUI } from "@/types/templates";
 import { TemplateCard } from "./TemplateCard";
 import { LayoutGrid } from "lucide-react";
@@ -7,6 +14,18 @@ interface TemplateListProps {
 	templates: WorkoutTemplateUI[];
 }
 
+/**
+ * Renders a collection of workout templates in a responsive grid or a fallback empty state.
+ * * @description
+ * This component acts as the primary layout engine for the "My Routines" dashboard.
+ * It ensures that the interface remains professional and helpful even when no
+ * data is present, following the "Empty State First" UX principle.
+ ** *Stable Iteration**: Maps the `templates` collection to individual
+ * `TemplateCard` components using database-backed UUIDs (`template.id`) to
+ * ensure optimal React DOM reconciliation.
+ * * @param {TemplateListProps} props - Component properties.
+ * @returns {JSX.Element} A responsive grid of routine cards or an empty state prompt.
+ */
 export const TemplateList = ({ templates }: TemplateListProps) => {
 	if (templates.length === 0) {
 		return (

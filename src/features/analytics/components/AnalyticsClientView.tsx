@@ -1,6 +1,12 @@
+/**
+ * @fileoverview Main View Orchestrator for the VOLT.LAB Analytics Dashboard.
+ * Coordinates the visual assembly of various data visualization modules,
+ * consuming processed metrics from the dedicated analytics engine hook.
+ * @module features/analytics/components
+ */
+
 "use client";
 
-import { useMemo, useState } from "react";
 import { YearPicker } from "@/features/analytics/components/YearPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CalendarDays, BarChart3, Trophy } from "lucide-react";
@@ -11,10 +17,7 @@ import { RecordsSection } from "./sections/RecordsSection";
 import { SummarySection } from "./sections/SummarySection";
 import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "@/types/profile";
-import { useProfile } from "@/features/profile/_hooks/use-profile";
-
-import { useWorkouts } from "@/features/workouts/_hooks/use-workouts";
-import { formatDuration, formatVolume } from "@/lib/formatter";
+import { useAnalyticsDashboard } from "../_hooks/use-analytics-dashboard";
 
 interface AnalyticsClientViewProps {
 	userId: string;
@@ -23,71 +26,58 @@ interface AnalyticsClientViewProps {
 }
 
 /**
- * Main Client-Side Orchestrator for the Analytics Dashboard.
- * * Features:
- * - **Data Hydration**: Uses server-side initial profile data while maintaining real-time sync via useProfile.
- * - **State Management**: Controls global year selection affecting all sub-sections.
- * - **Dynamic Layout**: Organizes detailed metrics into collapsible segments for a clean, mobile-first experience.
- * - **Records Integration**: Directly bridges the Profile JSONB records into the Analytics progression view.
+ * The primary dashboard component for user progress and performance analysis.
+ * * @description
+ * This component acts as the "Visual Hub". Following the architectural refactor,
+ * it no longer handles raw data processing. Instead, it delegates all state
+ * management, filtering, and complex math to the `useAnalyticsDashboard` hook.
+ * * **Architectural Pillars:**
+ * 1. **Logic Separation**: The component is now a pure "View Orchestrator," making
+ * the dashboard easier to test and maintain.
+ * 2. **Contextual Filtering**: Displays data based on a global `year` state that
+ * synchronizes all sub-sections (Heatmaps, Charts, PRs).
+ * 3. **Hierarchical UI**: Uses a Radix-based Accordion to manage high information
+ * density, specifically optimized for mobile-first "on-the-gym-floor" usage.
+ * 4. **Hydration Strategy**: Leverages `initialProfile` to provide immediate
+ * context for Personal Records before the client-side fetch completes.
  * * @param {AnalyticsClientViewProps} props - Component properties.
+ * @returns {JSX.Element | null} The rendered dashboard or null during critical loading phases.
  */
 export default function AnalyticsClientView({ userId, initialProfile }: AnalyticsClientViewProps) {
-	/** Local state for year-based filtering across all analytics modules. */
-	const [year, setYear] = useState(new Date().getFullYear());
-
-	/** * Synchronized profile data hook.
-	 * Ensures that any updates to Personal Records in other parts of the app are reflected here.
+	/** * Analytics Engine Integration:
+	 * Consumes the refined dashboard state. This hook centralizes:
+	 * - Year filtering logic.
+	 * - KPI memoization ($Volume = \sum w.volume$).
+	 * - Multi-source data fetching (Workouts + Profile).
 	 */
-	const { profile } = useProfile(userId, initialProfile);
+	const { year, setYear, stats, workouts, personalRecords, isLoading } = useAnalyticsDashboard(userId, initialProfile);
 
-	const { data: workouts } = useWorkouts(userId);
-
-	const stats = useMemo(() => {
-		const defaultStats = {
-			workouts: 0,
-			duration: "0:00:00",
-			sets: 0,
-			volume: "0 kg",
-		};
-
-		if (!workouts) return defaultStats;
-
-		// Filtrujemy po roku (korzystając z displayDate lub started_at)
-		const filteredWorkouts = workouts.filter((w) => w.displayDate.includes(year.toString()));
-
-		const totals = filteredWorkouts.reduce(
-			(acc, w) => ({
-				volume: acc.volume + w.total_volume,
-				duration: acc.duration + w.duration_seconds,
-				sets: acc.sets + w.totalSets,
-			}),
-			{ volume: 0, duration: 0, sets: 0 },
-		);
-
-		return {
-			workouts: filteredWorkouts.length,
-			duration: formatDuration(totals.duration),
-			sets: totals.sets,
-			volume: formatVolume(totals.volume),
-		};
-	}, [workouts, year]);
-
-	if (!workouts || !userId) return;
+	/** * Render Guard:
+	 * Prevents the UI from rendering in an inconsistent state during
+	 * initial hydration if critical data is missing.
+	 */
+	if (isLoading || !workouts) return null;
 
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-			{/* Sticky header with Year selection capability */}
+			{/* Analytics Control Bar:
+                Fixed/Sticky header providing the year selection context.
+            */}
 			<AnalyticsHeader>
 				<YearPicker year={year} onYearChange={setYear} />
 			</AnalyticsHeader>
 			<Separator />
 
-			{/* High-level aggregate statistics */}
+			{/* Primary KPI Dashboard:
+                Renders the four core metrics (Workouts, Duration, Sets, Volume).
+            */}
 			<SummarySection stats={stats} />
 
 			<Separator />
 
-			{/* Detailed sections grouped by category */}
+			{/* Detailed Analytical Segments:
+                Uses a collapsible Accordion to maintain a clean vertical rhythm.
+            */}
 			<Accordion type="single" collapsible className="w-full space-y-4">
 				{/* ACTIVITY */}
 				<AccordionItem value="activity" className="border-none bg-secondary/10 rounded-xl px-4">
@@ -121,7 +111,7 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 						</div>
 					</AccordionTrigger>
 					<AccordionContent>
-						<RecordsSection records={profile?.personal_records || []} year={year} />
+						<RecordsSection records={personalRecords} year={year} />
 					</AccordionContent>
 				</AccordionItem>
 			</Accordion>

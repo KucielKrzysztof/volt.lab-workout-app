@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Main View for the Workouts History feature.
+ * Coordinates the integration between server-side pre-fetched data and
+ * client-side interactivity, managing the lifecycle of the workout history feed.
+ * @module features/workouts/components
+ */
+
 "use client";
 
 import { StartWorkoutCard } from "@/features/workouts/components/StartWorkoutCard";
@@ -16,15 +23,26 @@ interface WorkoutClientViewProps {
 }
 
 /**
- * Main Orchestrator for the Workouts history view.
- * Integrates the high-level header, session initiation triggers, and the
- * paginated/infinite scroll workout history list
- * * This component manages the transition from Server-Side Rendering (SSR)
- * to Client-Side interactivity via TanStack Query.
+ * The primary client-side entry point for the Workout History dashboard.
+ * * @description
+ * This component acts as a "Bridge" in the **SSR-to-CSR Hydration Pattern**.
+ * It ensures that the user sees their workout history immediately upon page load
+ * (via `initialWorkouts`) while simultaneously enabling TanStack Query to manage
+ * background updates and caching for subsequent interactions.
+ * * **Key Functional Responsibilities:**
+ * 1. **Cache Seeding**: Passes server-side data to the `useWorkouts` hook to
+ * eliminate "Loading..." states and Layout Shift (CLS).
+ * 2. **Session Context**: Bridges the authenticated user context with the data
+ * fetching layer to ensure scoped, secure requests.
+ * 3. **Component Orchestration**: Composes the high-level Header, the session
+ * initiation trigger (`StartWorkoutCard`), and the historical feed (`WorkoutHistory`).
+ * * @param {WorkoutClientViewProps} props - Component properties.
+ * @returns {JSX.Element} The fully orchestrated workouts dashboard.
  */
 export const WorkoutsClientView = ({ initialWorkouts }: WorkoutClientViewProps) => {
-	/** * Retrieves the current authenticated user context to scope the data query
-	 * and maintain session awareness.
+	/** * Authentication Context:
+	 * Retrieves the current user profile. The `user.id` serves as a vital
+	 * dependency for the underlying query cache key.
 	 */
 	const { user } = useUser();
 
