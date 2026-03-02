@@ -13,7 +13,7 @@ _Goal: Allow users to log their physical activity and browse past sessions._
 - [x] Integration with **Workout Templates** (e.g., Push, Pull, Leg Day).
 - [x] **Auto-population logic**: Selecting a template automatically fills the current date and the predefined list of exercises.
 
-- [ ] **Set Tracking**
+- [x] **Set Tracking**
 - Input fields for **Weight (kg)** and **Reps** for each set.
 - [x] **Persistence**: Save session to Supabase upon completion.
 

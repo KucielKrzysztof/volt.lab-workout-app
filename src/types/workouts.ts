@@ -93,3 +93,21 @@ export interface WorkoutUI {
 	exerciseCount: number;
 	totalSets: number;
 }
+
+/**
+ * Represents a paginated data slice for the workout history feed.
+ * * @description
+ * This model is the core contract for the **Infinite Loading Pattern**.
+ * It encapsulates a single "page" of mapped UI records along with the
+ * absolute total count of sessions available in the database.
+ * * **Use Cases:**
+ * 1. **SSR Hydration**: Seeds the TanStack Query cache with the first page + global metadata.
+ * 2. **Client-side Fetching**: Serves as the return type for `useInfiniteQuery` page parameters.
+ * @interface WorkoutPage
+ * @property {WorkoutUI[]} items - Array of formatted workout summaries for the current page.
+ * @property {number} totalCount - The exact total number of workouts in the database for the current user filter.
+ */
+export interface WorkoutPage {
+	items: WorkoutUI[];
+	totalCount: number;
+}

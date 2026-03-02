@@ -12,28 +12,33 @@ import { SupabaseClient } from "@supabase/supabase-js";
  * * @description
  * This service handles the complex mapping between the flat physical database
  * and the hierarchical training models used in the UI. It is optimized to
- * minimize network round-trips through deep relational selection.
+ * minimize network round-trips through deep relational selection and server-side
+ * pagination.
  */
 export const workoutService = {
 	/**
 	 * Fetches a paginated list of workout sessions for a specific user.
-	 * ** @description
+	 * * @description
 	 * Uses a deep relational join to retrieve all associated sets and exercise data
-	 * (names and muscle groups) in a single database call.
+	 * in a single database call. Implements exact count retrieval to support
+	 * synchronized pagination UI.
+	 * * **Pagination Mechanics:**
+	 * Translates 0-based page indices into inclusive byte-like ranges for PostgREST.
 	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
 	 * @param {string} userId - The unique UUID of the user owning the history.
 	 * @param {number} [page=0] - The zero-based index for server-side pagination.
 	 * @param {number} [limit=10] - Maximum number of workout records per payload.
-	 * @returns {Promise<Object>} A PostgREST response containing the raw joined Workout data.
+	 * @returns {Promise<{ data: any[] | null, count: number | null }>} A PostgREST response
+	 * containing the raw joined Workout data and the absolute total record count.
 	 * * @example
-	 * const { data } = await workoutService.getWorkouts(supabase, 'user-uuid', 0, 20);
+	 * const { data, count } = await workoutService.getWorkouts(supabase, 'uuid', 0, 10);
 	 */
 	getWorkouts: async (supabase: SupabaseClient, userId: string, page = 0, limit = 10) => {
 		// PostgREST uses 0-based inclusive range indexing (e.g., 0-9 for the first 10 items).
 		const from = page * limit;
 		const to = from + limit - 1;
 
-		return supabase
+		const { data, error, count } = await supabase
 			.from("workouts")
 			.select(
 				`
@@ -46,10 +51,16 @@ export const workoutService = {
           )
         )
       `,
+				{ count: "exact" }, // Essential for Infinite Scroll 'totalCount' logic.
 			)
+
 			.eq("user_id", userId)
 			.order("started_at", { ascending: false })
 			.range(from, to); // Applies server-side pagination to limit payload size.
+
+		if (error) throw new Error(error.message);
+
+		return { data, count };
 	},
 
 	/**

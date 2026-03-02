@@ -1,27 +1,31 @@
+/**
+ * @fileoverview Main Dashboard Feed - Server-side Entry Point.
+ * Initiates the hydration bridge for the user's primary feed stream.
+ * @module app/dashboard/feed
+ */
+
 import { getWorkoutsServer } from "@/features/workouts/api/get-workouts-server";
 import { FeedClientView } from "@/features/feed/components/FeedClientView";
 
 /**
  * Feed Page (Main Dashboard).
- * Acts as the primary landing page after successful authentication.
- * * This Server Component handles the initial data hydration for the feed, 
- * fetching the most recent workouts to be displayed immediately upon load.
- * * Features:
- * - Server-side authentication and data retrieval.
- * - Initial hydration for TanStack Query on the client.
+ * * @description
+ * Acts as the primary landing page after successful authentication. This Server
+ * Component handles the initial data acquisition to seed the dashboard feed.
+ * * **Data Strategy:**
+ * Fetches the first page of history (n=10) on the server to ensure LCP
+ * optimization and immediate visual feedback.
  * * @returns {Promise<JSX.Element>} The rendered server-side shell for the Feed.
  */
 export default async function FeedPage() {
-    /** * Initial Data Fetch:
-     * Retrieves authenticated workout data directly on the server. 
-     * This prevents layout shift and eliminates initial client-side loading states.
-     */
-    const initialWorkouts = await getWorkoutsServer();
+	/** * Initial Hydration Data:
+	 * Retrieves the 'WorkoutPage' object (items + totalCount) from the server utility.
+	 */
+	const initialData = await getWorkoutsServer();
 
-    /**
-     * Client View Orchestration:
-     * Passes the server-fetched 'initialWorkouts' to the FeedClientView.
-     * This data seeds the client-side cache for seamless interactivity.
-     */
-    return <FeedClientView initialWorkouts={initialWorkouts} />;
+	/**
+	 * Client View Orchestration:
+	 * Transfers the hydrated state to the FeedClientView.
+	 */
+	return <FeedClientView initialData={initialData} />;
 }

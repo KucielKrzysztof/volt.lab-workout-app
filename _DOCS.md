@@ -13,14 +13,15 @@
 
 ## Table of Contents
 
-| Date           | Milestone                                                  | Key Features                                              |
-| :------------- | :--------------------------------------------------------- | :-------------------------------------------------------- |
-| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)         | SSR/CSR Hybrid, Supabase Trinity, Service Layer           |
-| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context        |
-| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache    |
-| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration                 |
-| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)         | Relational Joins, UI Mapping, SSR Hydration Cache         |
-| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)    | Zustand Persistence, Routine Blueprints, Analytics Engine |
+| Date           | Milestone                                                  | Key Features                                               |
+| :------------- | :--------------------------------------------------------- | :--------------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)         | SSR/CSR Hybrid, Supabase Trinity, Service Layer            |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context         |
+| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache     |
+| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration                  |
+| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)         | Relational Joins, UI Mapping, SSR Hydration Cache          |
+| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)    | Zustand Persistence, Routine Blueprints, Analytics Engine  |
+| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026) | Sentinel Pattern, Infinite Scrolling, Total Count Metadata |
 
 ---
 
@@ -405,9 +406,70 @@ src/
 
 ---
 
+## (Update: 02-03-2026)
+
+### **Infinite Scroll Engine & Unified Hydration**
+
+This milestone introduced a scalable data streaming architecture, replacing static list fetching with a high-performance **Infinite Scroll** engine. The focus was on minimizing memory overhead for long-term users and establishing a "Single Source of Truth" for paginated data.
+
+#### **1. Cursor-less Pagination & Total Count Awareness**
+
+We upgraded the `workoutService` to support server-side range slicing while maintaining awareness of the total dataset size.
+
+- **PostgREST Range Mapping**: The system translates 0-based page indices into inclusive byte-like ranges (e.g., Page 0 $\rightarrow$ `0-9`) using the `.range(from, to)` method.
+- **Exact Count Retrieval**: By utilizing `{ count: "exact" }` in the Supabase select query, the server now returns the absolute number of records in the database. This allows the UI to display "Total Sessions" metrics before the data is actually scrolled into view.
+- **The `WorkoutPage` Contract**: Established a unified interface for data slices, encapsulating both the mapped `WorkoutUI[]` and the `totalCount` metadata.
+
+#### **2. Three-Tier UI Architecture (The Sentinel Pattern)**
+
+To ensure 60fps scrolling performance, the `WorkoutHistory` component was refactored into three distinct functional layers:
+
+- **Orchestrator (`WorkoutHistory`)**: Acts as the high-level state machine. It flattens the multi-page `InfiniteData` structure into a linear array and manages the transition between Loading, Empty, and Populated states.
+- **Presenter (`WorkoutList`)**: A "pure" component responsible solely for iterating over the flattened data. By isolating this, we prevent complex logic from executing during high-frequency scroll events.
+- **Sentinel (`InfiniteScrollTrigger`)**: Encapsulates the `IntersectionObserver` logic. This "sentinel" element detects when the user reaches the bottom of the feed and triggers the `fetchNextPage` callback, isolating re-renders to the footer of the list.
+
+#### **3. High-Performance SSR Hydration Bridge**
+
+We refined the **SSR-to-CSR** handoff to support paginated data, ensuring zero Cumulative Layout Shift (CLS).
+
+- **Cache Seeding**: The `useWorkouts` hook was updated to accept a full `WorkoutPage` object as `initialData`. This seeds the first page of the TanStack Query infinite cache during the server-render cycle.
+- **Hydration Sync**: Both the `Feed` and `Workouts` views were unified to use the same `getWorkoutsServer` utility, ensuring that user history depth is calculated on the server and immediately available to the client-side engine.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature               | File Location                                            | Technical Responsibility                                                              |
+| --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Infinite Hook**     | `features/workouts/_hooks/use-workouts.ts`               | Orchestrates `useInfiniteQuery` v5, cache keys, and stream termination.               |
+| **Sentinel UI**       | `features/workouts/components/InfiniteScrollTrigger.tsx` | Encapsulates `useInView` and the visual "Loading Archive" states.                     |
+| **Data Orchestrator** | `features/workouts/components/WorkoutHistory.tsx`        | Page flattening ($[[page1], [page2]] \rightarrow [all]$) and high-level state guards. |
+| **Service Layer**     | `services/apiWorkouts.ts`                                | Implements `{ count: "exact" }` and relational range slicing.                         |
+| **Type System**       | `types/workouts.ts`                                      | Global definitions for `WorkoutPage` and relational DTOs.                             |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/(dashboard)/
+│   ├── feed/page.tsx           <-- SSR Hydration for the Dashboard feed
+│   └── workouts/page.tsx       <-- SSR Hydration for the full History view
+├── features/
+│   ├── workouts/
+│   │   ├── _hooks/use-workouts.ts <-- Infinite Query logic & cache priming
+│   │   └── components/
+│   │       ├── WorkoutHistory.tsx <-- The "Smart" Orchestrator
+│   │       ├── WorkoutList.tsx    <-- Pure "Dumb" Presenter
+│   │       └── InfiniteScrollTrigger.tsx <-- Viewport Sentinel (IntersectionObserver)
+└── types/
+    └── workouts.ts             <--  Added 'WorkoutPage' interface
+
+```
+
 ---
 
 ### **Next Steps**
 
-- Infinite scrolling/pagination for prev workouts.
 - Different PR for different year(change the PR field in db)
