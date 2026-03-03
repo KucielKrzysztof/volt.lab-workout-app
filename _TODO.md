@@ -5,7 +5,7 @@
 _Goal: Allow users to log their physical activity and browse past sessions._
 
 - [x] **Workout History List**
-- [ ] Implement **Infinite Scroll** or **Pagination** using TanStack Query `useInfiniteQuery`.
+- [x] Implement **Infinite Scroll** or **Pagination** using TanStack Query `useInfiniteQuery`.
 - [x] Data Source: Supabase `workouts` table.
 - [x] Features: Filter by date range, summary cards (volume, duration, etc...).
 

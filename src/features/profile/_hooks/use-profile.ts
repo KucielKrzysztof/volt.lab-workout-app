@@ -9,7 +9,7 @@ import { toast } from "sonner";
  * * This hook handles:
  * 1. **Data Hydration**: Supports SSR data through `initialProfile`.
  * 2. **Auth Synchronization**: Automatically refreshes Supabase sessions to sync JWT metadata with DB changes.
- * 3. **Real-time Feedback**: Integrates with Sonner for immediate user notification.
+ * 3. **Yearly PR Strategy**: Manages the persistence of Personal Records on a per-year basis.
  * * @param {string | undefined} userId - The unique identifier of the authenticated user.
  * @param {UserProfile | null} [initialProfile] - Optional server-side fetched profile for instant hydration.
  * * @returns {Object} An object containing profile data, loading states, and mutation functions.
@@ -69,8 +69,11 @@ export const useProfile = (userId: string | undefined, initialProfile?: UserProf
 	});
 
 	/**
-	 * Mutation to manage Personal Records (PRs) stored in a JSONB array.
-	 * Handles both adding new records and updating existing ones based on exercise names.
+	 * Mutation to manage Yearly Personal Records (PRs) stored in a JSONB array.
+	 * * @description
+	 * Implements a yearly upsert:
+	 * - If (Exercise + Year) exists -> Overwrite.
+	 * - If (Exercise + Year) is new -> Append.
 	 */
 	const addPRMutation = useMutation({
 		mutationFn: (newRecord: PersonalRecord) => profileService.addEditPersonalRecord(supabase, userId!, newRecord),

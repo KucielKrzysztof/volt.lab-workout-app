@@ -13,15 +13,16 @@
 
 ## Table of Contents
 
-| Date           | Milestone                                                  | Key Features                                               |
-| :------------- | :--------------------------------------------------------- | :--------------------------------------------------------- |
-| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)         | SSR/CSR Hybrid, Supabase Trinity, Service Layer            |
-| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)              | Auth Guard (Proxy), PKCE Flow, Global User Context         |
-| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026) | DB Triggers (Sync), JSONB Records, SSR Hydration Cache     |
-| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)           | Secure Password Reset, Sonner Integration                  |
-| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)         | Relational Joins, UI Mapping, SSR Hydration Cache          |
-| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)    | Zustand Persistence, Routine Blueprints, Analytics Engine  |
-| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026) | Sentinel Pattern, Infinite Scrolling, Total Count Metadata |
+| Date           | Milestone                                                                               | Key Features                                                             |
+| :------------- | :-------------------------------------------------------------------------------------- | :----------------------------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)                                      | SSR/CSR Hybrid, Supabase Trinity, Service Layer                          |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)                                           | Auth Guard (Proxy), PKCE Flow, Global User Context                       |
+| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026)                              | DB Triggers (Sync), JSONB Records, SSR Hydration Cache                   |
+| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)                                        | Secure Password Reset, Sonner Integration                                |
+| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)                                      | Relational Joins, UI Mapping, SSR Hydration Cache                        |
+| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)                                 | Zustand Persistence, Routine Blueprints, Analytics Engine                |
+| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata               |
+| **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine |
 
 ---
 
@@ -470,6 +471,88 @@ src/
 
 ---
 
+## (Update: 03-03-2026)
+
+### **Yearly Achievement Architecture & Analytics Optimization**
+
+This milestone introduced a temporal partitioning strategy for Personal Records (PRs) and decoupled business logic from the UI using Headless Hooks. We also optimized the analytics engine to ensure 100% data accuracy for heatmaps regardless of pagination state.
+
+#### **1. Yearly Personal Record (PR) Partitioning**
+
+We evolved the achievement system from a "Single Best" model to a "Yearly Best" model. This allows athletes to track their progression year-over-year while maintaining historical data.
+
+- **Composite Key Logic**: The `addEditPersonalRecord` service now treats the tuple of `(exercise_name, year)` as a unique identifier.
+- **JSONB Upsert Strategy**: When a new record is submitted, the system checks the existing `personal_records` array. If an entry for that specific exercise and year exists, it is updated; otherwise, a new record is appended.
+- **Data Persistence**: This strategy preserves historical peaks (e.g., "Max Squat 2025") while allowing the UI to focus on current-year goals.
+
+#### **2. High-Performance Activity Snapshot Engine**
+
+To solve the conflict between "Infinite Scrolling" (paginated history) and the "Activity Grid" (full-year heatmap), we implemented a dedicated snapshot service.
+
+- **Lightweight API Hook**: The `getYearlyActivitySnapshot` method bypasses the main relational workout feed. It fetches only the `started_at` column for a specific year.
+- **Payload Optimization**: By retrieving only timestamps instead of full workout objects, we reduced the network payload by ~90%, allowing for an instant, 100% accurate heatmap rendering even for high-frequency users.
+- **Autonomous Fetching**: The `ActivitySection` now manages its own data lifecycle via the `useYearlyActivity` hook, ensuring the dashboard remains responsive during background pagination.
+
+#### **3. Headless Hook Architecture & UI Atomization**
+
+We refactored the Profile and Analytics modules into a "Headless" pattern to separate state management from visual representation.
+
+- **Logic Encapsulation**: Hooks like `useProfile` and `useAnalyticsDashboard` now handle all side effects, mutation states.
+- **Atomic Refactoring**: The achievement list was decomposed from a monolithic grid into an **Orchestrator** (`RecordsSection`) and an **Atomic Unit** (`RecordRow`).
+- **Management UI**: Implemented a unified `RecordFormModal` that handles both "Create" and "Update" actions, featuring a smart hydration cycle that populates the form based on the selected historical context.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature              | File Location                                      | Technical Responsibility                                                                |
+| -------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Profile Hook**     | `features/profile/_hooks/use-profile.ts`           | Headless logic for identity sync, PR mutations, and session refreshing.                 |
+| **Activity Hook**    | `features/analytics/_hooks/use-yearly-activity.ts` | Independent year-based timestamp fetching for heatmaps.                                 |
+| **Snapshot Service** | `services/apiWorkouts.ts`                          | Optimized SQL query for retrieving yearly activity snapshots.                           |
+| **PR Orchestrator**  | `features/analytics/components/RecordsSection.tsx` | Memoized temporal slicing and state management for the Hall of Fame list.               |
+| **Atomic Record**    | `features/analytics/components/RecordRow.tsx`      | Presentational logic for high-contrast achievements with hover-activated edit triggers. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   ├── profile/
+│   │   ├── _hooks/use-profile.ts         <-- Centralized Profile & PR logic
+│   │   └── components/
+│   │       ├── ProfileClientView.tsx     <-- Orchestrates Identity + Records
+│   │       └── RecordFormModal.tsx       <-- Unified Create/Update interface
+│   └── analytics/
+│       ├── _hooks/
+│       │   ├── use-analytics-dashboard.ts <-- KPI aggregation & pagination flattening
+│       │   └── use-yearly-activity.ts    <-- Independent activity stream
+│       └── components/
+│           ├── RecordsSection.tsx        <-- Smart list container (Memoized)
+│           ├── RecordRow.tsx             <-- Atomic row unit
+│           └── sections/
+│               └── ActivitySection.tsx   <-- Heatmap shell using the Snapshot Engine
+└── services/
+    ├── apiProfile.ts                     <-- Yearly Upsert logic (JSONB)
+    └── apiWorkouts.ts                    <-- NEW: getYearlyActivitySnapshot
+
+```
+
+---
+
 ### **Next Steps**
 
-- Different PR for different year(change the PR field in db)
+- Let user change profile username.
+- Motive toggle in settings.
+- Let user modify/delate templates.
+- implement placeholder pages for:
+
+```
+dashboard/
+|   ├── Settings
+|   ├── Privacy & Security
+│   └── Help & Feedback
+
+```

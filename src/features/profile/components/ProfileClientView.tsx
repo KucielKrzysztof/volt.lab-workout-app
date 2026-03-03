@@ -1,10 +1,22 @@
+/**
+ * @fileoverview User Identity and Performance Dashboard Orchestrator.
+ * Manages the high-level state for user profiles, avatar synchronization,
+ * and the yearly-partitioned "Hall of Fame" record system.
+ * @module features/profile/components
+ */
+
 "use client";
 
+import { useState } from "react";
 import { useProfile } from "../_hooks/use-profile";
 import { AvatarUpload } from "./AvatarUpload";
 import { Card } from "@/components/ui/card";
-import { ErrorState } from "@/components/ui/ErrorState";
+import { YearPicker } from "@/features/analytics/components/YearPicker";
 import { RecordsSection } from "@/features/analytics/components/sections/RecordsSection";
+import { RecordFormModal } from "@/features/analytics/components/RecordFormModal";
+import { PersonalRecord, UserProfile } from "@/types/profile";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Button } from "@/components/ui/button";
 
 interface ProfileClientViewProps {
 	/** The unique UUID of the user from the Auth session. */
@@ -12,27 +24,48 @@ interface ProfileClientViewProps {
 	/** * Initial profile data fetched on the server to prevent layout shifts
 	 * and provide instant content visibility.
 	 */
-	initialProfile: any;
+	initialProfile: UserProfile;
 }
 
 /**
  * Main Client-Side Orchestrator for the User Profile section.
  * * @description
- * This component acts as the primary container for user identity and achievements.
- * It manages the transition from server-rendered data to a reactive client-side state,
- * ensuring that any updates (like a new PR or changed avatar) are reflected instantly.
- * * @features
- * - **Hybrid Hydration**: Uses server-side data for the first paint and switches to TanStack Query for live updates.
- * - **Error Handling**: Gracefully catches and displays issues with profile retrieval.
- * - **Identity Management**: Wraps the Avatar upload and Name display logic.
- * - **Achievement Tracking**: Integrates the shared RecordsSection to visualize personal bests.
+ * This component acts as the **Command Center** for athlete identity and achievements.
+ * It bridges the gap between static server-side hydration and dynamic client-side
+ * performance tracking.
+ * * **Key Architectural Features:**
+ * 1. **Temporal Slicing**: Integrates `YearPicker` to filter the "Hall of Fame"
+ * by specific competition years.
+ * 2. **Record Lifecycle**: Manages a unified modal for both creating and updating
+ * yearly achievements using an "Upsert" strategy.
+ * 3. **Identity Sync**: Coordinates avatar uploads and display name updates with
+ * immediate TanStack Query cache invalidation.
+ * 4. **Hybrid Hydration**: Seeds the profile state with server-side data to ensure
+ * instant content visibility.
  * * @param {ProfileClientViewProps} props - Component properties.
+ * @returns {JSX.Element} The orchestrated user profile and achievements dashboard.
  */
 export const ProfileClientView = ({ userId, initialProfile }: ProfileClientViewProps) => {
-	/** * Initialize the profile hook with initial server data.
-	 * This ensures the UI is populated immediately while the client fetches the freshest data in the background.
+	const [year, setYear] = useState(new Date().getFullYear());
+
+	/** * Modal State Management:
+	 * Handles the visibility and the specific data context for the RecordFormModal.
 	 */
-	const { profile, isError } = useProfile(userId, initialProfile);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [editingRecord, setEditingRecord] = useState<PersonalRecord | null>(null);
+
+	/** * Profile Data Logic:
+	 * High-performance hook managing background updates, mutations, and session refreshes.
+	 */
+	const { profile, addPersonalRecord, isUpdating, isError } = useProfile(userId, initialProfile);
+
+	/** * Prepares and triggers the record management modal.
+	 * @param {PersonalRecord} [record] - Optional record to populate the form for updates.
+	 */
+	const handleOpenModal = (record?: PersonalRecord) => {
+		setEditingRecord(record || null);
+		setIsModalOpen(true);
+	};
 
 	// Error boundary to prevent the app from breaking if a specific profile fails to load
 	if (isError) {
@@ -55,9 +88,30 @@ export const ProfileClientView = ({ userId, initialProfile }: ProfileClientViewP
 
 			{/* PERSONAL RECORDS SECTION
                 Reuses the specialized RecordsSection from the Analytics feature to maintain UI consistency.
-                Hardcoded to current year 2026 for the PR overview.
             */}
-			<RecordsSection records={profile?.personal_records || []} year={2026} showTitle={true} />
+			<div className="flex justify-center items-center px-1">
+				<div className="flex flex-col gap-2">
+					<YearPicker year={year} onYearChange={setYear} />
+					<Button
+						onClick={() => handleOpenModal()}
+						className="bg-primary text-black w-full  font-black italic uppercase text-xs px-4 py-2 rounded-lg hover:scale-105 transition-transform"
+					>
+						+ Add Record
+					</Button>
+				</div>
+			</div>
+
+			{/* RECORDS LIST */}
+			<RecordsSection records={profile?.personal_records || []} year={year} onEdit={handleOpenModal} showTitle={true} />
+
+			{/* MODAL FORM */}
+			<RecordFormModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				onSave={addPersonalRecord}
+				initialData={editingRecord}
+				isLoading={isUpdating}
+			/>
 		</div>
 	);
 };

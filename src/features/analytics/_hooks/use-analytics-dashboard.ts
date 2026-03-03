@@ -32,7 +32,8 @@ export const useAnalyticsDashboard = (userId: string, initialProfile: UserProfil
 	 * Fetches the user's full history. The component handles the filtering
 	 * locally to allow for instant year-switching without new network requests.
 	 */
-	const { data: workouts, isLoading } = useWorkouts(userId);
+	const queryBundle = useWorkouts(userId);
+	const { data, isLoading } = queryBundle;
 
 	/**
 	 * Memoized calculation of high-level training KPIs.
@@ -49,11 +50,15 @@ export const useAnalyticsDashboard = (userId: string, initialProfile: UserProfil
 			volume: "0 kg",
 		};
 
-		if (!workouts) return defaultStats;
+		if (!data?.pages) return defaultStats;
 
-		// Filtering logic using the localized displayDate string
-		const filteredWorkouts = workouts.filter((w) => w.displayDate.includes(year.toString()));
+		// 1. Flatten all pages into a single array for analysis
+		const allWorkouts = data.pages.flatMap((page) => page.items);
 
+		// 2. Filter by year (using displayDate which contains the year string)
+		const filteredWorkouts = allWorkouts.filter((w) => w.displayDate.includes(year.toString()));
+
+		// 3. Aggregate metrics
 		const totals = filteredWorkouts.reduce(
 			(acc, w) => ({
 				volume: acc.volume + w.total_volume,
@@ -69,15 +74,15 @@ export const useAnalyticsDashboard = (userId: string, initialProfile: UserProfil
 			sets: totals.sets,
 			volume: formatVolume(totals.volume),
 		};
-	}, [workouts, year]);
+	}, [data, year]);
 
 	return {
 		year,
 		setYear,
 		stats,
 		profile,
-		workouts,
-		isLoading: isLoading || !workouts,
+		isLoading,
+		queryBundle,
 		personalRecords: profile?.personal_records || [],
 	};
 };

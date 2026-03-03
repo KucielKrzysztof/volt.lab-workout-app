@@ -1,38 +1,48 @@
+/**
+ * @fileoverview Records Visualization Orchestrator.
+ * Handles the logic for temporal data slicing and coordinates the rendering
+ * of the yearly-partitioned achievement feed.
+ * @module features/analytics/components
+ */
+
+import { useMemo } from "react";
 import { PersonalRecord } from "@/types/profile";
 import { Trophy } from "lucide-react";
+import { RecordRow } from "../RecordRow";
 
 interface RecordsSectionProps {
-	/** Array of personal record objects fetched from the user's profile JSONB column. */
 	records: PersonalRecord[];
-	/** The specific year used to filter and display relevant records. */
 	year: number;
-	/** Optional flag to toggle the "Hall of Fame" header with the Trophy icon. */
+	onEdit: (record: PersonalRecord) => void;
 	showTitle?: boolean;
 }
 
 /**
- * Shared UI component for visualizing an athlete's personal bests (PRs).
+ * Orchestrator for the paginated achievement feed.
  * * @description
- * This component acts as a "Hall of Fame" grid, reusable across the Profile and Analytics views.
- * It processes raw record data, applies temporal filtering based on the selected year,
- * and renders achievement cards using the signature VOLT.LAB high-contrast aesthetic.
- * * @features
- * - **Dynamic Filtering**: Automatically parses the `date` string of each record to match the active `year` prop.
- * - **Visual Feedback**: Implements staggered entry animations (`animate-in`, `zoom-in`) for a premium feel.
- * - **Graceful Empty State**: Displays a motivational dashed-border placeholder when no records are found for the given year.
- * - **Typography**: Leverages bold, black-italic styling to emphasize strength metrics (KG).
+ * This component acts as a **Smart Container** for personal bests. It is responsible for
+ * filtering the raw record array into a yearly-scoped stream.
+ * * **Architectural Responsibilities:**
+ * 1. **Memoized Temporal Slicing**: Optimized filtering logic to prevent expensive
+ * array operations on every render cycle.
+ * 2. **State Transition**: Manages the switch between the interactive list and
+ * a motivational "Empty State" fallback.
+ * 3. **Composition**: Orchestrates the layout of atomic `RecordRow` units.
  * * @param {RecordsSectionProps} props - Component properties.
+ * @returns {JSX.Element} The rendered achievement section or a dashed empty state placeholder.
  */
-export const RecordsSection = ({ records, year, showTitle = false }: RecordsSectionProps) => {
-	/** * Filtering Logic:
-	 * We assume the record date follows the ISO format (YYYY-MM-DD).
-	 * We filter entries where the string starts with the requested year.
+export const RecordsSection = ({ records, year, onEdit, showTitle = false }: RecordsSectionProps) => {
+	/** * Memoized Filtering Logic:
+	 * This ensures that the array filter only runs when 'records' or 'year' changes.
+	 * Prevents performance degradation during parent-level re-renders.
 	 */
-	const filteredRecords = records?.filter((r) => r.date.startsWith(year.toString())) || [];
+	const filteredRecords = useMemo(() => {
+		return records?.filter((r) => r.date.startsWith(year.toString())) || [];
+	}, [records, year]);
 
 	return (
-		<div className="space-y-4">
-			{/* OPTIONAL HEADER: Centered title with the primary brand color icon */}
+		<div className="space-y-4 w-full">
+			{/* SECTION HEADER */}
 			{showTitle && (
 				<div className="flex items-center justify-center gap-2 px-1">
 					<Trophy className="text-primary h-5 w-5" />
@@ -40,30 +50,14 @@ export const RecordsSection = ({ records, year, showTitle = false }: RecordsSect
 				</div>
 			)}
 
-			{/* SUBTITLE: Displays the context of the currently viewed records */}
-			<p className="text-center text-muted-foreground italic text-sm lowercase">{`Your PR's in ${year}`}</p>
+			<p className="text-center text-muted-foreground italic text-[10px] uppercase tracking-widest opacity-40">{`Strength Registry for ${year}`}</p>
 
-			{/* RECORDS GRID: 2-column layout for achievement cards */}
-			<div className="grid grid-cols-2 gap-3">
+			{/* RECORDS  */}
+			<div className="flex flex-col gap-2 w-full">
 				{filteredRecords.length > 0 ? (
-					filteredRecords.map((pr) => (
-						<div
-							key={pr.exercise_name}
-							className="p-4 rounded-xl bg-secondary/20 border border-white/5 flex flex-col justify-center animate-in fade-in zoom-in duration-300"
-						>
-							{/* Exercise Label: Truncated to prevent layout break on long names */}
-							<p className="text-[10px] uppercase opacity-50 font-bold truncate">{pr.exercise_name}</p>
-
-							{/* Strength Metric: Large italic weight with a primary color unit label */}
-							<div className="flex items-baseline gap-1">
-								<p className="text-2xl font-black italic tracking-tighter">{pr.weight}</p>
-								<span className="text-[10px] font-bold uppercase text-primary">KG</span>
-							</div>
-						</div>
-					))
+					filteredRecords.map((pr) => <RecordRow key={`${pr.exercise_name}-${pr.date}`} record={pr} onEdit={onEdit} />)
 				) : (
-					/* EMPTY STATE: Encourages the user to start logging workouts */
-					<div className="col-span-2 p-8 rounded-xl border border-dashed border-white/10 text-center">
+					<div className="p-12 rounded-2xl border border-dashed border-white/10 text-center animate-in zoom-in duration-500">
 						<p className="text-xs text-muted-foreground lowercase italic">No records established in {year}.</p>
 					</div>
 				)}

@@ -18,6 +18,7 @@ import { SummarySection } from "./sections/SummarySection";
 import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "@/types/profile";
 import { useAnalyticsDashboard } from "../_hooks/use-analytics-dashboard";
+import { useRouter } from "next/navigation";
 
 interface AnalyticsClientViewProps {
 	userId: string;
@@ -44,19 +45,27 @@ interface AnalyticsClientViewProps {
  * @returns {JSX.Element | null} The rendered dashboard or null during critical loading phases.
  */
 export default function AnalyticsClientView({ userId, initialProfile }: AnalyticsClientViewProps) {
+	const router = useRouter();
 	/** * Analytics Engine Integration:
 	 * Consumes the refined dashboard state. This hook centralizes:
 	 * - Year filtering logic.
 	 * - KPI memoization ($Volume = \sum w.volume$).
 	 * - Multi-source data fetching (Workouts + Profile).
 	 */
-	const { year, setYear, stats, workouts, personalRecords, isLoading } = useAnalyticsDashboard(userId, initialProfile);
+	const { year, setYear, stats, profile, queryBundle, personalRecords, isLoading } = useAnalyticsDashboard(userId, initialProfile);
+
+	/** * Navigates to the profile page for record editing.
+	 * Since this is the Analytics view, we redirect to the Management UI.
+	 */
+	const handleRecordEdit = () => {
+		router.push("/dashboard/profile");
+	};
 
 	/** * Render Guard:
 	 * Prevents the UI from rendering in an inconsistent state during
 	 * initial hydration if critical data is missing.
 	 */
-	if (isLoading || !workouts) return null;
+	if (isLoading && !queryBundle.data) return null;
 
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -87,7 +96,7 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 						</div>
 					</AccordionTrigger>
 					<AccordionContent>
-						<ActivitySection year={year} workouts={workouts} />
+						<ActivitySection year={year} userId={userId} />
 					</AccordionContent>
 				</AccordionItem>
 
@@ -111,7 +120,7 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 						</div>
 					</AccordionTrigger>
 					<AccordionContent>
-						<RecordsSection records={personalRecords} year={year} />
+						<RecordsSection records={personalRecords} year={year} onEdit={handleRecordEdit} />
 					</AccordionContent>
 				</AccordionItem>
 			</Accordion>

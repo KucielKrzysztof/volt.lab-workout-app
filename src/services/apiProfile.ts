@@ -95,38 +95,50 @@ export const profileService = {
 	},
 
 	/**
-	 * Manages Personal Records (PRs) within a JSONB array using an "Upsert" (Update or Insert) approach.
-	 * * Since Supabase/PostgreSQL stores these as a JSON array in a single column,
-	 * we handle the logic of finding, replacing, or adding new records locally
-	 * before pushing the final state back to the server.
-	 * * @param {SupabaseClient} supabase - Your authenticated Supabase lab assistant.
-	 * @param {string} userId - The unique ID of the athlete.
+	 * Manages Personal Records (PRs) within a JSONB array using a "Yearly Upsert" strategy.
+	 * * @description
+	 * Instead of having only one PR per exercise, this logic allows for one PR per exercise per year.
+	 * - If a record for the same exercise exists in a DIFFERENT year -> it's treated as a new entry.
+	 * - If a record for the same exercise exists in the SAME year -> it's updated with the new weight/date.
+	 * * **Logic Flow:**
+	 * 1. Extract year from new record (e.g., "2026-02-21" -> "2026").
+	 * 2. Search array for: (Name == NewName) AND (Year == NewYear).
+	 * 3. Update existing or Append new.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client.
+	 * @param {string} userId - The unique user UUID.
 	 * @param {PersonalRecord} newRecord - The new achievement (Name, Weight, Date).
 	 */
 	async addEditPersonalRecord(supabase: SupabaseClient, userId: string, newRecord: PersonalRecord) {
-		// --- STEP 1: DOWNLOAD CURRENT STATE ---
+		// --- STEP 1: PREPARATION ---
+		// Extract the year string for comparison. We use substring(0,4) for ISO dates (YYYY-MM-DD).
+		const newYear = newRecord.date.substring(0, 4);
 		// Unlike standard SQL tables, to update a specific item inside a JSONB array
 		// via the client SDK, we first need to know what's already there.
 		const profile = await this.getProfile(supabase, userId);
 		const existingRecords = profile.personal_records || [];
 
 		// --- STEP 2: FIND THE TARGET ---
-		// We check if this exercise (e.g., 'Bench Press') already has a record.
-		// We use .toLowerCase() so that 'SQUAT' and 'squat' are treated as the same thing.
-		const recordIndex = existingRecords.findIndex((r) => r.exercise_name.toLowerCase() === newRecord.exercise_name.toLowerCase());
+		/**
+		 * Composite key logic:
+		 * We look for a match where both the name AND the year are identical.
+		 */
+		const recordIndex = existingRecords.findIndex((r) => {
+			const exerciseMatch = r.exercise_name.toLowerCase() === newRecord.exercise_name.toLowerCase();
+			const yearMatch = r.date.substring(0, 4) === newYear;
+			return exerciseMatch && yearMatch;
+		});
 
 		let updatedRecords;
 
 		// --- STEP 3: APPLY LOGIC (Overwrite vs Append) ---
 		if (recordIndex !== -1) {
-			// SCENARIO: EDIT
-			// If the record exists, we create a shallow copy of the array and
-			// swap the old record with the new one at the exact same position.
+			// SCENARIO: YEARLY UPDATE
+			// A record for 'Bench Press' in 2026 already exists. We overwrite it with the new weight.
 			updatedRecords = [...existingRecords];
 			updatedRecords[recordIndex] = newRecord;
 		} else {
-			// SCENARIO: ADD
-			// If it's a new exercise, we just append it to the end of the list.
+			// SCENARIO: NEW ACHIEVEMENT
+			// Either the exercise is new, or it's a new year for an existing exercise.
 			updatedRecords = [...existingRecords, newRecord];
 		}
 

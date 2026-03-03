@@ -92,6 +92,30 @@ export const workoutService = {
 	},
 
 	/**
+	 * Fetches a lightweight array of workout timestamps for a specific year.
+	 * * @description
+	 * Optimized for heatmaps. Instead of fetching full relational models,
+	 * it only retrieves the 'started_at' column to minimize payload size.
+	 * * @param {string} userId - UUID of the athlete.
+	 * @param {number} year - The target year for the activity snapshot.
+	 * @returns {Promise<string[]>} An array of ISO timestamp strings.
+	 */
+	getYearlyActivitySnapshot: async (supabase: SupabaseClient, userId: string, year: number): Promise<string[]> => {
+		const startOfYear = `${year}-01-01T00:00:00Z`;
+		const endOfYear = `${year}-12-31T23:59:59Z`;
+
+		const { data, error } = await supabase
+			.from("workouts")
+			.select("started_at")
+			.eq("user_id", userId)
+			.gte("started_at", startOfYear)
+			.lte("started_at", endOfYear);
+
+		if (error) throw error;
+		return data.map((w) => w.started_at);
+	},
+
+	/**
 	 * Finalizes and persists an active workout session along with all performed sets.
 	 * * @description
 	 * Implements a critical two-stage persistence strategy to maintain referential integrity:
