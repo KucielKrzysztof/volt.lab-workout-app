@@ -1,16 +1,42 @@
 /**
- * @fileoverview Calendar generation logic for activity heatmaps.
- * Provides the structural foundation for rendering GitHub-style contribution grids
+ * @fileoverview Calendar & Temporal Logic Orchestrator.
+ * Provides a Single Source of Truth (SSOT) for date formatting
+ * and the structural foundation for rendering GitHub-style activity grids
  * partitioned by months for the VOLT.LAB Analytics Dashboard.
  * @module features/analytics/utils
  */
 
 /**
- * Generates a comprehensive 12-month data structure for a specific year, optimized for activity tracking grids.
+ * Universal Date Formatter (UI Standard).
  * * @description
- * This utility orchestrates the creation of a visual calendar grid. It accounts for:
+ * Converts any valid Date or ISO-string into a strictly localized 'DD.MM.YYYY' format.
+ * This function enforces a **UTC-Only Strategy** to eliminate "Day Shifting" caused
+ * by browser-side timezone offsets.
+ * * @param {Date | string} date - The raw date input (ISO timestamp or Date object).
+ * @returns {string} A formatted string, e.g., "04.03.2026".
+ * * @example
+ * formatToUIDate("2026-03-04T23:50:00Z") // Always "04.03.2026" regardless of local time.
+ */
+export const formatToUIDate = (date: Date | string) => {
+	/**
+	 * Date String Construction:
+	 * We use UTC methods to ensure the date is parsed identically on server and client
+	 */
+	const d = typeof date === "string" ? new Date(date) : date;
+
+	const day = String(d.getUTCDate()).padStart(2, "0");
+	const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+	const year = d.getUTCFullYear();
+
+	return `${day}.${month}.${year}`;
+};
+
+/**
+ * Activity Grid Structure Generator.
+ * * @description
+ * Orchestrates the creation of a 12-month matrix optimized for GitHub-style activity grids:
  * 1. **Monday-First Alignment**: Adjusts the starting position of each month to ensure Monday is the first column.
- * 2. **Localized Formatting**: Converts all active days into `DD.MM.YYYY` strings to match the application's global display format.
+ * 2. **Localized Formatting**: Leverages 'formatToUIDate' to ensure 100% parity with database snapshots.
  * 3. **Grid Padding**: Injects `null` values at the beginning of each month's array to align the first day with its correct weekday column.
  * * @param {number} year - The target year for which the calendar structure should be generated (e.g., 2026).
  * @returns {[]} An array of 12 month objects, each containing its name and aligned day strings.
@@ -25,11 +51,13 @@
 export const generateYearStructure = (year: number) => {
 	const months = [];
 	for (let m = 0; m < 12; m++) {
+		// Core Date resolution
 		const date = new Date(year, m, 1);
 		const monthName = date.toLocaleString("en-US", { month: "long" });
 		const daysInMonth = new Date(year, m + 1, 0).getDate();
 
-		// Calculate offset to ensure Monday is the first day of the week
+		// Calculate offset (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+		// Formula to shift for Monday-first: (index === 0 ? 6 : index - 1)
 		const firstDayIndex = new Date(year, m, 1).getDay();
 		const offset = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
 
@@ -37,15 +65,11 @@ export const generateYearStructure = (year: number) => {
 		// Fill the beginning of the month with nulls for correct grid alignment
 		for (let i = 0; i < offset; i++) days.push(null);
 
-		/**
-		 * Date String Construction:
-		 * Iterates through the month days and formats them as DD.MM.YYYY.
-		 * This specific format is critical for matching with WorkoutUI.displayDate.
-		 */
+		// 2. FILL DATA: Use the formatter for every active day
 		for (let d = 1; d <= daysInMonth; d++) {
-			const day = String(d).padStart(2, "0");
-			const month = String(m + 1).padStart(2, "0");
-			days.push(`${day}.${month}.${year}`);
+			// We use Date.UTC to prevent the constructor from applying local time-shift
+			const dateObj = new Date(Date.UTC(year, m, d));
+			days.push(formatToUIDate(dateObj));
 		}
 		months.push({ name: monthName, days });
 	}

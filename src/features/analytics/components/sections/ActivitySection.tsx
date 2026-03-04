@@ -7,7 +7,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { generateYearStructure } from "@/features/analytics/utils/calendar-logic";
+import { formatToUIDate, generateYearStructure } from "@/features/analytics/utils/calendar-logic";
 import { MonthGrid } from "@/features/analytics/components/MonthGrid";
 import { useYearlyActivity } from "../../_hooks/use-yearly-activity";
 import { Loader2 } from "lucide-react";
@@ -23,21 +23,31 @@ interface ActivitySectionProps {
  * This component implements the **Activity Snapshot Pattern**. It bypasses the
  * paginated workout feed to fetch a lightweight array of all timestamps for the
  * selected year, ensuring the heatmap is always 100% accurate.
+ * * @param {ActivitySectionProps} props - Component props.
+ * @returns {JSX.Element} The rendered activity grid or a loading state.
  */
 export const ActivitySection = ({ year, userId }: ActivitySectionProps) => {
-	// Independent fetch for the full year's dates
+	/** * Data Acquisition:
+	 * Fetches a lightweight array of all workout timestamps for the specified year.
+	 * This stream is independent of the main feed to maintain 100% accuracy.
+	 */
 	const { data: activityDates, isLoading } = useYearlyActivity(userId, year);
 
-	// Static calendar structure for the selected year
+	/** * Structural Logic:
+	 * Generates the visual skeleton of the calendar (months and day strings).
+	 * Memoized to prevent recalculation on parent re-renders.
+	 */
 	const structure = useMemo(() => generateYearStructure(year), [year]);
 
 	/** * Data Normalization:
-	 * We convert full timestamps to a localized date string format that
-	 * matches the internal MonthGrid comparison logic.
+	 * Converts raw database timestamps into the application's global date format.
+	 * Crucial for the `history.includes(date)` check inside the MonthGrid.
 	 */
 	const history = useMemo(() => {
 		if (!activityDates) return [];
-		return activityDates.map((date) => new Date(date).toLocaleDateString("pl-PL"));
+
+		// Single Source of Truth: Mapping via shared utility
+		return activityDates.map(formatToUIDate);
 	}, [activityDates]);
 
 	if (isLoading) {
