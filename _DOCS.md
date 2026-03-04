@@ -5,7 +5,7 @@
 - **Framework:** Next.js 16 (App Router)
 - **Database:** Supabase (PostgreSQL)
 - **State Management:** TanStack Query v5 & Zustand (Persistent)
-- **Styling:** Tailwind CSS 4 + Shadcn UI
+- **Styling:** Tailwind CSS 4 + Shadcn UI + Cookie-based Theme Synchronization
 - **Alerts:** Sonner (Toast notifications)
 - **Icons:** Lucide React
 
@@ -23,6 +23,7 @@
 | **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)                                 | Zustand Persistence, Routine Blueprints, Analytics Engine                |
 | **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata               |
 | **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine |
+| **04-03-2026** | [**Theme & Settings**](#update-04-03-2026)                                              | Cookie-Sync Engine for theme, Theme Toggle, Change username              |
 
 ---
 
@@ -542,16 +543,80 @@ src/
 
 ---
 
+## (Update: 04-03-2026)
+
+### **Theme SSR & Identity Governance**
+
+This milestone focuses on eliminating "Theme Flickering" (FOUC) and hydration mismatches by implementing a **Cookie-based SSR** architecture. We also expanded the Identity module to support username modifications and established a scalable structure for the Settings domain.
+
+#### **1. Elite SSR Theme Engine (Cookie-Sync)**
+
+We migrated from a purely client-side theme resolution to a server-aware synchronization strategy.
+
+- **Proxy-Level Resolution**: The `proxy.ts` (middleware) intercepts every request to read the `theme` cookie. It enforces a dark default if the cookie is missing, ensuring the server always knows the intended visual state.
+- **Zero-Flash Injection**: Since the `RootLayout` is a Server Component, it injects the theme class directly into the `<html>` tag during the initial SSR pass. This ensures the page is rendered correctly before a single byte of JavaScript is executed.
+- **Hydration Stability**: By setting `enableSystem={false}` in the `ThemeProvider`, we prevent the browser's system preferences from overriding the server-sent state, effectively solving the "Hydration failed" errors.
+
+#### **2. CSS-Only Theme Switching (Tailwind v4 Variants)**
+
+To avoid the need for skeleton loaders or "isMounted" guards, we implemented the **Isomorphic CSS Toggle** pattern.
+
+- **Tailwind v4 Variant Mapping**: In `globals.css`, we mapped the `dark:` prefix to our `.dark` class using the new `@variant dark (&:is(.dark *))` directive.
+- **Dual Rendering Strategy**: The `ThemeSettingsCard` now renders both icons (Sun/Moon) and both text labels (Light/Midnight) simultaneously. Tailwind CSS handles visibility instantly based on the presence of the `.dark` class on the root element.
+- **Performance**: This approach removes the need for React to re-calculate the DOM tree upon hydration, leading to a much higher Lighthouse/Core Web Vitals score.
+
+#### **3. Settings Facade & Identity Management**
+
+We introduced a dedicated Settings module designed as a centralized configuration lab.
+
+- **useSettings Hook**: Implemented as a **Facade Pattern** to encapsulate `next-themes` logic. It automatically synchronizes every theme change with browser cookies to keep the Proxy/Server in the loop.
+- **Username Updates**: Integrated username modification support. Changes are pushed to the `profiles` table and synchronized with Supabase Auth metadata via database triggers, ensuring the Navbar and Profile stay perfectly aligned.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature              | Location                                             | Technical Responsibility                                  |
+| -------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
+| **Theme Proxy**      | `src/proxy.ts`                                       | Cookie interception and server-side default enforcement.  |
+| **SSR Orchestrator** | `src/app/layout.tsx`                                 | Cookie retrieval and root `<html>` class injection.       |
+| **Settings Facade**  | `features/settings/_hooks/use-settings.ts`           | Synchronizing client-side state with server-side cookies. |
+| **Visual Toggle**    | `features/settings/components/ThemeSettingsCard.tsx` | CSS-driven UI swapping (Zero Hydration Mismatch).         |
+| **Identity Service** | `services/apiProfile.ts`                             | Display name persistence and JSONB metadata updates.      |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/(dashboard)/
+│   └── settings/
+│       └── page.tsx                <-- Server-side shell for system config
+├── features/
+│   └── settings/
+│       ├── _hooks/use-settings.ts  <-- Facade hook with cookie sync
+│       └── components/
+│           ├── SettingsClientView.tsx <-- Section orchestrator
+│           └── ThemeSettingsCard.tsx  <-- Toggle
+├── core/
+│   └── providers/
+│       └── ThemeProvider.tsx      <-- Optimized next-themes wrapper
+└── proxy.ts                       <-- Updated with Theme Cookie Logic
+
+```
+
+---
+
 ### **Next Steps**
 
-- Let user change profile username.
-- Motive toggle in settings.
-- Let user modify/delate templates.
-- implement placeholder pages for:
+- [x] Let user change profile username.
+- [x] Theme toggle in settings.
+- [ ] Implement modification and deletion logic for Workout Templates.
+- [ ] implement placeholder pages for:
 
 ```
 dashboard/
-|   ├── Settings
 |   ├── Privacy & Security
 │   └── Help & Feedback
 

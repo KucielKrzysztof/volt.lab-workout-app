@@ -1,7 +1,7 @@
 /**
  * @fileoverview User Identity and Performance Dashboard Orchestrator.
- * Manages the high-level state for user profiles, avatar synchronization,
- * and the yearly-partitioned "Hall of Fame" record system.
+ * Acts as the top-level container for athlete profiles, coordinating identity sync,
+ * yearly achievement tracking, and cross-component state management.
  * @module features/profile/components
  */
 
@@ -9,14 +9,13 @@
 
 import { useState } from "react";
 import { useProfile } from "../_hooks/use-profile";
-import { AvatarUpload } from "./AvatarUpload";
-import { Card } from "@/components/ui/card";
 import { YearPicker } from "@/features/analytics/components/YearPicker";
 import { RecordsSection } from "@/features/analytics/components/sections/RecordsSection";
 import { RecordFormModal } from "@/features/analytics/components/RecordFormModal";
 import { PersonalRecord, UserProfile } from "@/types/profile";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/button";
+import { ProfileHeader } from "./ProfileHeader";
 
 interface ProfileClientViewProps {
 	/** The unique UUID of the user from the Auth session. */
@@ -32,18 +31,19 @@ interface ProfileClientViewProps {
  * * @description
  * This component acts as the **Command Center** for athlete identity and achievements.
  * It bridges the gap between static server-side hydration and dynamic client-side
- * performance tracking.
+ * performance tracking, orchestrating the interaction between identity management
+ * and record persistence.
  * * **Key Architectural Features:**
- * 1. **Temporal Slicing**: Integrates `YearPicker` to filter the "Hall of Fame"
+ * 1. **Decoupled Identity**: Delegates display name and avatar logic to the `ProfileHeader`,
+ * keeping the orchestrator clean.
+ * 2. **Temporal Slicing**: Integrates `YearPicker` to filter the "Hall of Fame"
  * by specific competition years.
- * 2. **Record Lifecycle**: Manages a unified modal for both creating and updating
+ * 3. **Record Lifecycle**: Manages a unified modal for both creating and updating
  * yearly achievements using an "Upsert" strategy.
- * 3. **Identity Sync**: Coordinates avatar uploads and display name updates with
- * immediate TanStack Query cache invalidation.
- * 4. **Hybrid Hydration**: Seeds the profile state with server-side data to ensure
- * instant content visibility.
+ * 4. **Identity Sync Bridge**: Coordinates display name updates with TanStack Query
+ * and Supabase Auth session refreshing.
  * * @param {ProfileClientViewProps} props - Component properties.
- * @returns {JSX.Element} The orchestrated user profile and achievements dashboard.
+ * @returns {JSX.Element} The orchestrated dashboard with identity and achievement layers.
  */
 export const ProfileClientView = ({ userId, initialProfile }: ProfileClientViewProps) => {
 	const [year, setYear] = useState(new Date().getFullYear());
@@ -54,10 +54,11 @@ export const ProfileClientView = ({ userId, initialProfile }: ProfileClientViewP
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingRecord, setEditingRecord] = useState<PersonalRecord | null>(null);
 
-	/** * Profile Data Logic:
-	 * High-performance hook managing background updates, mutations, and session refreshes.
+	/** * Central Logic Hook:
+	 * Manages cache invalidation, background fetching, and the Auth session refresh
+	 * cycle upon identity mutations.
 	 */
-	const { profile, addPersonalRecord, isUpdating, isError } = useProfile(userId, initialProfile);
+	const { profile, updateProfile, addPersonalRecord, isUpdating, isError } = useProfile(userId, initialProfile);
 
 	/** * Prepares and triggers the record management modal.
 	 * @param {PersonalRecord} [record] - Optional record to populate the form for updates.
@@ -74,21 +75,10 @@ export const ProfileClientView = ({ userId, initialProfile }: ProfileClientViewP
 
 	return (
 		<div className="grid gap-8 animate-in fade-in duration-500">
-			{/* IDENTITY CARD
-                Displays the user's visual identity and display name in a high-contrast layout.
-            */}
-			<Card className="p-6 bg-secondary/5 border-white/5 flex flex-col md:flex-row items-center gap-8 shadow-xl">
-				<AvatarUpload userId={userId} />
+			{/* IDENTITY LAYER: Encapsulates avatar uploads and inline display name editing */}
+			<ProfileHeader userId={userId} profile={profile} onUpdateName={(name) => updateProfile({ display_name: name })} isLoading={isUpdating} />
 
-				<div className="text-center md:text-left space-y-1">
-					<h2 className="text-3xl font-black uppercase italic tracking-tighter">{profile?.display_name || "Anonymous Athlete"}</h2>
-					<p className="text-muted-foreground text-xs font-bold uppercase tracking-widest opacity-60">Active Registry Member</p>
-				</div>
-			</Card>
-
-			{/* PERSONAL RECORDS SECTION
-                Reuses the specialized RecordsSection from the Analytics feature to maintain UI consistency.
-            */}
+			{/* Year navigation and record initiation trigger */}
 			<div className="flex justify-center items-center px-1">
 				<div className="flex flex-col gap-2">
 					<YearPicker year={year} onYearChange={setYear} />
@@ -101,10 +91,12 @@ export const ProfileClientView = ({ userId, initialProfile }: ProfileClientViewP
 				</div>
 			</div>
 
-			{/* RECORDS LIST */}
+			{/* PERSONAL RECORDS SECTION
+                Reuses the specialized RecordsSection from the Analytics feature to maintain UI consistency.
+            */}
 			<RecordsSection records={profile?.personal_records || []} year={year} onEdit={handleOpenModal} showTitle={true} />
 
-			{/* MODAL FORM */}
+			{/* MODAL FORM - Update Records(PR's)*/}
 			<RecordFormModal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
