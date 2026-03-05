@@ -29,14 +29,14 @@ export const PlaceholderView = ({ title = "Module Under Construction" }: Placeho
 			<Card className="max-w-md w-full bg-secondary/10 border-primary/10 border-dashed border-2 relative overflow-hidden">
 				<CardContent className="pt-10 pb-10 flex flex-col items-center text-center space-y-6">
 					<div className="relative">
-						<div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full " />
+						<div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
 						<div className="relative bg-background p-4 rounded-2xl border border-primary/20">
-							<HardHat className="w-12 h-12 text-" />
+							<HardHat className="w-12 h-12" />
 						</div>
 					</div>
 
 					<div className="space-y-2">
-						<h2 className="text-2xl font-black italic uppercase tracking-tighter">{title}</h2>
+						<h2 className="text-md md:text-2xl! font-black italic uppercase tracking-tighter">{title}</h2>
 					</div>
 
 					{/* Text with pulsing dot */}
@@ -48,10 +48,14 @@ export const PlaceholderView = ({ title = "Module Under Construction" }: Placeho
 						<span className="text-[9px] font-mono uppercase tracking-[0.3em]">Status: Work in Progress</span>
 					</div>
 
-					<Button asChild variant="outline" className="group font-black uppercase italic tracking-widest text-[10px] gap-2">
-						<Link href="/dashboard/feed">
-							<ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-							Back to Command Center
+					<Button
+						asChild
+						variant="outline"
+						className="group font-black uppercase italic tracking-widest text-[10px] gap-2 whitespace-normal! h-auto py-3 px-4"
+					>
+						<Link href="/dashboard/feed" className="flex items-center justify-center w-full">
+							<ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform shrink-0" />
+							<span className="text-center">Back to Command Center</span>
 						</Link>
 					</Button>
 				</CardContent>

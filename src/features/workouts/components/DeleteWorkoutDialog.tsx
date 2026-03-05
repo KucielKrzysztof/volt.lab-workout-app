@@ -77,7 +77,7 @@ export const DeleteWorkoutDialog = ({ workoutId, workoutName, onDelete }: Delete
 
 						<AlertDialogAction
 							onClick={() => onDelete(workoutId)}
-							className="bg-destructive! text-destructive-foreground!hover:opacity-90 uppercase font-semibold! italic tracking-tighter shadow-[0_0_15px_rgba(var(--color-destructive!),0.4)]"
+							className="bg-destructive! text-destructive-foreground!hover:opacity-90 uppercase font-semibold! italic tracking-tighter shadow-[0_0_15px_rgba(var(--color-destructive),0.4)]!"
 						>
 							Confirm Decommission
 						</AlertDialogAction>

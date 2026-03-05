@@ -1,5 +1,5 @@
-import { PlaceholderView } from "@/components/ui/PlaceholderView";
+import HelpClientView from "@/features/help/components/HelpClientView";
 
 export default async function HelpPage() {
-	return <PlaceholderView />;
+	return <HelpClientView />;
 }
