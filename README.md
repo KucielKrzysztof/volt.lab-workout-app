@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VOLT.LAB
 
-## Getting Started
+**VOLT.LAB** is a high-performance training workstation designed for athletes who demand precision and reliability. Focusing on high-speed UX and Low-Connection reliability, and workout analytics.
 
-First, run the development server:
+## 🛠 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework:** Next.js 16 (App Router) with Turbopack.
+- **Database:** Supabase (PostgreSQL).
+- **State Management:** TanStack Query v5 & Zustand (Persistent via localStorage).
+- **Styling:** Tailwind CSS 4 + Shadcn UI + Cookie-based Theme Synchronization.
+- **Alerts:** Sonner (Toast notifications)
+- **Icons:** Lucide React
+- **Security:** Proxy-based Auth Guarding, PKCE flow, and PostgreSQL triggers for identity sync.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Key Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Routine Blueprint Architect**: Create custom training routines by selecting from a global library of 400+ exercises. Features a high-performance relational persistence layer for managing personal templates and exercise mappings.
+- **Active Training Workspace**: Real-time session tracking with Zustand persistence to prevent data loss during refreshes.
+- **Yearly Achievement Architecture**: Track Personal Records (PRs) partitioned by year to monitor seasonal progression.
+- **Activity Snapshot Engine**: High-performance heatmap (Activity Grid) with 100% data accuracy for yearly workout sessions tracking.
+- **SSR Theme Engine**: Zero-flash (FOUC) theme synchronization using a cookie-based SSR architecture.
+- **Relational Workout History**: Deep-join architecture retrieving full session snapshots in a single database round-trip.
+- **Support & Knowledge Base**: Integrated FAQ, user manuals, and a dedicated Feedback & Bug Reporting system to report system anomalies and help calibrate the app environment.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Core Architecture
 
-## Learn More
+The project operates on the **Supabase Trinity** (Server, Client, and Middleware/Proxy clients) to ensure consistent data flow across the Next.js lifecycle. All performance analytics, such as Total Volume, are calculated using atomic relational mapping:
 
-To learn more about Next.js, take a look at the following resources:
+$$\sum (\text{weight} \times \text{reps})$$
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Large tonnages are automatically normalized into tons for better readability .
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🌐 Visit Live on Vercel
 
-## Deploy on Vercel
+The App is deployed and fully operational on the Vercel Platform.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> **[Open VOLT.LAB Command Center →](https://volt-lab-app.vercel.app)**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
