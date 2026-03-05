@@ -14,7 +14,7 @@ _Goal: Allow users to log their physical activity and browse past sessions._
 - [x] **Auto-population logic**: Selecting a template automatically fills the current date and the predefined list of exercises.
 
 - [x] **Set Tracking**
-- Input fields for **Weight (kg)** and **Reps** for each set.
+- [x] Input fields for **Weight (kg)** and **Reps** for each set.
 - [x] **Persistence**: Save session to Supabase upon completion.
 
 ---
@@ -24,7 +24,7 @@ _Goal: Allow users to log their physical activity and browse past sessions._
 _Goal: System configuration and template engine._
 
 - [x] **Workout Templates Manager**
-- [ ]Interface to create, edit, and delete personal training routines.
+- [x]Interface to create, edit, and delete personal training routines.
 - **Routine Builder**:
 - [x] Search and select exercises from the global `exercises` library.
 - [x] Define **Default Series Count** for each exercise within the template.

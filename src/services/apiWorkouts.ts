@@ -180,4 +180,27 @@ export const workoutService = {
 
 		return { success: true };
 	},
+
+	/**
+	 * Orchestrates the permanent decommissioning of a historical workout session.
+	 * * @description
+	 * Performs an atomic DELETE operation on the `workouts` table.
+	 * * **Referential Integrity**:
+	 * This method relies on the database-level `ON DELETE CASCADE` constraint
+	 * established between `workouts` and `workout_sets`. Executing this purge
+	 * automatically destroys all associated performance data (sets) in a single
+	 * database transaction.
+	 * * **Operational Impact**:
+	 * This is an irreversible destructive action. It removes the session from
+	 * all historical KPIs and volume aggregations.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} workoutId - UUID of the workout session to be permanently purged.
+	 * @returns {Promise<void>} Resolves when the session and its dependencies are successfully decommissioned.
+	 * @throws {Error} Throws a localized PostgREST error if the deletion fails.
+	 */
+	deleteWorkout: async (supabase: SupabaseClient, workoutId: string) => {
+		const { error } = await supabase.from("workouts").delete().eq("id", workoutId);
+
+		if (error) throw new Error(error.message || "Unexpected error");
+	},
 };

@@ -9,11 +9,10 @@
 
 import { StartWorkoutCard } from "@/features/workouts/components/StartWorkoutCard";
 import { WorkoutHistory } from "@/features/workouts/components/WorkoutsHistory";
-
-import { WorkoutsClientHeader } from "./WorkoutsClientHeader";
 import { useUser } from "@/core/providers/UserProvider";
 import { useWorkouts } from "../_hooks/use-workouts";
 import { WorkoutPage } from "@/types/workouts";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * Interface defining the properties for the WorkoutsClientView component.
@@ -60,7 +59,7 @@ export const WorkoutsClientView = ({ initialData }: WorkoutClientViewProps) => {
 
 	return (
 		<div className="flex flex-col space-y-10 items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-			<WorkoutsClientHeader />
+			<PageHeader title="Workouts" subtitle="Gain the power!" />
 
 			{/* Quick-action card to initiate a new active workout session */}
 			<StartWorkoutCard />

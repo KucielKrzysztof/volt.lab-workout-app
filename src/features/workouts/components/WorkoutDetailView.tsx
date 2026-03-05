@@ -12,6 +12,7 @@ import { Timer, Weight, Activity, ChevronLeft, Dumbbell } from "lucide-react";
 import Link from "next/link";
 import { groupSetsByExercise } from "../helpers/workoutHelpers";
 import { Workout, WorkoutSet } from "@/types/workouts";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * A comprehensive view component that renders the full history of a specific session.
@@ -55,16 +56,18 @@ export const WorkoutDetailView = ({ id, initialData }: { id: string; initialData
 			{/* Navigational Header:
                 Includes a return path to the history feed and localized date stamp.
             */}
-			<div className="flex items-center gap-4">
-				<Link href="/dashboard/workouts" className="p-2 bg-secondary/20 rounded-xl hover:bg-secondary/40 transition-colors">
+			<div className="flex items-center gap-4 justify-between">
+				<Link href="/dashboard/workouts" className="p-2 bg-secondary/20 rounded-xl hover:bg-secondary/40 transition-colors justify-self-start">
 					<ChevronLeft size={20} />
 				</Link>
 				<div>
-					<h1 className="text-3xl font-black italic uppercase tracking-tighter">{workout.name}</h1>
-					<p className="text-muted-foreground text-xs uppercase font-mono tracking-widest">
-						{new Date(workout.started_at).toLocaleDateString("pl-PL")}
-					</p>
+					<PageHeader title={workout.name}>
+						<p className="text-muted-foreground text-xs uppercase font-mono tracking-widest">
+							{new Date(workout.started_at).toLocaleDateString("pl-PL")}
+						</p>
+					</PageHeader>
 				</div>
+				<div className="w-10" aria-hidden="true" />
 			</div>
 
 			{/* Session KPI Grid:

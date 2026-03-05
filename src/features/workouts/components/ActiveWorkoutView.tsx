@@ -92,11 +92,11 @@ export const ActiveWorkoutView = () => {
 						</Button>
 					</AlertDialogTrigger>
 
-					<AlertDialogContent className="bg-zinc-950 border-primary/20 max-w-[90vw] rounded-2xl">
+					<AlertDialogContent className="bg-background border-primary/20 max-w-[90vw] rounded-2xl">
 						<AlertDialogHeader>
 							<div className="flex items-center gap-2 text-primary mb-2">
 								<Trophy size={24} className="animate-bounce" />
-								<AlertDialogTitle className="uppercase font-black italic tracking-tighter text-2xl">Finish & Save?</AlertDialogTitle>
+								<AlertDialogTitle className="uppercase font-black italic tracking-tighter text-xl">Finish & Save?</AlertDialogTitle>
 							</div>
 							<AlertDialogDescription className="text-zinc-400 font-medium">
 								Great work! Once saved, this session will be added to your history. Make sure all your sets are marked as completed.

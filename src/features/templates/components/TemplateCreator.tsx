@@ -1,21 +1,22 @@
 /**
- * @fileoverview Workout Routine Builder.
+ * @fileoverview Workout Routine Builder & Editor.
  * Handles complex local state management for exercise selection, volume
- * configuration, and atomic template persistence.
+ * configuration, and dual-mode (Create/Edit) relational persistence.
  * @module features/templates/components
  */
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@/core/providers/UserProvider";
 import { useCreateTemplate } from "../_hooks/use-create-template";
 import { Button } from "@/components/ui/button";
-import { CreateTemplateInput } from "@/types/templates";
+import { CreateTemplateInput, WorkoutTemplateUI } from "@/types/templates";
 import { Input } from "@/components/ui/input";
 import { TemplateExerciseRow } from "./TemplateExercisesRow";
 import { toast } from "sonner";
 import { ExerciseSelector } from "./ExerciseSelector";
+import { useEditTemplate } from "../_hooks/use-edit-template";
 
 /**
  * Interface representing an exercise entry within the local form state.
@@ -33,30 +34,70 @@ interface FormExercise {
 }
 
 /**
- * A sophisticated form component for creating reusable workout blueprints.
- * * @description
- * The `TemplateCreator` acts as a staging area for training data. It allows
- * users to assemble multiple exercises into a named routine, fine-tune
- * expected volume, and persist the collection as a relational template.
- * * **Core Capabilities:**
- * 1. **Context Awareness**: Retrieves the authenticated user from `UserProvider` to ensure correct ownership of the template.
- * 2. **Duplicate Guard**: Implements a strict prevention logic to ensure the same exercise cannot be added multiple times to a single routine.
- * 3. **Dynamic State Management**: Handles real-time updates to individual exercise rows without losing focus or overall form integrity.
- * 4. **Payload Transformation**: Maps internal `FormExercise` objects to the strict `CreateTemplateInput` required by the API service.
- * * @returns {JSX.Element} The rendered routine creation interface with animated transitions.
+ * Component Configuration Props.
+ * @interface TemplateCreatorProps
+ * @property {"create" | "edit"} [mode="create"] - Determines the persistence strategy.
+ * @property {WorkoutTemplateUI} [initialData] - Data used for state hydration in 'edit' mode.
  */
-export const TemplateCreator = () => {
+interface TemplateCreatorProps {
+	mode?: "create" | "edit";
+	initialData?: WorkoutTemplateUI;
+}
+
+/**
+ * TemplateCreator Component.
+ * * @description
+ * A sophisticated form orchestrator for training blueprints. It allows users to
+ * assemble routines, fine-tune volume, and manage relational persistence.
+ * * **Core Capabilities:**
+ * 1. **Polymorphic Persistence**: Dynamically switches between `createTemplate` and
+ * `editTemplate` mutations based on the operational mode.
+ * 2. **Isomorphic Hydration**: Automatically populates the form state from
+ * `initialData` when in 'edit' mode, ensuring instant UI readiness.
+ * 3. **Relational Integrity**: Maps internal `FormExercise` state to the strict
+ * `CreateTemplateInput` DTO required by the API service.
+ * 4. **Duplicate Guard**: Prevents redundant exercise entries within a single routine.
+ * * @param {TemplateCreatorProps} props - Component properties.
+ * @returns {JSX.Element} The routine builder interface with state-aware transitions.
+ */
+export const TemplateCreator = ({ mode = "create", initialData }: TemplateCreatorProps) => {
 	/** * User context for scoping the creation mutation. */
 	const { user } = useUser();
 
-	/** * Mutation hook for atomic routine persistence. */
-	const { mutate: createTemplate, isPending } = useCreateTemplate(user?.id || "");
+	/** * Mutation Hooks:
+	 * Independent streams for creating new routines or recalibrating existing ones.
+	 */
+	const { mutate: createTemplate, isPending: isCreating } = useCreateTemplate(user?.id || "");
+	const { mutate: editTemplate, isPending: isEditing } = useEditTemplate(initialData?.id || "");
 
 	/** * Form state for the routine header. */
 	const [name, setName] = useState("");
 
 	/** * Hierarchical state for the routine line items (exercises). */
 	const [selectedExercises, setSelectedExercises] = useState<FormExercise[]>([]);
+
+	/** * HYDRATION LOGIC:
+	 * Synchronizes the internal form state with provided cache data upon mounting
+	 * in 'edit' mode. This facilitates the "Cache-First" editing strategy.
+	 */
+	useEffect(() => {
+		if (mode === "edit" && initialData) {
+			setName(initialData.name);
+			setSelectedExercises(
+				initialData.exercises.map((ex) => ({
+					id: ex.id,
+					name: ex.name,
+					suggested_sets: ex.sets,
+					suggested_reps: ex.reps,
+				})),
+			);
+		}
+	}, [mode, initialData]);
+
+	/** * Loading Sentinel:
+	 * Aggregated pending state to disable interactions during synchronization.
+	 */
+	const isPending = isCreating || isEditing;
 
 	/** * Updates specific volume metrics for a targeted exercise row.
 	 * @param {string} id - The UUID of the exercise row to update.
@@ -120,7 +161,11 @@ export const TemplateCreator = () => {
 			})),
 		};
 
-		createTemplate(payload);
+		if (mode === "edit") {
+			editTemplate(payload);
+		} else {
+			createTemplate(payload);
+		}
 	};
 
 	return (

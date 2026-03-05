@@ -48,7 +48,7 @@ export default async function ProfilePage() {
 	return (
 		<div className="p-4 md:p-10 max-w-4xl mx-auto space-y-10">
 			<header>
-				<h1 className="text-4xl font-black italic tracking-tighter uppercase">
+				<h1 className="text-4xl font-black italic tracking-tighter uppercase text-center">
 					User <span className="text-primary">Profile</span>
 				</h1>
 			</header>

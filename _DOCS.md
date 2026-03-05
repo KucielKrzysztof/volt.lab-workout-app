@@ -612,12 +612,5 @@ src/
 
 - [x] Let user change profile username.
 - [x] Theme toggle in settings.
-- [ ] Implement modification and deletion logic for Workout Templates.
-- [ ] implement placeholder pages for:
-
-```
-dashboard/
-|   ├── Privacy & Security
-│   └── Help & Feedback
-
-```
+- [x] Implement modification and deletion logic for Workout Templates.
+- [x] implement placeholder pages for:Privacy & Security, Help & Feedback

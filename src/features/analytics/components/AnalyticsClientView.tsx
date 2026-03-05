@@ -10,7 +10,6 @@
 import { YearPicker } from "@/features/analytics/components/YearPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CalendarDays, BarChart3, Trophy } from "lucide-react";
-import { AnalyticsHeader } from "./AnalyticsHeader";
 import { ActivitySection } from "./sections/ActivitySection";
 import { ProgressChartsSection } from "./sections/ProgressChartsSection";
 import { RecordsSection } from "./sections/RecordsSection";
@@ -19,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "@/types/profile";
 import { useAnalyticsDashboard } from "../_hooks/use-analytics-dashboard";
 import { useRouter } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 interface AnalyticsClientViewProps {
 	userId: string;
@@ -72,9 +72,9 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 			{/* Analytics Control Bar:
                 Fixed/Sticky header providing the year selection context.
             */}
-			<AnalyticsHeader>
+			<PageHeader title="Analytics" subtitle="Keep it up!">
 				<YearPicker year={year} onYearChange={setYear} />
-			</AnalyticsHeader>
+			</PageHeader>
 			<Separator />
 
 			{/* Primary KPI Dashboard:

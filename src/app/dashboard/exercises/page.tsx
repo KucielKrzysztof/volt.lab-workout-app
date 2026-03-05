@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ExercisesClientView } from "../../../features/exercises/components/ExercisesClientView";
 import { getExercisesServer } from "@/features/exercises/api/get-exercises-server";
 
@@ -14,7 +15,7 @@ export default async function ExercisesPage() {
 
 	return (
 		<div className="flex-1 max-w-md mx-auto w-full p-4 space-y-4">
-			<h1 className="text-2xl font-black italic uppercase">Exercise list</h1>
+			<PageHeader title="Exercise list" />
 
 			<ExercisesClientView initialExercises={exercises || []} />
 		</div>

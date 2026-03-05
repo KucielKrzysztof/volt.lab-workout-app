@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Footer } from "@/components/ui/Footer";
 import { MoreSection } from "./MoreSection";
 import { useLogout } from "@/features/auth/_hooks/use-logout";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * Main Client-Side View for the "More" (Settings) screen.
@@ -20,10 +21,7 @@ export const MoreClientView = () => {
 
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 relative">
-			<header className="text-center">
-				<h1 className="text-3xl font-black tracking-tighter italic uppercase">More</h1>
-				<p className="text-[10px] text-muted-foreground uppercase tracking-widest">Manage your power</p>
-			</header>
+			<PageHeader title="More" subtitle="Manage your power" />
 
 			{/* TRENING */}
 			<MoreSection desc="Training">

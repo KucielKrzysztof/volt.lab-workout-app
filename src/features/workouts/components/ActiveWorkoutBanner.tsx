@@ -51,7 +51,7 @@ export const ActiveWorkoutBanner = () => {
 	return (
 		<div className="fixed top-4 md:top-16 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-md animate-in fade-in slide-in-from-top-4 duration-500">
 			{/* Themed container with primary accent border and shadow glow. */}
-			<div className="flex items-center justify-between gap-3 p-4 bg-zinc-950 border-2 border-primary rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.2)] group hover:scale-[1.02] transition-all">
+			<div className=" z-[60] flex items-center justify-between gap-3 p-4 bg-background border-2 border-primary rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.2)] group hover:scale-[1.02] transition-all">
 				{/* Information Link: Redirects to the detailed session workspace. */}
 				<Link href="/dashboard/active-workout" className="flex flex-1 items-center gap-3 overflow-hidden">
 					<div className="relative flex shrink-0">
@@ -63,20 +63,20 @@ export const ActiveWorkoutBanner = () => {
 
 					<div className="flex flex-col overflow-hidden">
 						<span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary leading-none mb-0.5">Active Session</span>
-						<h4 className="text-sm font-black italic uppercase text-white truncate tracking-tighter">{workoutName}</h4>
+						<h4 className="text-sm font-black italic uppercase text-primary truncate tracking-tighter">{workoutName}</h4>
 					</div>
 				</Link>
 
 				{/* Action Zone: Live timer and destructive toggle control. */}
 				<div className="flex items-center gap-2 shrink-0">
-					<div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+					<div className="flex items-center gap-2 bg-primary/20 px-3 py-1.5 rounded-lg border border-primary/10">
 						<Timer size={14} className="text-primary" />
-						<span className="text-xs font-mono font-bold text-white tracking-widest">{elapsed}</span>
+						<span className="text-xs font-mono font-bold text-primary tracking-widest">{elapsed}</span>
 					</div>
 
 					<AlertDialog>
 						<AlertDialogTrigger asChild>
-							<button className="p-1.5 hover:bg-destructive/20 hover:text-destructive text-white/20 rounded-md transition-colors">
+							<button className="p-1.5 bg-primary/20 hover:bg-destructive/20 hover:text-destructive text-priamry rounded-md transition-colors">
 								<X size={18} />
 							</button>
 						</AlertDialogTrigger>

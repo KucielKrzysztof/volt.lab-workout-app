@@ -102,4 +102,58 @@ export const templateService = {
 
 		return template;
 	},
+
+	/**
+	 * Relational Update Strategy:
+	 * * @description
+	 * Implements an **Atomic Reset & Re-populate** pattern to maintain relational integrity
+	 * and strictly enforce the exercise sequence.
+	 * 1. Update the template header.
+	 * 2. Delete existing exercises.
+	 * 3. Re-insert new exercise set to ensure order and integrity.
+	 * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} templateId - UUID of the template to be updated.
+	 * @param {CreateTemplateInput} updates - Validated input containing new name and exercises.
+	 */
+	async updateTemplate(supabase: SupabaseClient, templateId: string, updates: CreateTemplateInput): Promise<boolean> {
+		// 1. Update Header (Name)
+		const { error: headerError } = await supabase.from("workout_templates").update({ name: updates.name }).eq("id", templateId);
+
+		if (headerError) throw new Error(headerError.message);
+
+		// 2. Atomic Reset: Removes all previous exercise associations.
+		const { error: deleteError } = await supabase.from("template_exercises").delete().eq("template_id", templateId);
+
+		if (deleteError) throw new Error(deleteError.message);
+
+		// 3. Re-Population: Injects the new configuration as a single transaction.
+		const exercisesToInsert = updates.exercises.map((ex, index: number) => ({
+			template_id: templateId,
+			exercise_id: ex.exercise_id,
+			order: index,
+			suggested_sets: ex.suggested_sets,
+			suggested_reps: ex.suggested_reps,
+			notes: ex.notes || null,
+		}));
+
+		const { error: insertError } = await supabase.from("template_exercises").insert(exercisesToInsert);
+
+		if (insertError) throw new Error(insertError.message);
+
+		return true;
+	},
+
+	/**
+	 *  Deletion Strategy.
+	 * * @description
+	 * Removes a workout routine blueprint from the ecosystem.
+	 * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} templateId - UUID of the template to be destroyed.
+	 */
+	async deleteTemplate(supabase: SupabaseClient, templateId: string): Promise<boolean> {
+		const { error } = await supabase.from("workout_templates").delete().eq("id", templateId);
+
+		if (error) throw new Error(error.message);
+		return true;
+	},
 };

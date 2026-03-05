@@ -1,110 +1,72 @@
 /**
- * @fileoverview Individual routine blueprint visualization component.
- * Provides a high-density preview of a workout template and acts as the primary
- * trigger for initiating active training sessions.
+ * @fileoverview Orchestrated Template Card.
+ * This module implements the **Orchestration Pattern**, delegating business logic
+ * to a headless hook and rendering to specialized atomic sub-components.
  * @module features/templates/components
  */
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { WorkoutTemplateUI } from "@/types/templates";
-import { Play } from "lucide-react";
-import { useActiveWorkoutStore } from "@/features/workouts/_hooks/use-active-workout-store";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useTemplateCard } from "../_hooks/use-template-card";
+import { TemplateCardContent } from "./TemplateCardContent";
+import { TemplateCardHeader } from "./TemplateCardHeader";
 
 /**
- * A highly interactive card component representing a reusable workout routine.
+ * TemplateCard Component.
  * * @description
- * This component serves as the "Actionable Preview" of a training blueprint.
- * It distills a complex template into a readable list of exercises and targeted
- * muscle groups, providing a direct "One-Click Start" functionality.
- * * **Key Features:**
- * 1. **Session Conflict Guard**: Intelligently prevents the initiation of new
- * workouts if a global session is already in progress, utilizing the `sonner`
- * notification system for user feedback.
- * 2. **Instant Hydration**: Dispatches the `startFromTemplate` action to the
- * Zustand store, immediately transforming static data into an editable training session.
- * 3. **Volume Preview**: Displays a condensed summary of the suggested sets
- * and reps for every exercise in the routine.
- * 4. **Muscle Group Taxonomy**: Aggregates and displays badges for all muscle
- * groups targeted within the specific template.
+ * A highly interactive card representing a reusable workout routine blueprint.
+ * Refactored into an orchestrated container to improve maintainability and testability.
+ * * **Architectural Pillars (Orchestrated):**
+ * 1. **Logic Abstraction**: Delegates all routing, store interactions, and
+ * mutations to the `useTemplateCard` headless hook.
+ * 2. **Atomic Rendering**: Splits the UI into `TemplateCardHeader` (actions)
+ * and `TemplateCardContent` (data visualization) to prevent "Fat Component" syndrome.
+ * 3. **State Awareness**: Centrally manages the `isDeleting` overlay to provide
+ * a cohesive visual experience during destructive operations.
+ * 4. **Isomorphic Hydration**: Supports instant UI readiness by leveraging
+ * TanStack Query's cache-first strategy through orchestrated props.
  * * @param {Object} props - Component properties.
- * @param {WorkoutTemplateUI} props.template - The UI-ready template object containing unique IDs, exercise lists, and muscle group arrays.
- * @returns {JSX.Element} A themed card featuring routine metadata and session triggers.
+ * @param {WorkoutTemplateUI} props.template - The flattened, UI-ready template model.
+ * @returns {JSX.Element} An orchestrated card shell for routine management.
  */
 export const TemplateCard = ({ template }: { template: WorkoutTemplateUI }) => {
-	const router = useRouter();
-
-	/** * Store Integration:
-	 * Accesses both the state setter for initializing sessions and the
-	 * reactive `startTime` flag to determine if a session is currently running.
+	/** * Hook Orchestration:
+	 * Extracts all business logic, ensuring the component remains "lean" and
+	 * focused on layout and shell states.
 	 */
-	const startFromTemplate = useActiveWorkoutStore((state) => state.startFromTemplate);
-	const isWorkoutActive = useActiveWorkoutStore((state) => !!state.startTime);
-
-	/**
-	 * Orchestrates the transition from blueprint to active session.
-	 * * @description
-	 * 1. **Propagation Control**: Stops event bubbling to prevent accidental triggers in nested layouts.
-	 * 2. **Validation**: Checks `isWorkoutActive`. If true, the operation is aborted with a toast notification.
-	 * 3. **Hydration**: Populates the global `ActiveWorkoutStore` with the selected template's data.
-	 * 4. **Navigation**: Redirects the user to the live tracking workspace.
-	 * * @param {React.MouseEvent} e - The mouse event from the Play button trigger.
-	 */
-	const handleStartWorkout = (e: React.MouseEvent) => {
-		e.stopPropagation();
-
-		// Guard Clause: Prevent concurrent active sessions.
-		if (isWorkoutActive) {
-			toast.error("You already have an active session! Finish it first.");
-			return;
-		}
-
-		// Transition logic.
-		startFromTemplate(template);
-		router.push("/dashboard/active-workout");
-		toast.success(`Started: ${template.name}`);
-	};
+	const { isDeleting, isWorkoutActive, handleStartWorkout, handleEdit, onConfirmDelete } = useTemplateCard(template);
 
 	return (
-		<Card className="bg-secondary/10 border-primary/10 hover:border-primary/30 transition-all group active:scale-[0.98]">
-			<CardHeader className="p-4 pb-2">
-				<div className="flex justify-between items-start">
-					<CardTitle className="text-xl font-black italic uppercase tracking-tighter group-hover:text-primary transition-colors">
-						{template.name}
-					</CardTitle>
-					<button
-						onClick={handleStartWorkout}
-						disabled={isWorkoutActive}
-						className="p-2 bg-primary/10 text-primary rounded-full hover:bg-primary hover:text-primary-foreground transition-all"
-					>
-						<Play size={16} fill="currentColor" />
-					</button>
+		<Card className="bg-secondary/10 border-primary/10 hover:border-primary/30 transition-all group active:scale-[0.98] relative overflow-hidden">
+			{/** * Loading Overlay:
+			 * Managed at the container level to cover both header and content
+			 * during the decommissioning process.
+			 */}
+			{isDeleting && (
+				<div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+					<span className="text-[10px] font-black uppercase tracking-widest animate-pulse text-primary">Deleting Blueprint...</span>
 				</div>
-			</CardHeader>
-			<CardContent className="p-4 pt-0 space-y-4">
-				<ul className="space-y-2">
-					{template.exercises.map((ex, index) => (
-						<li key={index} className="flex justify-between items-center gap-4 text-[11px] font-bold uppercase italic tracking-tight">
-							<div className="flex items-center gap-2 overflow-hidden">
-								<span className="text-[9px] font-mono opacity-30 shrink-0">{index + 1}.</span>
-								<span className="text-foreground/80 truncate">{ex.name}</span>
-							</div>
-							<span className="text-primary font-mono shrink-0">
-								{ex.sets}x{ex.reps}
-							</span>
-						</li>
-					))}
-				</ul>
+			)}
 
-				<div className="flex flex-wrap gap-1">
-					{template.muscles.map((m) => (
-						<Badge key={m} variant="outline" className="text-[9px] uppercase border-primary/20 bg-primary/5 text-muted-foreground font-bold">
-							{m}
-						</Badge>
-					))}
-				</div>
+			<CardHeader className="p-4 pb-2">
+				{/** * Action Orchestrator:
+				 * Encapsulates Title, Edit, Play, and Delete triggers.
+				 */}
+				<TemplateCardHeader
+					name={template.name}
+					isDeleting={isDeleting}
+					isWorkoutActive={isWorkoutActive}
+					onEdit={handleEdit}
+					onStart={handleStartWorkout}
+					onDelete={onConfirmDelete}
+				/>
+			</CardHeader>
+
+			<CardContent className="p-4 pt-0">
+				{/** * Data Presenter:
+				 * Pure presentational layer for exercises and muscle taxonomy.
+				 */}
+				<TemplateCardContent exercises={template.exercises} muscles={template.muscles} />
 			</CardContent>
 		</Card>
 	);
