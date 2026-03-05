@@ -13,17 +13,18 @@
 
 ## Table of Contents
 
-| Date           | Milestone                                                                               | Key Features                                                             |
-| :------------- | :-------------------------------------------------------------------------------------- | :----------------------------------------------------------------------- |
-| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)                                      | SSR/CSR Hybrid, Supabase Trinity, Service Layer                          |
-| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)                                           | Auth Guard (Proxy), PKCE Flow, Global User Context                       |
-| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026)                              | DB Triggers (Sync), JSONB Records, SSR Hydration Cache                   |
-| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)                                        | Secure Password Reset, Sonner Integration                                |
-| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)                                      | Relational Joins, UI Mapping, SSR Hydration Cache                        |
-| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)                                 | Zustand Persistence, Routine Blueprints, Analytics Engine                |
-| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata               |
-| **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine |
-| **04-03-2026** | [**Theme & Settings**](#update-04-03-2026)                                              | Cookie-Sync Engine for theme, Theme Toggle, Change username              |
+| Date           | Milestone                                                                               | Key Features                                                                                       |
+| :------------- | :-------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)                                      | SSR/CSR Hybrid, Supabase Trinity, Service Layer                                                    |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)                                           | Auth Guard (Proxy), PKCE Flow, Global User Context                                                 |
+| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026)                              | DB Triggers (Sync), JSONB Records, SSR Hydration Cache                                             |
+| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)                                        | Secure Password Reset, Sonner Integration                                                          |
+| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)                                      | Relational Joins, UI Mapping, SSR Hydration Cache                                                  |
+| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)                                 | Zustand Persistence, Routine Blueprints, Analytics Engine                                          |
+| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata                                         |
+| **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine                           |
+| **04-03-2026** | [**Theme & Settings**](#update-04-03-2026)                                              | Cookie-Sync Engine for theme, Theme Toggle, Change username                                        |
+| **05-03-2026** | [**Workout deletion & Templates edition/deletion**](#update-04-03-2026)                 | Session deletion Engine, Atomic Header Refactor, Propagation Shields, Templates edit/delate Engine |
 
 ---
 
@@ -608,9 +609,68 @@ src/
 
 ---
 
-### **Next Steps**
+## (Update: 05-03-2026)
 
-- [x] Let user change profile username.
-- [x] Theme toggle in settings.
-- [x] Implement modification and deletion logic for Workout Templates.
-- [x] implement placeholder pages for:Privacy & Security, Help & Feedback
+### **Workout deletion & Templates edition/deletion**
+
+This milestone established the "Destructive Lifecycle" management for both historical sessions and training blueprints. We focused on database referential integrity and solved complex UI interaction conflicts between navigational and functional elements.
+
+#### **1. The "Purge" Engine (Workout Session Deletion)**
+
+We implemented a secure, atomic decommissioning flow for completed workout sessions.
+
+- **Relational Integrity**: The `deleteWorkout` service performs a single-point deletion on the `workouts` table. It relies on the database-level `ON DELETE CASCADE` constraint to automatically clean up all associated sets in `workout_sets`, preventing "orphaned" data from corrupting volume analytics.
+- **Cache Synchronization**: The `useDeleteWorkout` hook triggers a targeted invalidation of the `["workouts", userId]` query key. This ensures that the history feed and aggregate KPIs (tonnage, frequency) refresh instantly across the dashboard.
+- **Secure Destruction UI**: Deployed the `DeleteWorkoutDialog` based on Shadcn `AlertDialog`. It features a "Propagation Shield" using `e.stopPropagation()` to prevent clicks on the delete trigger from accidentally firing the parent `Link` or `Router` navigation.
+
+#### **2. Polymorphic Primitive Refactoring (`PageHeader`)**
+
+To reduce code duplication and ensure visual consistency, we refactored the page-level headers into a high-performance reusable primitive.
+
+- **Flexible API**: The new `PageHeader` supports a polymorphic structure through the `cn()` utility, allowing for layout-specific overrides without modifying the core logic.
+
+#### **3. Blueprint Lifecycle Management (Template CRUD)**
+
+We expanded the "Routine Builder" module to support full lifecycle management of training templates.
+
+- **Modification Flow**: Users can now edit existing templates, updating both metadata (names) and relational exercise mappings in a single transactional update.
+- **Decommissioning Blueprints**: Added deletion support for templates, allowing for laboratory cleanup without affecting the already persisted historical workouts derived from those templates.
+
+#### **4. Systematic Expansion (Privacy & Support Facades)**
+
+Established the navigational structure for non-core domains to ensure a complete application feel.
+
+- **Placeholder Architecture**: Deployed high-density placeholder views for **Privacy & Security** and **Help & Feedback** modules.
+
+### **Fixed Months Grid**
+
+- **Layout Calibration**: Resolved a critical date-formatting mismatch where single-digit days were generated without leading zeros (e.g., 3.03 instead of 03.03). This string-key inconsistency caused the grid mapping logic to fail during historical timestamp reconciliation, preventing workout markers from rendering correctly in the monthly calendar view.
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/(dashboard)/
+│   ├── privacy/page.tsx            <-- NEW: Privacy & Security facade
+│   └──  feedback/page.tsx           <-- NEW: Help & Feedback facade
+├── features/
+│   ├── templates/
+│   │   └── _hooks/
+│   │           ├──  use-delete-template.ts <-- Deletion mutation
+│   │           └── use-edit-template.ts <-- Edition mutation
+│   │
+│   ├── workouts/
+│   │   ├── _hooks/use-delete-workout.ts <-- Mutation logic for purging
+│   │   └── components/
+│   │       ├── PageHeader.tsx      <-- Refactored reusable header
+│   │       ├── DeleteWorkoutDialog.tsx <-- Reusable confirmation shield
+│   │       └── SummaryWorkoutCard.tsx  <-- Updated with propagation fixes
+└── services/
+    ├── apiWorkouts.ts              <-- Added deleteWorkout logic
+    └── apiTemplates.ts             <-- Added delete/edit logic
+
+```
+
+---
