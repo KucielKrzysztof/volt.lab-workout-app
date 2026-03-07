@@ -24,11 +24,7 @@
 
 ## Core Architecture
 
-The project operates on the **Supabase Trinity** (Server, Client, and Middleware/Proxy clients) to ensure consistent data flow across the Next.js lifecycle. All performance analytics, such as Total Volume, are calculated using atomic relational mapping:
-
-$$\sum (\text{weight} \times \text{reps})$$
-
-Large tonnages are automatically normalized into tons for better readability .
+The project operates on the **Supabase Trinity** (Server, Client, and Middleware/Proxy clients) to ensure consistent data flow across the Next.js lifecycle. All performance analytics, such as Total Volume, are calculated using atomic relational mapping.
 
 ## 🌐 Visit Live on Vercel
 

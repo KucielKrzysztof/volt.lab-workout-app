@@ -674,3 +674,63 @@ src/
 ```
 
 ---
+
+## (Update: 07-03-2026)
+
+### **Support Systems & Anomaly Reporting**
+
+This milestone established a secure channel for user-to-lab communication. We implemented a robust "Feedback Loop" that handles everything from UI state management to hardened database security policies, alongside a data-driven FAQ module.
+
+#### **1. Headless Feedback Engine**
+
+We developed a multi-layered reporting system designed to capture system anomalies (bugs) and calibration requests (features).
+
+- **Headless Logic Extraction**: Following the **VOLT.LAB** architecture, we decoupled the form logic into the `useFeedbackForm` hook. This manages the entire lifecycle: Zod validation, `isPending` states, and server-side transmission.
+- **Double-Layer Validation**: Implemented `feedbackSchema` using **Zod**. This ensures data integrity on both the client (instant UX feedback) and the server (security gatekeeping).
+- **Agnostic Service Pattern**: The `feedbackService` was designed to be environment-agnostic, accepting an injected Supabase client to perform insertions into the `feedback_reports` table.
+
+#### **2. FAQ (Frequently Asked Questions Module)**
+
+Implemented a high-density information retrieval system using structured data.
+
+- **Information Density**: The FAQ module utilizes the **Shadcn Accordion** primitive to present complex system information in a compact, scannable format.
+- **Structured Data Sourcing**: Information is decoupled from the UI, pulling from `features/help/data` to allow for rapid content updates without modifying the component logic.
+
+### **Technical Implementation Map**
+
+| Feature               | File Location                                    | Technical Responsibility                            |
+| --------------------- | ------------------------------------------------ | --------------------------------------------------- |
+| **Feedback Hook**     | `features/help/_hooks/use-feedback-form.ts`      | Headless state management & action orchestration.   |
+| **Server Action**     | `features/help/api/submit-feedback.ts`           | Secure server-side validation & cache revalidation. |
+| **Agnostic Service**  | `services/apiFeedback.ts`                        | Environment-aware database insertion engine.        |
+| **Validation Schema** | `features/help/schemas/feedback-schema.ts`       | Unified Zod-backed data contract with JSDoc.        |
+| **FAQ Module**        | `features/help/components/faq/FaqClientView.tsx` | Client-View for faq presentation.                   |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/(dashboard)/
+│   └── feedback/
+│       └── page.tsx                <-- SSR entry point for Support
+├── features/
+│   └── help/
+│       ├── _hooks/
+│       │   └── use-feedback-form.ts <-- Logic for report submission
+│       ├── api/
+│       │   └── submit-feedback.ts   <-- Secure Server Action gateway
+│       ├── components/
+│       │   ├── feedback/            <-- FeedbackForm & ClientView
+│       │   └── faq/                 <-- FAQ Accordion
+│       ├── data/
+│       │   └── faq-data.ts          <-- Source of truth for FAQ info
+│       └── schemas/
+│           └── feedback-schema.ts   <-- Zod contract
+└── services/
+    └── apiFeedback.ts               <-- Core Supabase interaction layer
+
+```
+
+---
