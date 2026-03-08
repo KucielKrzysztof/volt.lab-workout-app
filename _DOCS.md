@@ -24,7 +24,9 @@
 | **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata                                         |
 | **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine                           |
 | **04-03-2026** | [**Theme & Settings**](#update-04-03-2026)                                              | Cookie-Sync Engine for theme, Theme Toggle, Change username                                        |
-| **05-03-2026** | [**Workout deletion & Templates edition/deletion**](#update-04-03-2026)                 | Session deletion Engine, Atomic Header Refactor, Propagation Shields, Templates edit/delate Engine |
+| **05-03-2026** | [**Workout deletion & Templates edition/deletion**](#update-05-03-2026)                 | Session deletion Engine, Atomic Header Refactor, Propagation Shields, Templates edit/delate Engine |
+| **07-03-2026** | [**FAQ & BUG REPORT**](#update-07-03-2026)                                              | Headless Feedback Engine, FAQ Module                                                               |
+| **08-03-2026** | [**Offline Indicator**](#update-08-03-2026)                                             | UI Offline Indicator and logic                                                                     |
 
 ---
 
@@ -730,6 +732,44 @@ src/
 │           └── feedback-schema.ts   <-- Zod contract
 └── services/
     └── apiFeedback.ts               <-- Core Supabase interaction layer
+
+```
+
+---
+
+## (Update: 08-03-2026)
+
+### **Connectivity Monitoring**
+
+This milestone established a monitoring system for device connectivity.
+
+#### **1. Offline Monitoring & Signal Logic (Offline Mode)**
+
+To address the "Offline Requirement" for gym environments, we implemented a real-time connectivity monitor.
+
+- **Signal Detection Hook**: Developed `useOnlineStatus`, a headless hook that utilizes the `navigator.onLine` API and window event listeners to track the device's uplink status.
+- **Responsive Portal Indicator**: The `OfflineIndicator` component uses a high-contrast, pulsating `destructive` icon. It leverages the **Shadcn Popover** (Portal) to bypass parent stacking contexts and ensures accurate positioning via the `md:inset-auto` reset pattern.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature               | File Location                            | Technical Responsibility                           |
+| --------------------- | ---------------------------------------- | -------------------------------------------------- |
+| **Connectivity Hook** | `src/hooks/use-online-status.ts`         | Real-time browser uplink monitoring.               |
+| **Signal Indicator**  | `src/components/ui/OfflineIndicator.tsx` | Responsive UI with Portal-based legend disclosure. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── components/
+│   └── ui/
+│       └── OfflineIndicator.tsx    <-- Connectivity monitor UI
+├── hooks/
+│   └── use-online-status.ts         <-- Uplink detection logic
 
 ```
 

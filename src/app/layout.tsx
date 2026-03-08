@@ -13,6 +13,7 @@ import QueryProvider from "@/core/providers/QueryProvider";
 import { UserProvider } from "@/core/providers/UserProvider";
 import { ThemeProvider } from "@/core/providers/ThemeProvider";
 import { ThemeToaster } from "@/components/ui/ThemeToaster";
+import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
 
 // --- FONT CONFIGURATION ---
 const geistSans = Geist({
@@ -85,6 +86,9 @@ export default async function RootLayout({
 					speed={200}
 					shadow="0 0 10px var(--primary), 0 0 5px var(--primary)"
 				/>
+
+				{/* Global Offiline Monitoring */}
+				<OfflineIndicator />
 
 				{/* THEME PROVIDER
                   'defaultTheme' is set to the server-detected value to ensure 

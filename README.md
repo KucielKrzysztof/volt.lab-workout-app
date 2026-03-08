@@ -2,7 +2,7 @@
 
 **VOLT.LAB** is a high-performance training workstation designed for athletes who demand precision and reliability. Focusing on high-speed UX and Low-Connection reliability, and workout analytics.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Framework:** Next.js 16 (App Router) with Turbopack.
 - **Database:** Supabase (PostgreSQL).
