@@ -1,5 +1,7 @@
 /**
  * @fileoverview Global state management for active workout sessions.
+ * * Supports the Hybrid Session Engine: orchestrates both blueprint-derived
+ * and dynamic On-The-Fly training data with real-time persistence.
  * Orchestrates real-time training data, set tracking, and local persistence
  * using Zustand with a synchronized localStorage middleware.
  * @module features/workouts/hooks
@@ -38,6 +40,23 @@ interface ActiveWorkoutStore {
 	 * @param {WorkoutTemplateUI} template - The UI-mapped template record containing movements and suggested volume.
 	 */
 	startFromTemplate: (template: WorkoutTemplateUI) => void;
+
+	/**
+	 * Initializes an "On-The-Fly" session.
+	 * * @description
+	 * Bypasses template mapping by setting `id: null`. This enables a blank-slate
+	 * workspace ready for dynamic exercise injection.
+	 */
+	startEmptyWorkout: () => void;
+
+	/** * Dynamically injects a new exercise into the active session.
+	 * * @description
+	 * 1. Preserves `exercise_id` for database relational integrity.
+	 * 2. Generates a local `id` (UUID) for stable React reconciliation.
+	 * 3. Automatically initializes a default performance set to streamline entry.
+	 * @param {Object} exercise - Validated record from the exercise library.
+	 */
+	addExercise: (exercise: { id: string; name: string }) => void;
 
 	/**
 	 * Updates a specific set's metrics (weight, reps, completion status).
@@ -111,6 +130,21 @@ export const useActiveWorkoutStore = create<ActiveWorkoutStore>()(
 				});
 			},
 
+			/**
+			 * startEmptyWorkout
+			 * * @description
+			 * * Bypasses template mapping to initiate a clean-slate session.
+			 * * Ensures that 'id' is null to indicate a non-templated session.
+			 */
+			startEmptyWorkout: () => {
+				set({
+					id: null, // Indicates an On-The-Fly session
+					name: "QUICK START SESSION",
+					startTime: new Date().toISOString(),
+					exercises: [], // Initialized as empty for dynamic additions
+				});
+			},
+
 			/** Patches a specific set within the state tree using a deep-mapping approach. */
 			updateSet: (exId, setId, data) =>
 				set((state) => ({
@@ -125,6 +159,22 @@ export const useActiveWorkoutStore = create<ActiveWorkoutStore>()(
 					exercises: state.exercises.map((ex) =>
 						ex.id === exId ? { ...ex, sets: [...ex.sets, { id: crypto.randomUUID(), weight: 0, reps: 10, isCompleted: false }] } : ex,
 					),
+				})),
+
+			/** * Adds a new exercise movement to the active session.
+			 * Initializes it with one default set to streamline the entry process.
+			 */
+			addExercise: (exercise: { id: string; name: string }) =>
+				set((state) => ({
+					exercises: [
+						...state.exercises,
+						{
+							id: crypto.randomUUID(), // Local UI ID
+							exercise_id: exercise.id, // Database ID
+							name: exercise.name,
+							sets: [{ id: crypto.randomUUID(), weight: 0, reps: 10, isCompleted: false }],
+						},
+					],
 				})),
 
 			/** Filters out the target set from the exercise's collection. */

@@ -11,7 +11,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Play, ClipboardList, Loader2, ChevronRight, AlertCircle } from "lucide-react";
+import { Play, ClipboardList, Loader2, ChevronRight, AlertCircle, Plus } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/core/providers/UserProvider";
 import { useStartWorkoutFlow } from "../_hooks/use-start-workout-flow";
@@ -43,7 +43,9 @@ export const StartWorkoutCard = () => {
 	 * - Session status (Zustand)
 	 * - Navigation (Next.js Router)
 	 */
-	const { templates, isLoading, isWorkoutActive, isSheetOpen, setIsSheetOpen, handleSelectTemplate } = useStartWorkoutFlow(user?.id || "");
+	const { templates, isLoading, isWorkoutActive, isSheetOpen, setIsSheetOpen, handleSelectTemplate, handleStartEmpty } = useStartWorkoutFlow(
+		user?.id || "",
+	);
 
 	return (
 		<Card className="border-primary/20 bg-primary/5 overflow-hidden border-2 border-dashed">
@@ -76,37 +78,62 @@ export const StartWorkoutCard = () => {
 									{isWorkoutActive ? "Session Active" : "Start workout"}
 								</Button>
 							</SheetTrigger>
+
 							<SheetContent side="bottom" className="h-[70vh] bg-background border-t-primary/20 rounded-t-[2rem]">
 								<SheetHeader className="pb-6">
-									<SheetTitle className="text-2xl font-black italic uppercase tracking-tighter">Choose Routine</SheetTitle>
+									<SheetTitle className="text-2xl font-black italic uppercase tracking-tighter">Choose Start</SheetTitle>
 								</SheetHeader>
+								<div className="space-y-4 overflow-y-auto pb-10 mx-2">
+									<button
+										onClick={handleStartEmpty}
+										className="w-full flex items-center gap-4 p-5 bg-primary/10 border-2 border-dashed border-primary/30 rounded-2xl hover:bg-primary/20 transition-all group active:scale-[0.98]"
+									>
+										<div className="bg-primary p-3 rounded-xl shadow-lg shadow-primary/20">
+											<Plus size={24} className="text-primary-foreground fill-current animate-pulse" />
+										</div>
+										<div className="text-left">
+											<p className="font-black uppercase italic text-lg group-hover:text-primary transition-colors leading-none mb-1">
+												Empty Session
+											</p>
+											<p className="text-[10px] opacity-50 uppercase font-mono tracking-widest">On-The-Fly / No Template</p>
+										</div>
+									</button>
 
-								{/* Routine Selection List:
+									<div className="relative py-2">
+										<div className="absolute inset-0 flex items-center">
+											<span className="w-full border-t border-white/5" />
+										</div>
+										<div className="relative flex justify-center text-[8px] uppercase tracking-[0.3em] font-black text-muted-foreground bg-background px-4">
+											Or Choose ROUTINE
+										</div>
+									</div>
+									{/* Routine Selection List:
                                     Renders interactive buttons for each available template. 
                                     Includes a loading state for data transitions.
                                 */}
-								<div className="space-y-3 overflow-y-auto pb-10">
-									{isLoading ? (
-										<div className="flex justify-center py-10">
-											<Loader2 className="animate-spin text-primary" />
-										</div>
-									) : (
-										templates?.map((template) => (
-											<button
-												key={template.id}
-												onClick={() => handleSelectTemplate(template)}
-												className="w-full flex items-center justify-between p-5 bg-secondary/10 border border-primary/5 rounded-2xl hover:border-primary/40 transition-all group text-left active:scale-[0.98]"
-											>
-												<div>
-													<p className="font-black uppercase italic text-lg group-hover:text-primary transition-colors leading-none mb-1">
-														{template.name}
-													</p>
-													<p className="text-[10px] opacity-40 uppercase font-mono tracking-widest">{template.exerciseCount} Exercises</p>
-												</div>
-												<ChevronRight size={20} className="text-primary/40 group-hover:text-primary transition-colors" />
-											</button>
-										))
-									)}
+									<div className="space-y-3 overflow-y-auto pb-10">
+										{isLoading ? (
+											<div className="flex justify-center py-10">
+												<Loader2 className="animate-spin text-primary" />
+											</div>
+										) : (
+											templates?.map((template) => (
+												<button
+													key={template.id}
+													onClick={() => handleSelectTemplate(template)}
+													className="w-full flex items-center justify-between p-5 bg-secondary/10 border border-primary/5 rounded-2xl hover:border-primary/40 transition-all group text-left active:scale-[0.98]"
+												>
+													<div>
+														<p className="font-black uppercase italic text-lg group-hover:text-primary transition-colors leading-none mb-1">
+															{template.name}
+														</p>
+														<p className="text-[10px] opacity-40 uppercase font-mono tracking-widest">{template.exerciseCount} Exercises</p>
+													</div>
+													<ChevronRight size={20} className="text-primary/40 group-hover:text-primary transition-colors" />
+												</button>
+											))
+										)}
+									</div>
 								</div>
 							</SheetContent>
 						</Sheet>

@@ -1,7 +1,7 @@
 /**
- * @fileoverview Main View for the active training workspace.
- * Provides the interactive interface for tracking a live workout session,
- * aggregating real-time exercise cards and the finalization workflow.
+ * @fileoverview Main View Orchestrator for the active training workspace.
+ * Refactored to act as a high-level container that manages the Hybrid Session Engine
+ * logic and coordinates specialized sub-components.
  * @module features/workouts/components
  */
 
@@ -9,114 +9,57 @@
 
 import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
 import { useFinishWorkout } from "../_hooks/use-finish-workout";
-import { ActiveExerciseCard } from "./ActiveExerciseCard";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { Trophy } from "lucide-react";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ActiveWorkoutEmpty } from "./ActiveWorkoutEmpty";
+import { ActiveWorkoutExerciseList } from "./ActiveWorkoutExerciseList";
+import { ActiveWorkoutFooter } from "./ActiveWorkoutFooter";
 
 /**
- * Primary view component for an ongoing workout session.
+ * Primary orchestrator component for an ongoing workout session.
  * * @description
- * This component serves as the central "command center" during a workout. It dynamically
- * renders exercise tracking cards based on the current Zustand store state and manages
- * the high-stakes finalization process via a confirmation dialog.
- * * **Key Features:**
- * 1. **Zero-Session Handling**: Automatically detects empty states and redirects users
- * to select a routine if no session is active.
- * 2. **Real-time Card List**: Maps the active exercises into interactive `ActiveExerciseCard`
- * components for immediate data entry.
- * 3. **Guarded Finalization**: Implements an `AlertDialog` to prevent accidental
- * session completions, requiring explicit user intent to trigger the persistence mutation.
- * 4. **Mutation Integration**: Hooks into `useFinishWorkout` to handle the asynchronous
- * transition from local state to database record.
- * * @returns {JSX.Element} The rendered active workout interface or an empty-state prompt.
+ * Following the Atomic Refactor, this component serves as a clean "shell".
+ * It synchronizes the persistent Zustand state with asynchronous mutations while
+ * delegating visual concerns to specialized child units.
+ * * **Architectural Responsibilities:**
+ * 1. **Session Gatekeeping**: Utilizes `ActiveWorkoutEmpty` to handle scenarios where
+ * no session is active (startTime is null).
+ * 2. **Data Streaming**: Connects the reactive `exercises` array to the `ActiveWorkoutExerciseList`.
+ * 3. **Hybrid Interaction**: Bridges the `addExercise` action and `finish` mutation
+ * into the `ActiveWorkoutFooter` to support on-the-fly session expansion.
+ * 4. **State Persistence**: Leverages the `useActiveWorkoutStore` to ensure training
+ * data survives browser refreshes.
+ * * @returns {JSX.Element} The orchestrated training workspace or the empty-state guard.
  */
 export const ActiveWorkoutView = () => {
-	const router = useRouter();
-
-	/** * Access the reactive list of exercises from the persistent store.
-	 * Changes here (e.g., adding sets) trigger immediate re-renders of the list.
+	/** * Reactive session state.
+	 * Captures the definitive 'startTime' and the hierarchical 'exercises' tree.
 	 */
-	const { exercises } = useActiveWorkoutStore();
+	const { exercises, startTime, addExercise } = useActiveWorkoutStore();
 
-	/** * Initialize the finalization mutation.
-	 * `isPending` state is used to disable the finish button and prevent duplicate submissions.
+	/** * Finalization pipeline.
+	 * Manages the asynchronous transition from local memory to Supabase persistence.
 	 */
 	const { mutate: finish, isPending } = useFinishWorkout();
 
-	/** * Fallback UI for inactive states.
-	 * Prevents the application from rendering a blank tracking screen if the store is empty.
+	/** * AUTH GUARD / SESSION CHECK
+	 * If startTime is null, no session has been initiated at all.
 	 */
-	if (!exercises.length) {
-		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-				<p className="font-black uppercase italic opacity-20 text-4xl">No Active Session</p>
-				<Button onClick={() => router.push("/dashboard/templates")}>Select a Template</Button>
-			</div>
-		);
+	if (!startTime) {
+		return <ActiveWorkoutEmpty />;
 	}
 
 	return (
-		<div className="space-y-6 mt-30">
-			{/* Live exercise tracking list.
-                Utilizes Tailwind's 'animate-in' for a smooth transition when the session starts.
+		<div className="space-y-6 mt-30 pb-40">
+			{/* LIST LAYER:
+                Handles the iterative rendering of exercise cards or the "No Exercises" 
+                ghost state if the session started from nothing.
             */}
-			<div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-				{exercises.map((ex) => (
-					<ActiveExerciseCard key={ex.id} exercise={ex} />
-				))}
-			</div>
+			<ActiveWorkoutExerciseList exercises={exercises} />
 
-			{/* Fixed-position action footer.
-                Contains the primary "Finish Workout" button and its associated confirmation logic.
+			{/* CONTROL LAYER:
+                Fixed-position interface providing global actions for session expansion 
+                and atomic finalization.
             */}
-			<div className="fixed bottom-20 left-4 right-4 max-w-xl mx-auto">
-				<AlertDialog>
-					<AlertDialogTrigger asChild>
-						<Button
-							disabled={isPending}
-							className="w-full py-8 bg-primary text-primary-foreground font-black uppercase italic tracking-widest text-lg shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-						>
-							{isPending ? "Saving..." : "Finish Workout"}
-						</Button>
-					</AlertDialogTrigger>
-
-					<AlertDialogContent className="bg-background border-primary/20 max-w-[90vw] rounded-2xl">
-						<AlertDialogHeader>
-							<div className="flex items-center gap-2 text-primary mb-2">
-								<Trophy size={24} className="animate-bounce" />
-								<AlertDialogTitle className="uppercase font-black italic tracking-tighter text-xl">Finish & Save?</AlertDialogTitle>
-							</div>
-							<AlertDialogDescription className="text-zinc-400 font-medium">
-								Great work! Once saved, this session will be added to your history. Make sure all your sets are marked as completed.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-
-						<AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
-							<AlertDialogCancel className="border-white/10 bg-white/5 hover:bg-white/10 uppercase font-semibold! tracking-tighter">
-								Not yet
-							</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() => finish()}
-								className="bg-success! text-success-foreground hover:opacity-90 uppercase font-semibold! italic tracking-tighter shadow-[0_0_15px_rgba(var(--color-success),0.4)]"
-							>
-								FINISH!
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
-			</div>
+			<ActiveWorkoutFooter onAddExercise={addExercise} onFinish={finish} isPending={isPending} />
 		</div>
 	);
 };

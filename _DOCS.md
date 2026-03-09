@@ -27,6 +27,7 @@
 | **05-03-2026** | [**Workout deletion & Templates edition/deletion**](#update-05-03-2026)                 | Session deletion Engine, Atomic Header Refactor, Propagation Shields, Templates edit/delate Engine |
 | **07-03-2026** | [**FAQ & BUG REPORT**](#update-07-03-2026)                                              | Headless Feedback Engine, FAQ Module                                                               |
 | **08-03-2026** | [**Offline Indicator**](#update-08-03-2026)                                             | UI Offline Indicator and logic                                                                     |
+| **09-03-2026** | [**Hybrid Session Engine & Dynamic Injection**](#update-09-03-2026)                     | On-The-Fly Training, Atomic View Refactor                                                          |
 
 ---
 
@@ -770,6 +771,64 @@ src/
 │       └── OfflineIndicator.tsx    <-- Connectivity monitor UI
 ├── hooks/
 │   └── use-online-status.ts         <-- Uplink detection logic
+
+```
+
+---
+
+## (Update: 09-03-2026)
+
+### **Hybrid Session Engine & Atomic UI Refactor**
+
+This milestone transformed the training workspace from a blueprint executor into a dynamic **Hybrid Session Engine**. The system now supports spontaneous "On-The-Fly" training while allowing real-time expansion of template-based sessions.
+
+#### **1. On-The-Fly Initiation Protocol (Quick Start)**
+
+We introduced a secondary session pathway that bypasses the need for pre-defined blueprints.
+
+- **Non-Templated State**: The `startEmptyWorkout` action initializes the `useActiveWorkoutStore` with a `template_id: null`. This ensures the relational database correctly identifies the session as a unique manual entry rather than a blueprint execution.
+- **Blueprint-Agnostic Persistence**: By maintaining the same internal exercise structure for both templated and empty sessions, the `persist` middleware provides uniform data protection across all training modes.
+
+#### **2. Dynamic Exercise Injection**
+
+Implemented the ability to modify the training volume of an active session in real-time.
+
+- **Relational Integrity Preservation**: The `addExercise` store action maps database-level `exercise_id` to dynamic local `id` (UUID). This allows users to add the same movement multiple times within one session without key collisions or relational corruption.
+
+#### **3. Atomic UI Orchestration (The Workspace Refactor)**
+
+To improve maintainability and performance, the `ActiveWorkoutView` was decomposed into specialized atomic units:
+
+- **The Guard (`ActiveWorkoutEmpty`)**: A specialized "Ghost State" component that handles gatekeeping for the workspace, providing a recovery path when no session is active.
+- **The Presenter (`ActiveWorkoutExerciseList`)**: Manages the iterative rendering of tracking cards and handles the empty-session visual state.
+- **The Control Hub (`ActiveWorkoutFooter`)**: A fixed-position interface that merges progression triggers (Dynamic Injection) with finalization protocols (Finish Mutation).
+
+### **Technical Implementation Map**
+
+| Feature                | File Location                                          | Technical Responsibility                                            |
+| ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------- |
+| **Hybrid Store**       | `features/workouts/_hooks/use-active-workout-store.ts` | Managing `template_id` nullability and dynamic `addExercise` logic. |
+| **View Orchestrator**  | `features/workouts/components/ActiveWorkoutView.tsx`   | Coordinating the Guard, List, and Footer layers of the workspace.   |
+| **Session Guard**      | `features/workouts/components/ActiveWorkoutEmpty.tsx`  | Gatekeeping the UI based on `startTime` existence.                  |
+| **Interaction Hub**    | `features/workouts/components/ActiveWorkoutFooter.tsx` | Fixed UI anchoring for session expansion and atomic finalization.   |
+| **Polymorphic Search** | `features/exercises/components/ExerciseSelector.tsx`   | Dynamic trigger styling and database-to-store exercise mapping.     |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   └── workouts/
+│       ├── _hooks/
+│       │   ├── use-active-workout-store.ts <-- Added addExercise & startEmptyWorkout
+│       │   └── use-start-workout-flow.ts    <-- Added handleStartEmpty logic
+│       └── components/
+│           ├── ActiveWorkoutView.tsx        <-- Main Orchestrator (Refactored)
+│           ├── ActiveWorkoutEmpty.tsx       <-- Session Gatekeeper
+│           ├── ActiveWorkoutExerciseList.tsx <-- Presentation layer
+│           └── ActiveWorkoutFooter.tsx       <-- Command & Control bar
 
 ```
 

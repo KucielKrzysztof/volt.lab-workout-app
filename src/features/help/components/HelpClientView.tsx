@@ -7,7 +7,6 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/PageHeader";
-import { SystemStatus } from "./SystemStatus";
 import { HelpNavigation } from "./HelpNavigation";
 
 /**
@@ -21,9 +20,6 @@ export default function HelpClientView() {
 			<PageHeader title="Support" subtitle="Laboratory Assistance" className="mb-6" />
 
 			<main className="px-4 space-y-3">
-				{/* System Status Indicator - as proposed in TODO */}
-				<SystemStatus />
-
 				{/* Navigation Menu */}
 				<HelpNavigation />
 			</main>

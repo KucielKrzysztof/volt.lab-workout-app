@@ -13,10 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface ExerciseSelectorProps {
 	/** Callback triggered when a user selects an exercise from the list */
 	onSelect: (exercise: { id: string; name: string }) => void;
+	className?: string;
 }
 
 /**
@@ -37,7 +39,7 @@ interface ExerciseSelectorProps {
  * * @param {ExerciseSelectorProps} props - Component properties.
  * @returns {JSX.Element} A themed trigger button and an overlay containing the searchable list.
  */
-export const ExerciseSelector = ({ onSelect }: ExerciseSelectorProps) => {
+export const ExerciseSelector = ({ onSelect, className }: ExerciseSelectorProps) => {
 	/** * UI Visibility State:
 	 * Manages the open/closed status of the Radix-based Sheet component.
 	 */
@@ -77,7 +79,11 @@ export const ExerciseSelector = ({ onSelect }: ExerciseSelectorProps) => {
 		<Sheet open={isOpen} onOpenChange={setIsOpen}>
 			{/* The Trigger: A compact button optimized for row-based layouts. */}
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="h-7 text-[10px] uppercase font-black border-primary/20 hover:bg-primary/5 transition-all">
+				<Button
+					variant="outline"
+					size="sm"
+					className={cn("h-7 text-[10px] uppercase font-black border-primary/20 hover:bg-primary/5 transition-all", className)}
+				>
 					<Plus className="mr-1 h-3 w-3" /> Add Exercise
 				</Button>
 			</SheetTrigger>

@@ -44,19 +44,19 @@ _Goal: System configuration and template engine._
 
 _Goal: Ensure laboratory operational stability and user guidance._
 
-- [ ] Interactive Help Center
+- [1/2] Interactive Help Center
 
 - [ ] "Volt.Lab Manual": Comprehensive guide on the training lifecycle (Blueprint creation > Live Session > KPI Analytics).
 - [x] FAQ (Knowledge Base): Detailed answers to technical and training-related questions.
 
-- [ ] Feedback & Bug Reporting Engine.
+- [1/2] Feedback & Bug Reporting Engine.
 
-- [ ] Integrated Report Form: Dedicated interface for submitting Bug Reports or Feature Requests directly to the database.
+- [x] Integrated Report Form: Dedicated interface for submitting Bug Reports or Feature Requests directly to the database.
 - [ ] System Metadata Auto-capture: Automatically attach environment info (Browser, Theme, etc..) to reports for faster debugging.
 
 - [ ] Laboratory Integrity & Status
 
-- [ ] System Status Dashboard: Real-time visualization of connection health (Supabase API status, Edge Functions).
+- [x] Offline indicator - for users to know when they are offline.
 - [ ] "Lab Notes" (Changelog): A user-facing version of the \_DOCS.md to keep users informed about the latest updates and new features.
 
 ## TODO IN FAR FUTURE
