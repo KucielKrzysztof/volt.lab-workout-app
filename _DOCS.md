@@ -28,6 +28,7 @@
 | **07-03-2026** | [**FAQ & BUG REPORT**](#update-07-03-2026)                                              | Headless Feedback Engine, FAQ Module                                                               |
 | **08-03-2026** | [**Offline Indicator**](#update-08-03-2026)                                             | UI Offline Indicator and logic                                                                     |
 | **09-03-2026** | [**Hybrid Session Engine & Dynamic Injection**](#update-09-03-2026)                     | On-The-Fly Training, Atomic View Refactor                                                          |
+| **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                 |
 
 ---
 
@@ -829,6 +830,74 @@ src/
 │           ├── ActiveWorkoutEmpty.tsx       <-- Session Gatekeeper
 │           ├── ActiveWorkoutExerciseList.tsx <-- Presentation layer
 │           └── ActiveWorkoutFooter.tsx       <-- Command & Control bar
+
+```
+
+---
+
+## (Update: 10-03-2026)
+
+### **Privacy Protocol & Diagnostic Governance**
+
+This milestone established a robust legal framework and a conditional telemetry system. We focused on GDPR/RODO compliance by implementing a transparent "Governance Uplink" that gives users full control over their technical data while maintaining system integrity.
+
+#### **1. Public Data Collecting & Proxy Exception**
+
+We decoupled the application's legal documentation from the protected dashboard environment to ensure accessibility for unauthenticated users.
+
+- **Middleware Bypass**: Modified `proxy.ts` to include a security exception for the `/dashboard/privacy` route. This allows users to review the Privacy Protocol before initializing a session.
+
+#### **2. Headless Governance Hook (`useCookieConsent`)**
+
+Developed a specialized logic layer for managing privacy tokens with strict client-side synchronization.
+
+- **Root Scoping Enforcement**: The hook forces `path=/` on all cookie operations. This eliminates "Token Duplication" anomalies where separate cookies were created for different sub-paths (e.g., `/` vs `/dashboard`).
+- **Hydration Safety**: Implemented a `null` initialization state to prevent SSR mismatches, ensuring the UI only renders once the browser's cookie state is calibrated.
+- **Revocation Protocol**: Designed a secure "Revoke" mechanism that utilizes the "Expiry Hack" (setting a 1970 timestamp) to instantly purge authorization tokens from the client.
+
+#### **3. Conditional Diagnostic Sniffer**
+
+Transformed the feedback system into a privacy-aware "Diagnostic Uplink" that respects user boundaries.
+
+- **Consent-Gated Telemetry**: The `useFeedbackForm` hook now performs a pre-flight check for the `cookieConsent` token. High-fidelity metadata (OS, Browser, Resolution, Network) is only bundled if the protocol is **Authorized**.
+- **Restricted Payload Mode**: If consent is missing, the sniffer automatically aborts and transmits a `RESTRICTED` status, preserving user privacy while still allowing for manual anomaly reporting.
+- **Diagnostic Awareness UI**: Integrated a static awareness tile in the feedback interface to inform users about the data-bundling process and provide a direct link to the Privacy Settings.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature             | File Location                                       | Technical Responsibility                                                      |
+| ------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Governance Hook** | `src/hooks/use-cookie-consent.ts`                   | Headless logic for cookie R/W, path-scoping, and protocol toggling.           |
+| **Privacy View**    | `features/privacy/components/PrivacyClientView.tsx` | Interactive governance card with dynamic status badges and disclosures.       |
+| **Consent Banner**  | `components/ui/cookie-consent.tsx`                  | UI Orchestrator for initial consent acquisition (3rd part component).         |
+| **Awareness Hook**  | `features/help/_hooks/use-feedback-form.ts`         | Conditional metadata capture logic based on active Privacy Protocols.         |
+| **Security Proxy**  | `src/proxy.ts`                                      | Managing public exceptions for legal routes and theme-cookie synchronization. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/
+│   └── privacy/
+│       └── page.tsx                <-- Public Privacy Protocol entry point
+├── features/
+│   ├── privacy/
+|   |   ├── _hooks/
+│   |   │   └── use-cookie-consent.ts        <-- NEW: Headless privacy logic
+│   │   └── components/
+│   │       └── PrivacyClientView.tsx <-- Interactive consent orchestrator
+│   └── help/
+│       └── _hooks/
+│           └── use-feedback-form.ts  <-- UPDATED: Added Privacy-aware sniffer
+├── components/ui
+│           ├── cookie-consent.tsx   <-- Atomic consent banner
+│           └── CookieGovernance.tsx <-- Hydration guard for the banner
+│
+└── proxy.ts                         <-- UPDATED: Added /privacy exception
 
 ```
 

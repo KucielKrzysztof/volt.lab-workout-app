@@ -14,6 +14,7 @@ import { UserProvider } from "@/core/providers/UserProvider";
 import { ThemeProvider } from "@/core/providers/ThemeProvider";
 import { ThemeToaster } from "@/components/ui/ThemeToaster";
 import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
+import { CookieGovernance } from "@/components/ui/CookieGoverance";
 
 // --- FONT CONFIGURATION ---
 const geistSans = Geist({
@@ -97,6 +98,9 @@ export default async function RootLayout({
 				<ThemeProvider attribute="class" defaultTheme={theme} enableSystem={false} disableTransitionOnChange>
 					{/* Global toast notification system */}
 					<ThemeToaster />
+
+					{/* NEW: COOKIE COMPLIANCE PROTOCOL */}
+					<CookieGovernance />
 
 					{/* Context Provider Layering:
                   QueryProvider is placed at the top to allow UserProvider or any sub-component 

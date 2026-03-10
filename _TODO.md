@@ -1,23 +1,4 @@
-## 📝 VOLT.LAB - Updated TODO Roadmap
-
-### Workouts Module (Active Training & History)
-
-_Goal: Allow users to log their physical activity and browse past sessions._
-
-- [x] **Workout History List**
-- [x] Implement **Infinite Scroll** or **Pagination** using TanStack Query `useInfiniteQuery`.
-- [x] Data Source: Supabase `workouts` table.
-- [x] Features: Filter by date range, summary cards (volume, duration, etc...).
-
-- [x] **New Workout Flow**
-- [x] Integration with **Workout Templates** (e.g., Push, Pull, Leg Day).
-- [x] **Auto-population logic**: Selecting a template automatically fills the current date and the predefined list of exercises.
-
-- [x] **Set Tracking**
-- [x] Input fields for **Weight (kg)** and **Reps** for each set.
-- [x] **Persistence**: Save session to Supabase upon completion.
-
----
+## TODO Roadmap
 
 ### More / Settings & Management
 
@@ -61,6 +42,6 @@ _Goal: Ensure laboratory operational stability and user guidance._
 
 ## TODO IN FAR FUTURE
 
-- **Offline Requirement**: Keep in mind the **Service Worker** and **PowerSync** integration for the workout logging flow to prevent data loss in low-connectivity environments (gym basements).
+- **Offline Requirement**: Keep in mind the **Service Worker** and **PowerSync** integration for the workout logging flow to prevent data loss in low-connectivity environments.
 
 ---

@@ -36,6 +36,7 @@ export const feedbackService = {
 				title: values.title,
 				description: values.description,
 				status: "open",
+				browser_metadata: values.browserMetadata,
 			})
 			.select()
 			.single();

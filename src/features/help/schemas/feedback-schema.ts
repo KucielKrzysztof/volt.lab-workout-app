@@ -27,6 +27,13 @@ export const feedbackSchema = z.object({
 	title: z.string().min(5, "TITLE MUST BE AT LEAST 5 CHARACTERS").max(100),
 	/** Comprehensive details providing the necessary context for system debugging. */
 	description: z.string().min(20, "DESCRIBE THE TOPIC IN DETAIL (MIN 20 CHARS)"),
+
+	/**
+	 * Metadata field with explicit key and value types.
+	 * key: z.string() - keys must be strings.
+	 * value: z.any() - values can be anything (browser info, timestamp, etc).
+	 */
+	browserMetadata: z.record(z.any(), z.any()).optional(),
 });
 
 /**

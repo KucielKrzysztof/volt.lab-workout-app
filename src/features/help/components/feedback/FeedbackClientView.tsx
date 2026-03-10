@@ -5,6 +5,8 @@
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { FeedbackForm } from "./FeedbackForm";
+import { Info } from "lucide-react";
+import Link from "next/link";
 
 /**
  * FeedbackClientView Component.
@@ -19,6 +21,22 @@ export default function FeedbackClientView() {
 		<main className="container mx-auto px-4 pb-10">
 			{/* Standardized PageHeader for visual consistency across the dashboard */}
 			<PageHeader title="FEEdback & bug report" />
+
+			{/* STATIC DIAGNOSTIC NOTE */}
+			<div className="bg-secondary/10 border-l-2 border-primary/50 p-4 rounded-r-xl flex gap-3 items-start">
+				<Info className="text-primary shrink-0 mt-0.5" size={18} />
+				<div className="space-y-1">
+					<p className="text-[11px] leading-relaxed text-muted-foreground">
+						<span className="text-primary font-black uppercase italic tracking-tighter mr-1">Diagnostic Notice:</span>
+						If Supplemental Protocols (Cookies) are authorized, your report will be bundled with environment metadata to accelerate anomaly
+						calibration. Check your status in the
+						<Link href="/dashboard/privacy" className="text-foreground underline ml-1 hover:text-primary transition-colors">
+							Privacy Settings
+						</Link>
+						.
+					</p>
+				</div>
+			</div>
 
 			{/* Centralized form container for data calibration */}
 			<div className="max-w-2xl mx-auto mt-6">

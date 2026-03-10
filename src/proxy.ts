@@ -51,8 +51,13 @@ export async function proxy(request: NextRequest) {
 	/** * 4. PROTECTION GUARD (/dashboard/**):
 	 * Implements a strict boundary for the private laboratory environment.
 	 * Unauthenticated access attempts are redirected to the login flow.
+	 * We protect all /dashboard routes EXCEPT for /dashboard/privacy.
+	 * This ensures the Privacy Policy is a public "Open Uplink" for compliance.
 	 */
-	if (url.pathname.startsWith("/dashboard") && !user) {
+	const isDashboardRoute = url.pathname.startsWith("/dashboard");
+	const isPrivacyException = url.pathname === "/dashboard/privacy";
+
+	if (isDashboardRoute && !isPrivacyException && !user) {
 		return NextResponse.redirect(new URL("/auth/login", request.url));
 	}
 
