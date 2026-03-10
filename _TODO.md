@@ -33,12 +33,17 @@ _Goal: Ensure laboratory operational stability and user guidance._
 - [1/2] Feedback & Bug Reporting Engine.
 
 - [x] Integrated Report Form: Dedicated interface for submitting Bug Reports or Feature Requests directly to the database.
-- [ ] System Metadata Auto-capture: Automatically attach environment info (Browser, Theme, etc..) to reports for faster debugging.
+- [x] System Metadata Auto-capture: Automatically attach environment info (Browser, Theme, etc..) to reports for faster debugging.
 
 - [ ] Laboratory Integrity & Status
 
 - [x] Offline indicator - for users to know when they are offline.
 - [ ] "Lab Notes" (Changelog): A user-facing version of the \_DOCS.md to keep users informed about the latest updates and new features.
+
+### Privacy and Security
+
+- [x] COOKIES consent.
+- [ ] Terms of Service (TOS).
 
 ## TODO IN FAR FUTURE
 

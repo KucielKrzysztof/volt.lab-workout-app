@@ -29,6 +29,7 @@
 | **08-03-2026** | [**Offline Indicator**](#update-08-03-2026)                                             | UI Offline Indicator and logic                                                                     |
 | **09-03-2026** | [**Hybrid Session Engine & Dynamic Injection**](#update-09-03-2026)                     | On-The-Fly Training, Atomic View Refactor                                                          |
 | **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                 |
+| **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                          |
 
 ---
 
@@ -898,6 +899,65 @@ src/
 │           └── CookieGovernance.tsx <-- Hydration guard for the banner
 │
 └── proxy.ts                         <-- UPDATED: Added /privacy exception
+
+```
+
+---
+
+## (Update: 11-03-2026)
+
+### **Laboratory Calculators & Performance Calibration**
+
+This milestone transformed **VOLT.LAB** into a high-precision analytical workstation. We deployed a modular calculation suite designed to calibrate training intensity and relative strength using industry-standard sport science protocols.
+
+#### **1. Headless Calculation Engine (`useCalculators`)**
+
+We engineered a centralized mathematical "Brain" that decouples complex sport science formulas from the UI layer.
+
+- **Brzycki 1RM Protocol**: Implemented high-accuracy strength estimation for sub-maximal efforts.
+- **IPF Wilks Standard**: Deployed a 5th-degree polynomial coefficient engine to normalize strength across varying body masses and genders.
+- **RPE Decay Model**: Developed an autoregulation engine that maps perceived exertion (RPE) to theoretical peak capacity (e1RM), utilizing a linear intensity decay algorithm.
+- **Memoization Layer**: All calculations are wrapped in `useMemo` to ensure zero-latency UI updates during high-frequency input changes.
+
+#### **2. Protocol Orchestration & Hub Architecture**
+
+The module uses a **Dynamic Injection** pattern, allowing the user to switch between different "Laboratory Protocols" within a single workspace.
+
+- **CalculatorsClientView**: Acts as the central hub. It utilizes a state-driven orchestrator to hot-swap between 1RM, Wilks, and RPE engines without page reloads.
+- **Protocol Registry**: Centralized all calculator metadata (labels, technical descriptions) in a strictly typed registry (`CALCULATOR_OPTIONS`), ensuring a single source of truth for the entire module.
+
+### **Technical Implementation Map**
+
+| Feature                | File Location                                               | Technical Responsibility                                                               |
+| ---------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Math Processor**     | `features/calculators/_hooks/use-calculators.ts`            | Headless logic: Brzycki, Wilks Polynomials, and RPE intensity mapping.                 |
+| **Orchestrator**       | `features/calculators/components/CalculatorsClientView.tsx` | UI state-machine for switching active laboratory protocols.                            |
+| **Wilks Engine**       | `features/calculators/components/WilksCalculator.tsx`       | Gender-aware relative strength scaling with dynamic standards reference.               |
+| **RPE Calibrator**     | `features/calculators/components/RpeCalculator.tsx`         | Adaptive grid UI for effort-based performance monitoring.                              |
+| **Protocol Registry**  | `features/calculators/types/index.ts`                       | Strictly typed registry for calculator metadata and JSDoc documentation.               |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/(dashboard)/
+│   └── calculators/
+│       └── page.tsx                <-- Server-side shell with icon-enhanced PageHeader
+├── features/
+│   └── calculators/
+│       ├── _hooks/
+│       │   └── use-calculators.ts   <-- Headless math engine (1RM, Wilks, RPE)
+│       ├── components/
+│       │   ├── CalculatorsClientView.tsx <-- Protocol orchestrator
+│       │   ├── OneRepMaxCalculator.tsx  <-- 1RM + Intensity Mapping
+│       │   ├── WilksCalculator.tsx       <-- Relative strength engine
+│       │   └── RpeCalculator.tsx         <-- Autoregulation calibrator
+│       └── types/
+│           └── index.ts               <-- JSDoc-documented protocol definitions
+└── components/ui/
+    └── PageHeader.tsx              <-- UPDATED: Added icon support
 
 ```
 

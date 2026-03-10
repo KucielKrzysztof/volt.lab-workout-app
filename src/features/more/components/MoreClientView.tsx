@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, Dumbbell, HelpCircle, LogOut, Settings, ShieldCheck, User } from "lucide-react";
+import { Calculator, ClipboardList, Dumbbell, HelpCircle, LogOut, Settings, ShieldCheck, User } from "lucide-react";
 import { MoreItem } from "./MoreItem";
 import { Separator } from "@/components/ui/separator";
 import { Footer } from "@/components/ui/Footer";
@@ -27,6 +27,7 @@ export const MoreClientView = () => {
 			<MoreSection desc="Training">
 				<MoreItem icon={ClipboardList} label="Workout Templates" href="/dashboard/templates" />
 				<MoreItem icon={Dumbbell} label="Exercises Database" href="/dashboard/exercises" />
+				<MoreItem icon={Calculator} label="Strength Calculators" href="/dashboard/calculators" />
 			</MoreSection>
 
 			{/* ACCOUNT*/}
