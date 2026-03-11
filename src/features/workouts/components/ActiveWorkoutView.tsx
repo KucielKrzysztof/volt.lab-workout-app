@@ -12,6 +12,7 @@ import { useFinishWorkout } from "../_hooks/use-finish-workout";
 import { ActiveWorkoutEmpty } from "./ActiveWorkoutEmpty";
 import { ActiveWorkoutExerciseList } from "./ActiveWorkoutExerciseList";
 import { ActiveWorkoutFooter } from "./ActiveWorkoutFooter";
+import { EditableWorkoutName } from "./EditableWorkoutName";
 
 /**
  * Primary orchestrator component for an ongoing workout session.
@@ -49,6 +50,13 @@ export const ActiveWorkoutView = () => {
 
 	return (
 		<div className="space-y-6 mt-30 pb-40">
+			{/* HEADER LAYER:
+                The session identity hub. Displays and allows manual override 
+                of the workout name.
+            */}
+			<header className="flex flex-col items-center justify-center space-y-2 py-4 border-b border-primary/10">
+				<EditableWorkoutName />
+			</header>
 			{/* LIST LAYER:
                 Handles the iterative rendering of exercise cards or the "No Exercises" 
                 ghost state if the session started from nothing.

@@ -69,6 +69,9 @@ interface ActiveWorkoutStore {
 	/** Appends a new set to a specific exercise with default metrics. */
 	addSet: (exerciseId: string) => void;
 
+	/** Allows manual override of the session name during an active workout. */
+	updateName: (newName: string) => void;
+
 	/** Removes a specific set from an exercise. */
 	removeSet: (exerciseId: string, setId: string) => void;
 
@@ -175,6 +178,14 @@ export const useActiveWorkoutStore = create<ActiveWorkoutStore>()(
 							sets: [{ id: crypto.randomUUID(), weight: 0, reps: 10, isCompleted: false }],
 						},
 					],
+				})),
+
+			/** * Corrected updateName action.
+			 * Directly patches the 'name' property of the flat state tree.
+			 */
+			updateName: (newName: string) =>
+				set(() => ({
+					name: newName,
 				})),
 
 			/** Filters out the target set from the exercise's collection. */

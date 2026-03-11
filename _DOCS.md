@@ -30,6 +30,7 @@
 | **09-03-2026** | [**Hybrid Session Engine & Dynamic Injection**](#update-09-03-2026)                     | On-The-Fly Training, Atomic View Refactor                                                          |
 | **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                 |
 | **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                          |
+| **12-03-2026** | **[Session Identity & Dynamic Naming](#update-12-03-2026)**                             | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints        |
 
 ---
 
@@ -958,6 +959,60 @@ src/
 │           └── index.ts               <-- JSDoc-documented protocol definitions
 └── components/ui/
     └── PageHeader.tsx              <-- UPDATED: Added icon support
+
+```
+
+---
+
+## (Update: 12-03-2026)
+
+### **Session Identity & Dynamic Naming Protocol**
+
+This milestone evolved the active training workspace by transitioning from static placeholders to a user-defined **Identity Engine**. This allows lifters to categorize and name their "On-The-Fly" sessions in real-time without interrupting the training flow.
+
+#### **1. Inline Identity Orchestration (`EditableWorkoutName`)**
+
+We developed a seamless "Click-to-Edit" interface that serves as the primary session header.
+
+- **Transient State Management**: The component utilizes a dual-state approach, holding a `tempName` in local memory to allow for "Escape-to-Cancel" functionality before committing the string to the global store.
+- **UX Calibration**: Implemented `inputRef` selection logic that automatically highlights the entire string upon activation, enabling 1-click replacement of default titles like "QUICK START SESSION".
+- **Visual Feedback**: Integrated state-aware coloring; default placeholders are rendered with reduced opacity (`text-muted-foreground/60`), which shifts to full-intensity `text-foreground` once a custom protocol name is established.
+
+#### **2. Flat-State Mutation Logic (Zustand Patching)**
+
+Refactored the `useActiveWorkoutStore` to support atomic name updates within a high-performance flat state tree.
+
+- **Direct Tree Patching**: The `updateName` action was optimized to bypass nested object overhead, directly targeting the `name` property. This ensures that the `persist` middleware can synchronize the new identity to `localStorage` with minimal compute cycles.
+- **Sanitization Pipeline**: Implemented a `.trim()` sanitization logic within the `handleSave` callback. This prevents database "bloat" from leading/trailing whitespaces while preserving intentional multi-word names (e.g., "Upper Body A").
+
+#### **3. View Layer Integration**
+
+Reconstructed the `ActiveWorkoutView` to establish a dedicated **Identity Hub** at the top of the workspace.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature               | File Location                                          | Technical Responsibility                                                                 |
+| --------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| **Identity Store**    | `features/workouts/_hooks/use-active-workout-store.ts` | Flat-state mutation logic and `localStorage` persistence synchronization.                |
+| **Inline Editor**     | `features/workouts/components/EditableWorkoutName.tsx` | Managing transient edit states, keyboard orchestration (Enter/Esc), and input selection. |
+| **View Orchestrator** | `features/workouts/components/ActiveWorkoutView.tsx`   | Integrating the Identity Hub into the primary training workspace layout.                 |
+| **Sanitization**      | `features/workouts/components/EditableWorkoutName.tsx` | Input cleaning and validation against null/whitespace-only protocol names.               |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   └── workouts/
+│       ├── _hooks/
+│       │   └── use-active-workout-store.ts <-- UPDATED: Optimized updateName action
+│       └── components/
+│           ├── ActiveWorkoutView.tsx     <-- UPDATED: Integrated Identity Header
+│           └── EditableWorkoutName.tsx   <-- NEW: High-precision inline editor
 
 ```
 
