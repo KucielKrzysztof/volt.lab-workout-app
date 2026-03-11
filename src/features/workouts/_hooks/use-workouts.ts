@@ -29,6 +29,10 @@ const PAGE_SIZE = 10;
  * `getNextPageParam` to prevent redundant API calls once the database is exhausted.
  * 4. **Data Normalization**: Centralizes the mapping of raw database entities into
  * `WorkoutUI` models, ensuring the cache only stores "ready-to-render" data.
+ * 5. **Offline Resilience**: Implements `networkMode: 'offlineFirst'` to ensure
+ * the workout feed remains interactive and scrollable during signal loss in gym environments.
+ * 6. **Extended Persistence**: Retains 24 hours of historical pages in the global
+ * cache (`gcTime`) to support seamless offline review of training logs.
  * * @param {string} userId - UUID of the authenticated user (primary cache key).
  * @param {WorkoutPage} [initialData] - Optional pre-fetched first page from SSR.
  * * @returns {UseInfiniteQueryResult<InfiniteData<WorkoutPage>>} A query object providing
@@ -92,7 +96,12 @@ export const useWorkouts = (userId: string, initialData?: WorkoutPage) => {
 				}
 			: undefined,
 
-		// Data fresh for 5 mins
-		staleTime: 1000 * 60 * 5,
+		/** * Global Connectivity Protocol:
+		 * Data remains 'fresh' for 30 minutes. The 24h GC retains historical records
+		 * for persistent offline availability.
+		 */
+		staleTime: 1000 * 60 * 30,
+		gcTime: 1000 * 60 * 60 * 24,
+		networkMode: "offlineFirst",
 	});
 };

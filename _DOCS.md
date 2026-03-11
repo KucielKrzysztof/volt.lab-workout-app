@@ -13,24 +13,24 @@
 
 ## Table of Contents
 
-| Date           | Milestone                                                                               | Key Features                                                                                       |
-| :------------- | :-------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)                                      | SSR/CSR Hybrid, Supabase Trinity, Service Layer                                                    |
-| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)                                           | Auth Guard (Proxy), PKCE Flow, Global User Context                                                 |
-| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026)                              | DB Triggers (Sync), JSONB Records, SSR Hydration Cache                                             |
-| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)                                        | Secure Password Reset, Sonner Integration                                                          |
-| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)                                      | Relational Joins, UI Mapping, SSR Hydration Cache                                                  |
-| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)                                 | Zustand Persistence, Routine Blueprints, Analytics Engine                                          |
-| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata                                         |
-| **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine                           |
-| **04-03-2026** | [**Theme & Settings**](#update-04-03-2026)                                              | Cookie-Sync Engine for theme, Theme Toggle, Change username                                        |
-| **05-03-2026** | [**Workout deletion & Templates edition/deletion**](#update-05-03-2026)                 | Session deletion Engine, Atomic Header Refactor, Propagation Shields, Templates edit/delate Engine |
-| **07-03-2026** | [**FAQ & BUG REPORT**](#update-07-03-2026)                                              | Headless Feedback Engine, FAQ Module                                                               |
-| **08-03-2026** | [**Offline Indicator**](#update-08-03-2026)                                             | UI Offline Indicator and logic                                                                     |
-| **09-03-2026** | [**Hybrid Session Engine & Dynamic Injection**](#update-09-03-2026)                     | On-The-Fly Training, Atomic View Refactor                                                          |
-| **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                 |
-| **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                          |
-| **12-03-2026** | **[Session Identity & Dynamic Naming](#update-12-03-2026)**                             | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints        |
+| Date           | Milestone                                                                               | Key Features                                                                                                                                    |
+| :------------- | :-------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **19-02-2026** | [**Data Architecture & Core**](#update-19-02-2026)                                      | SSR/CSR Hybrid, Supabase Trinity, Service Layer                                                                                                 |
+| **20-02-2026** | [**Security & Identity**](#update-20-02-2026)                                           | Auth Guard (Proxy), PKCE Flow, Global User Context                                                                                              |
+| **21-02-2026** | [**Security & Profile & Performance**](#update-21-02-2026)                              | DB Triggers (Sync), JSONB Records, SSR Hydration Cache                                                                                          |
+| **23-02-2026** | [**Password Recovery & UX**](#update-23-02-2026)                                        | Secure Password Reset, Sonner Integration                                                                                                       |
+| **24-02-2026** | [**Workouts & History Infra**](#update-24-02-2026)                                      | Relational Joins, UI Mapping, SSR Hydration Cache                                                                                               |
+| **25-02-2026** | [**Active Training & Persistence**](#update-25-02-2026)                                 | Zustand Persistence, Routine Blueprints, Analytics Engine                                                                                       |
+| **02-03-2026** | [**Infinite Scroll & Data Streaming**](#update-02-03-2026)                              | Sentinel Pattern, Infinite Scrolling, Total Count Metadata                                                                                      |
+| **03-03-2026** | [**Yearly Achievements(PR's - add/edit) & Analytics Optimization**](#update-03-03-2026) | Yearly PR Partitioning, Headless Profile Logic, Activity Snapshot Engine                                                                        |
+| **04-03-2026** | [**Theme & Settings**](#update-04-03-2026)                                              | Cookie-Sync Engine for theme, Theme Toggle, Change username                                                                                     |
+| **05-03-2026** | [**Workout deletion & Templates edition/deletion**](#update-05-03-2026)                 | Session deletion Engine, Atomic Header Refactor, Propagation Shields, Templates edit/delate Engine                                              |
+| **07-03-2026** | [**FAQ & BUG REPORT**](#update-07-03-2026)                                              | Headless Feedback Engine, FAQ Module                                                                                                            |
+| **08-03-2026** | [**Offline Indicator**](#update-08-03-2026)                                             | UI Offline Indicator and logic                                                                                                                  |
+| **09-03-2026** | [**Hybrid Session Engine & Dynamic Injection**](#update-09-03-2026)                     | On-The-Fly Training, Atomic View Refactor                                                                                                       |
+| **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                                                              |
+| **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                                                                       |
+| **12-03-2026** | **[Session Identity, Dynamic Naming,Offline Resilience ](#update-12-03-2026)**          | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints, offlineFirst Protocol, Strategic Cache Calibration |
 
 ---
 
@@ -968,7 +968,7 @@ src/
 
 ### **Session Identity & Dynamic Naming Protocol**
 
-This milestone evolved the active training workspace by transitioning from static placeholders to a user-defined **Identity Engine**. This allows lifters to categorize and name their "On-The-Fly" sessions in real-time without interrupting the training flow.
+This milestone evolved the active training workspace by transitioning from static placeholders to a user-defined **Identity Engine**. This allows lifters to categorize and name their "On-The-Fly" sessions in real-time without interrupting the training flow. What is more this milestone established a "Stability-First" data architecture, specifically designed to handle the intermittent network signals common in gym environments. We migrated all data-fetching engines to a robust offline-ready protocol.
 
 #### **1. Inline Identity Orchestration (`EditableWorkoutName`)**
 
@@ -989,6 +989,26 @@ Refactored the `useActiveWorkoutStore` to support atomic name updates within a h
 
 Reconstructed the `ActiveWorkoutView` to establish a dedicated **Identity Hub** at the top of the workspace.
 
+### **4. The offlineFirst Connectivity Protocol**
+
+We updated the global `QueryProvider` and all child hooks to utilize TanStack Query’s `offlineFirst` network mode.
+
+- **Logic**: Instead of triggering an immediate error state upon signal loss, queries now enter a `paused` state.
+
+- **UX Impact**: This prevents the UI from "crashing" or displaying error boundaries during background re-validations in low-connectivity areas like gym basements.
+
+- **Resumption**: Data fetching resumes automatically as soon as the device uplink is restored, ensuring seamless synchronization without manual refreshes.
+
+### **2. Strategic Cache Calibration (staleTime vs gcTime)**
+
+We implemented a tiered caching strategy based on data volatility to maximize performance and offline availability.
+
+- **Static Assets (Exercises)**: Set to 5 hours of freshness (`staleTime`) and 24 hours of persistence (`gcTime`), as the exercise library changes infrequently.
+
+- **Historical Data (Workouts**): Configured with 1 hour of freshness and 24 hours of persistence, acknowledging the high value of session logs for offline review.
+
+- **Identity & Stats (Profile/Analytics)**: Calibrated for 30 minutes of freshness to ensure a balance between data accuracy and battery/data conservation.
+
 ---
 
 ### **Technical Implementation Map**
@@ -999,6 +1019,12 @@ Reconstructed the `ActiveWorkoutView` to establish a dedicated **Identity Hub** 
 | **Inline Editor**     | `features/workouts/components/EditableWorkoutName.tsx` | Managing transient edit states, keyboard orchestration (Enter/Esc), and input selection. |
 | **View Orchestrator** | `features/workouts/components/ActiveWorkoutView.tsx`   | Integrating the Identity Hub into the primary training workspace layout.                 |
 | **Sanitization**      | `features/workouts/components/EditableWorkoutName.tsx` | Input cleaning and validation against null/whitespace-only protocol names.               |
+| **Global Provider**   | `src/core/providers/QueryProvider.tsx`                 | Enforcing `offlineFirst` defaults and 24h `gcTime`.                                      |
+| **Session Detail**    | `features/workouts/hooks/use-workout.ts`               | Relational casting and 1h immutability strategy.                                         |
+| **History Stream**    | `features/workouts/hooks/use-workouts.ts`              | Zero-flicker hydration for infinite scrolling.                                           |
+| **Library Engine**    | `features/exercises/hooks/use-exercise.ts`             | Aggressive 5h caching for static exercise catalog.                                       |
+| **Activity Snapshot** | `features/analytics/hooks/use-yearly-activity.ts`      | ~90% payload optimization via 'started_at' sniping.                                      |
+| **Identity Hub**      | `features/profile/hooks/use-profile.ts`                | Syncing public profiles with private Auth metadata.                                      |
 
 ---
 
@@ -1006,13 +1032,23 @@ Reconstructed the `ActiveWorkoutView` to establish a dedicated **Identity Hub** 
 
 ```text
 src/
+├── core/
+│   └── providers/
+│       └── QueryProvider.tsx       <-- UPDATED: Enforced Offline-First Protocol
 ├── features/
 │   └── workouts/
 │       ├── _hooks/
 │       │   └── use-active-workout-store.ts <-- UPDATED: Optimized updateName action
-│       └── components/
-│           ├── ActiveWorkoutView.tsx     <-- UPDATED: Integrated Identity Header
-│           └── EditableWorkoutName.tsx   <-- NEW: High-precision inline editor
+│       ├── use-workout.ts          <-- RECALIBRATED: Cache
+│       ├──  use-workouts.ts         <-- RECALIBRATED: Cache
+│       ├──  components/
+│       │   ├── ActiveWorkoutView.tsx     <-- UPDATED: Integrated Identity Header
+│       │   └── EditableWorkoutName.tsx   <-- NEW: High-precision inline editor
+│       ├── exercises/hooks/
+│       │   └── use-exercise.ts         <-- RECALIBRATED: Cache
+│       └── analytics/hooks/
+│       └── use-yearly-activity.ts  <-- RECALIBRATED:  Cache
+
 
 ```
 

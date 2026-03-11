@@ -20,11 +20,14 @@ import { Workout } from "@/types/workouts";
  * * **Operational Behavior:**
  * 1. **Data Consistency**: Ensures that if a workout is not found in the database,
  * an explicit Error is thrown to be caught by the nearest Error Boundary.
- * 2. **Immutability Strategy**: Since finished workouts are historical records
- * that rarely change, the `staleTime` is set to $1$ hour to prevent redundant
- * background refetches during a single user session.
+ * 2. **Immutability Strategy**: Since completed workouts are historical records,
+ * the `staleTime` is set to 1 hour to eliminate redundant background refetches.
  * 3. **Relational Casting**: Maps the raw PostgREST response to the `Workout`
  * type, providing full IntelliSense for nested `workout_sets`.
+ * 4. **Offline Resilience**: Implements `networkMode: 'offlineFirst'` to ensure
+ * that the detail view remains stable during signal drops in gym environments.
+ * 5. **Extended Persistence**: Retains historical data in the cache for 24 hours
+ * (`gcTime`) to support offline analysis and review
  * * @param {string} id - The unique UUID of the workout session to fetch.
  * @param {Workout} [initialData] - Optional pre-fetched data from `getWorkoutServer`
  * to seed the cache and enable instant rendering.
@@ -73,6 +76,11 @@ export const useWorkout = (id: string, initialData?: Workout) => {
 		 */
 		initialData,
 
-		staleTime: 1000 * 60 * 60, //  Data fresh for 1h.
+		/** * Global Connectivity Protocol:
+		 * Freshness set to 1 hour; GC retains data for 24 hours for offline availability.
+		 */
+		staleTime: 1000 * 60 * 60,
+		gcTime: 1000 * 60 * 60 * 24,
+		networkMode: "offlineFirst",
 	});
 };

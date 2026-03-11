@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Comprehensive identity and achievement orchestrator.
+ * Manages user profiles, avatars, and yearly personal records (PRs)
+ * using TanStack Query v5 with an integrated offline resilience protocol.
+ * @module features/profile/hooks
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/core/supabase/client";
 import { profileService } from "@/services/apiProfile";
@@ -19,8 +26,9 @@ export const useProfile = (userId: string | undefined, initialProfile?: UserProf
 	const queryClient = useQueryClient();
 
 	/**
-	 * Internal helper to force a session refresh.
-	 * Required to synchronize the client-side 'auth.user' metadata after database triggers update the 'auth.users' table.
+	 * Internal session refresh protocol.
+	 * @description Required to pull updated 'raw_user_meta_data' into the client session
+	 * after PostgreSQL triggers modify the auth schema.
 	 */
 	const refreshAuth = async () => {
 		const { data, error } = await supabase.auth.refreshSession();
@@ -29,14 +37,18 @@ export const useProfile = (userId: string | undefined, initialProfile?: UserProf
 	};
 
 	/**
-	 * Fetches the public profile data from the 'profiles' table.
-	 * Enabled only if a valid userId is provided.
+	 * Public Identity Fetcher.
+	 * @description Retrieves data from the 'profiles' table. Configured with a
+	 * 30-minute 'staleTime' as identity data is relatively static.
 	 */
 	const profileQuery = useQuery({
 		queryKey: ["profile", userId],
 		queryFn: () => profileService.getProfile(supabase, userId!),
 		enabled: !!userId,
 		initialData: initialProfile || undefined, // Hydration from SSR
+		staleTime: 1000 * 60 * 30,
+		gcTime: 1000 * 60 * 60 * 24,
+		networkMode: "offlineFirst",
 	});
 
 	/**
