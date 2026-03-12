@@ -31,6 +31,7 @@
 | **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                                                              |
 | **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                                                                       |
 | **12-03-2026** | **[Session Identity, Dynamic Naming,Offline Resilience ](#update-12-03-2026)**          | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints, offlineFirst Protocol, Strategic Cache Calibration |
+| **13-03-2026** | **[Governance Hub & Compliance Orchestration](#update-13-03-2026)**                     | Tabbed Protocol Hub, Auth-TOS Integration, Legal Framework Calibration                                                                          |
 
 ---
 
@@ -1053,3 +1054,59 @@ src/
 ```
 
 ---
+
+## (Update: 13-03-2026)
+
+### **Governance Hub & Compliance Orchestration**
+
+This milestone finalized the laboratory's legal framework and integrated mandatory compliance checkpoints into the user onboarding process. We focused on bridging digital transparency with real-world athletic liability standards.
+
+#### **1. Unified Governance Switchboard**
+
+We centralized all legal and privacy protocols into a high-performance **Governance Hub**.
+
+- **Tabbed Orchestration**: Developed a state-driven interface to hot-swap between Privacy Protocols and Terms of Service (TOS) without layout shifts, utilizing a centralized `GovernanceHeader` for visual consistency.
+
+#### **2. Compliance-Locked Registration (Auth Guard)**
+
+Integrated mandatory protocol acceptance into the session initialization flow.
+
+- **Pre-flight Validation**: Hardened the `useAuthForm` hook with a pre-flight check that aborts account creation if the `isAcceptedTOS` flag is false.
+
+#### **3. Legal Framework Calibration (Athletic & EU Standards)**
+
+Calibrated the Terms of Service to meet international digital standards and athletic liability requirements.
+
+- **Liability Shielding**: Implemented specific clauses regarding "Nature of Service" (pure data-logging) and "Health & Safety" (certified physical fitness), transferring the risk of strenuous activity to the user.
+- **GDPR (RODO) Alignment**: Formalized data ownership clauses, ensuring users are informed of their right to data erasure and access.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature             | File Location                                      | Technical Responsibility                                          |
+| ------------------- | -------------------------------------------------- | ----------------------------------------------------------------- |
+| **Governance Hub**  | `features/privacy/components/GovernanceHub.tsx`    | Tabbed state management and multi-protocol orchestration.         |
+| **Compliance Hook** | `features/auth/_hooks/use-auth-form.ts`            | Pre-flight TOS validation and registration gatekeeping.           |
+| **Interactive TOS** | `features/privacy/components/TOSClientView.tsx`    | Presenting liability disclaimers and legal capacity declarations. |
+| **Protocol Header** | `features/privacy/components/GovernanceHeader.tsx` | Reusable UI primitive for standardized documentation metadata.    |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/privacy/
+│   └── page.tsx                <-- Unified Governance Hub entry point
+└── features/
+    ├── auth/
+    │   └── _hooks/
+    │       └── use-auth-form.ts <-- UPDATED: Added Compliance-Locked Registration
+    └── privacy/
+       └── components/
+           ├── GovernanceHub.tsx    <-- NEW: Central Switchboard
+           ├── GovernanceHeader.tsx <-- NEW: Standardized Header Primitive
+           ├── TOSClientView.tsx    <-- NEW: Calibrated Legal Sections
+           └── PrivacyClientView.tsx <-- UPDATED: Refactored for Hub
+```

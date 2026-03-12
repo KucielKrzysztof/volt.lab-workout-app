@@ -7,6 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 import Link from "next/link";
 import { Footer } from "@/components/ui/Footer";
 import { useAuthForm } from "../_hooks/use-auth-form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AuthFormProps {
 	/** Determines if the form should handle user login or new account registration. */
@@ -23,7 +24,8 @@ interface AuthFormProps {
  */
 export const AuthForm = ({ formMode }: AuthFormProps) => {
 	// Business logic extracted to custom hook for clean SoC (Separation of Concerns)
-	const { email, setEmail, password, setPassword, isLoading, errorMessage, handleAuth, handleForgotPassword } = useAuthForm(formMode);
+	const { email, setEmail, password, setPassword, isLoading, errorMessage, handleAuth, handleForgotPassword, isAcceptedTOS, setIsAcceptedTOS } =
+		useAuthForm(formMode);
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-[90vh] px-4 relative">
@@ -64,6 +66,22 @@ export const AuthForm = ({ formMode }: AuthFormProps) => {
 								onChange={(e) => setPassword(e.target.value)}
 							/>
 						</div>
+
+						{/* PROTOCOL ACCEPTANCE BLOCK (Register Mode Only) */}
+						{formMode === "register" && (
+							<div className="flex items-start space-x-3 pt-2 bg-primary/5 p-4 rounded-lg border border-primary/10">
+								<Checkbox id="tos" checked={isAcceptedTOS} onCheckedChange={(checked) => setIsAcceptedTOS(!!checked)} className="mt-1" required />
+								<div className="grid gap-1.5 leading-none">
+									<label htmlFor="tos" className="text-[11px] font-bold uppercase tracking-wider leading-tight cursor-pointer select-none">
+										I accept the{" "}
+										<Link href="/dashboard/privacy" className="text-primary underline underline-offset-4 hover:text-primary/80">
+											Terms of Service
+										</Link>
+									</label>
+									<p className="text-[9px] text-muted-foreground uppercase italic">Required.</p>
+								</div>
+							</div>
+						)}
 					</div>
 
 					<Button

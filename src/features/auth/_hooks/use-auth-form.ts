@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Headless Logic Hook for Authentication Flows.
+ * Orchestrates Supabase auth methods, state management for login/registration,
+ * and enforcement of Laboratory Protocols (TOS/Privacy).
+ * @module features/auth/_hooks/use-auth-form
+ */
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/core/supabase/client";
@@ -6,8 +13,9 @@ import { toast } from "sonner";
 /**
  * Custom hook to manage authentication logic for login and registration forms.
  * * @description
- * This hook encapsulates Supabase auth methods, local form state, and navigation logic.
- * It provides real-time feedback using the Sonner notification system.
+ * This hook encapsulates Supabase auth methods, local form state, and navigation logic
+ * and legal compliance checks. It provides real-time feedback using the Sonner
+ * notification system.
  * * @param {"login" | "register"} formMode - Determines the authentication method and UI feedback.
  * * @returns {Object} State variables and the 'handleAuth' submission function.
  */
@@ -17,19 +25,37 @@ export const useAuthForm = (formMode: "login" | "register") => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+	/** * Legal Compliance State:
+	 * Strictly required for 'register' mode to ensure user has reviewed
+	 * the Laboratory Protocols.
+	 */
+	const [isAcceptedTOS, setIsAcceptedTOS] = useState<boolean>(false);
+
 	const router = useRouter();
 	const supabase = createClient();
 
 	/**
 	 * Handles the authentication submission process.
 	 * * @description
-	 * 1. **Login**: Authenticates via 'signInWithPassword'.
-	 * 2. **Registration**: Creates a new user with metadata synchronized to the 'profiles' table.
-	 * 3. **Feedback**: Displays success or error messages using Sonner toasts.
+	 * 1. **Validation**: Checks for TOS acceptance in 'register' mode.
+	 * 2. **Login**: Authenticates via 'signInWithPassword'.
+	 * 3. **Registration**: Creates a new user with metadata synced to the 'profiles' table.
+	 * 4. **Feedback**: Dispatches toasts and handles navigation.
 	 * * @param {React.FormEvent} e - The form submission event.
 	 */
 	const handleAuth = async (e: React.FormEvent) => {
 		e.preventDefault();
+
+		/** * Pre-flight Check:
+		 * Prevents registration attempts without protocol acceptance.
+		 */
+		if (formMode === "register" && !isAcceptedTOS) {
+			toast.error("Protocol Required", {
+				description: "You must accept the Laboratory Protocol to initialize an account.",
+			});
+			return;
+		}
+
 		setIsLoading(true);
 		setErrorMessage(null);
 
@@ -132,5 +158,7 @@ export const useAuthForm = (formMode: "login" | "register") => {
 		errorMessage,
 		handleAuth,
 		handleForgotPassword,
+		isAcceptedTOS,
+		setIsAcceptedTOS,
 	};
 };

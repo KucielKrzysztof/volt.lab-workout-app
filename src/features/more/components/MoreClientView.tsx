@@ -34,7 +34,7 @@ export const MoreClientView = () => {
 			<MoreSection desc="Account">
 				<MoreItem icon={User} label="Profile" href="/dashboard/profile" />
 				<MoreItem icon={Settings} label="Settings" href="/dashboard/settings" />
-				<MoreItem icon={ShieldCheck} label="Privacy" href="/dashboard/privacy" />
+				<MoreItem icon={ShieldCheck} label="Privacy & TOS" href="/dashboard/privacy" />
 			</MoreSection>
 
 			{/* SYSTEM */}
