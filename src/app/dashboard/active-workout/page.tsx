@@ -1,4 +1,4 @@
-import { ActiveWorkoutView } from "@/features/workouts/components/ActiveWorkoutView";
+import { ActiveWorkoutView } from "@/features/workouts/components/active/ActiveWorkoutView";
 /**
  * Active Workout Page.
  * Acts as the dedicated workspace for the current training session.

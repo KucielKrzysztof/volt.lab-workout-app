@@ -7,7 +7,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
+import { useActiveWorkoutStore } from "../../_hooks/use-active-workout-store";
 import { ActiveSet } from "@/types/exercises";
 
 interface ActiveSetRowProps {

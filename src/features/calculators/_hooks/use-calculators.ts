@@ -1,6 +1,7 @@
 /**
- * @fileoverview Headless core for training analytics and strength calibration.
- * Centralizes high-precision formulas for performance metrics within the VOLT.LAB ecosystem.
+ * @fileoverview Headless core for training analytics, strength calibration, and physiological metrics.
+ * Centralizes high-precision formulas for performance tracking and body composition
+ * analysis within the VOLT.LAB ecosystem.
  * @module hooks/useCalculators
  */
 
@@ -22,36 +23,40 @@ export type LiftType = "total" | "bench" | "squat" | "deadlift";
  * useCalculators Hook.
  * @description
  * A specialized headless hook that provides reactive states and memoized
- * calculations for 1RM, Wilks Score, and RPE-based intensity mapping.
+ * calculations for strength (1RM, Wilks, RPE) and morphology (BMI).
  * * @features
  * 1. **Brzycki Protocol**: Validates 1RM for low-repetition strength testing.
  * 2. **IPF Wilks Standard**: Implements 5th-degree polynomial coefficients for relative strength.
  * 3. **RPE e1RM Engine**: Maps perceived exertion to estimated maximum capacity.
+ * 4. **BMI Diagnostic**: Body Mass Index calculation with automatic category classification.
  * * @returns {Object}
  * - `oneRepMax`: Object containing inputs, setters, result, and intensity lookup table.
  * - `wilks`: Object containing inputs, gender-specific setters, and the calculated score.
  * - `rpe`: Object containing RPE inputs and the estimated 1RM result.
+ * - `bmi`: Morphological inputs (shared weight/height) and classified result.
  */
 export const useCalculators = () => {
-	// --- 1RM States ---
-	/** @type {number} Base load used for 1RM and RPE calculations. */
+	// --- SHARED DATA STRINGS ---
+	/** @type {number} Base mass used across 1RM, RPE protocols. */
 	const [weight, setWeight] = useState<number>(0);
+	/** @type {number} Athlete's current body mass. */
+	const [bodyWeight, setBodyWeight] = useState<number>(0);
+	/** @type {number} Vertical measurement for BMI calculation (cm). */
+	const [height, setHeight] = useState<number>(0);
+
+	// --- 1RM & RPE DATA ---
 	/** @type {number} Repetitions performed in the calibration set. */
 	const [reps, setReps] = useState<number>(0);
+	/** @type {number} Rate of Perceived Exertion (scale 6.0 - 10.0). */
+	const [rpe, setRpe] = useState<number>(8);
 
 	// --- Wilks States ---
-	/** @type {number} Athlete's current body mass for relative strength scaling. */
-	const [bodyWeight, setBodyWeight] = useState<number>(0);
 	/** @type {number} Sum of lifts or individual lift weight for Wilks scoring. */
 	const [totalLifted, setTotalLifted] = useState<number>(0);
 	/** @type {Gender} Gender class for Wilks coefficient selection. */
 	const [gender, setGender] = useState<Gender>("male");
 	/** @type {LiftType} Categorization of the lift for standard referencing. */
 	const [liftType, setLiftType] = useState<LiftType>("total");
-
-	// --- RPE States ---
-	/** @type {number} Rate of Perceived Exertion (scale 6.0 - 10.0). */
-	const [rpe, setRpe] = useState<number>(8);
 
 	/**
 	 * Estimated 1RM (Brzycki Formula).
@@ -126,6 +131,25 @@ export const useCalculators = () => {
 		return Math.round(e1RM * 10) / 10;
 	}, [weight, reps, rpe]);
 
+	/**
+	 * BMI Calculation Engine.
+	 * @formula bodyWeight (kg) / height^2 (m)
+	 */
+	const bmiData = useMemo(() => {
+		if (!bodyWeight || !height) return { score: 0, category: "N/A" };
+
+		const heightInMeters = height / 100;
+		const score = bodyWeight / (heightInMeters * heightInMeters);
+		const roundedScore = Math.round(score * 10) / 10;
+
+		let category = "Normal";
+		if (roundedScore < 18.5) category = "Underweight";
+		else if (roundedScore >= 25 && roundedScore < 30) category = "Overweight";
+		else if (roundedScore >= 30) category = "Obese";
+
+		return { score: roundedScore, category };
+	}, [bodyWeight, height]);
+
 	return {
 		// 1RM Data & Actions
 		oneRepMax: {
@@ -145,6 +169,13 @@ export const useCalculators = () => {
 			inputs: { weight, reps, rpe },
 			actions: { setWeight, setReps, setRpe },
 			result: rpeToPercent,
+		},
+		// BMI Data & Actions
+		bmi: {
+			inputs: { bodyWeight, height },
+			actions: { setBodyWeight, setHeight },
+			result: bmiData.score,
+			category: bmiData.category,
 		},
 	};
 };

@@ -27,14 +27,14 @@ export const MoreClientView = () => {
 			<MoreSection desc="Training">
 				<MoreItem icon={ClipboardList} label="Workout Templates" href="/dashboard/templates" />
 				<MoreItem icon={Dumbbell} label="Exercises Database" href="/dashboard/exercises" />
-				<MoreItem icon={Calculator} label="Strength Calculators" href="/dashboard/calculators" />
+				<MoreItem icon={Calculator} label="Calculators" href="/dashboard/calculators" />
 			</MoreSection>
 
 			{/* ACCOUNT*/}
 			<MoreSection desc="Account">
 				<MoreItem icon={User} label="Profile" href="/dashboard/profile" />
 				<MoreItem icon={Settings} label="Settings" href="/dashboard/settings" />
-				<MoreItem icon={ShieldCheck} label="Privacy" href="/dashboard/privacy" />
+				<MoreItem icon={ShieldCheck} label="Privacy & TOS" href="/dashboard/privacy" />
 			</MoreSection>
 
 			{/* SYSTEM */}

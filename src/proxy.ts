@@ -52,7 +52,7 @@ export async function proxy(request: NextRequest) {
 	 * Implements a strict boundary for the private laboratory environment.
 	 * Unauthenticated access attempts are redirected to the login flow.
 	 * We protect all /dashboard routes EXCEPT for /dashboard/privacy.
-	 * This ensures the Privacy Policy is a public "Open Uplink" for compliance.
+	 * This ensures the Privacy Policy & TERMS OF SERVICE is public.
 	 */
 	const isDashboardRoute = url.pathname.startsWith("/dashboard");
 	const isPrivacyException = url.pathname === "/dashboard/privacy";

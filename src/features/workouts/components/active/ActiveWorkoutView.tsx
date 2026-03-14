@@ -7,12 +7,12 @@
 
 "use client";
 
-import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
-import { useFinishWorkout } from "../_hooks/use-finish-workout";
+import { useActiveWorkoutStore } from "../../_hooks/use-active-workout-store";
+import { useFinishWorkout } from "../../_hooks/use-finish-workout";
 import { ActiveWorkoutEmpty } from "./ActiveWorkoutEmpty";
 import { ActiveWorkoutExerciseList } from "./ActiveWorkoutExerciseList";
 import { ActiveWorkoutFooter } from "./ActiveWorkoutFooter";
-import { EditableWorkoutName } from "./EditableWorkoutName";
+import { EditableWorkoutName } from "../EditableWorkoutName";
 
 /**
  * Primary orchestrator component for an ongoing workout session.

@@ -31,6 +31,7 @@
 | **10-03-2026** | **[Privacy Protocol & Diagnostic Governance](#update-10-03-2026)**                      | Cookie-based Consent, Metadata Sniffer, Public Legal Uplink, JSDoc Standardization                                                              |
 | **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                                                                       |
 | **12-03-2026** | **[Session Identity, Dynamic Naming,Offline Resilience ](#update-12-03-2026)**          | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints, offlineFirst Protocol, Strategic Cache Calibration |
+| **13-03-2026** | **[Governance Hub & Compliance Orchestration](#update-13-03-2026)**                     | Tabbed Protocol Hub, Auth-TOS Integration, Legal Framework Calibration                                                                          |
 
 ---
 
@@ -1053,3 +1054,126 @@ src/
 ```
 
 ---
+
+## (Update: 13-03-2026)
+
+### **Governance Hub & Compliance Orchestration**
+
+This milestone finalized the laboratory's legal framework and integrated mandatory compliance checkpoints into the user onboarding process. We focused on bridging digital transparency with real-world athletic liability standards.
+
+#### **1. Unified Governance Switchboard**
+
+We centralized all legal and privacy protocols into a high-performance **Governance Hub**.
+
+- **Tabbed Orchestration**: Developed a state-driven interface to hot-swap between Privacy Protocols and Terms of Service (TOS) without layout shifts, utilizing a centralized `GovernanceHeader` for visual consistency.
+
+#### **2. Compliance-Locked Registration (Auth Guard)**
+
+Integrated mandatory protocol acceptance into the session initialization flow.
+
+- **Pre-flight Validation**: Hardened the `useAuthForm` hook with a pre-flight check that aborts account creation if the `isAcceptedTOS` flag is false.
+
+#### **3. Legal Framework Calibration (Athletic & EU Standards)**
+
+Calibrated the Terms of Service to meet international digital standards and athletic liability requirements.
+
+- **Liability Shielding**: Implemented specific clauses regarding "Nature of Service" (pure data-logging) and "Health & Safety" (certified physical fitness), transferring the risk of strenuous activity to the user.
+- **GDPR (RODO) Alignment**: Formalized data ownership clauses, ensuring users are informed of their right to data erasure and access.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature             | File Location                                      | Technical Responsibility                                          |
+| ------------------- | -------------------------------------------------- | ----------------------------------------------------------------- |
+| **Governance Hub**  | `features/privacy/components/GovernanceHub.tsx`    | Tabbed state management and multi-protocol orchestration.         |
+| **Compliance Hook** | `features/auth/_hooks/use-auth-form.ts`            | Pre-flight TOS validation and registration gatekeeping.           |
+| **Interactive TOS** | `features/privacy/components/TOSClientView.tsx`    | Presenting liability disclaimers and legal capacity declarations. |
+| **Protocol Header** | `features/privacy/components/GovernanceHeader.tsx` | Reusable UI primitive for standardized documentation metadata.    |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── app/privacy/
+│   └── page.tsx                <-- Unified Governance Hub entry point
+└── features/
+    ├── auth/
+    │   └── _hooks/
+    │       └── use-auth-form.ts <-- UPDATED: Added Compliance-Locked Registration
+    └── privacy/
+       └── components/
+           ├── GovernanceHub.tsx    <-- NEW: Central Switchboard
+           ├── GovernanceHeader.tsx <-- NEW: Standardized Header Primitive
+           ├── TOSClientView.tsx    <-- NEW: Calibrated Legal Sections
+           └── PrivacyClientView.tsx <-- UPDATED: Refactored for Hub
+```
+
+---
+
+## (Update: 14-03-2026)
+
+### **BMI Diagnostic & Workout Recalibration Hub**
+
+This milestone established the Edit Workout feature and expanded the laboratory's diagnostic capabilities to include biological mass modeling (BMI calculator).
+
+#### **1. BMI Diagnostic Engine & Physiological Decoupling**
+
+We integrated morphological diagnostics into the `useCalculators` headless engine.
+
+- **WHO Classification Mapping**: Implemented a categorical diagnostic layer that maps raw BMI scores to World Health Organization (WHO) standards (Underweight $\rightarrow$ Obese III).
+- **Semantic Mass Separation**: Refactored the calculation logic to decouple `bodyWeight` (biological mass) from `weight` (mechanical external load). This ensures that Wilks and BMI protocols share a unified physiological source of truth without interfering with performance metrics.
+
+#### **2. Workout Recalibration Edit Engine**
+
+Developed a secure "Drafting" architecture for historical workout records, allowing for retroactive protocol adjustments.
+
+- **Edit Engine (`useWorkoutEditFlow`)**: Implemented a headless logic orchestrator that creates a decoupled clone of historical data. Users can perform "non-destructive" recalibration of weights and reps in a local sandbox before committing changes to the database.
+- **Data Sanitization & Projection**: The `updateWorkout` service implements a "Sanitization Filter" that strips nested relational metadata (e.g., joined exercise names) before persistence. This prevents schema cache violations and ensures atomic updates to the `workout_sets` table.
+- **Real-time Tonnage Projection**: Integrated a reactive memoization chain that recalculates $V_{total}$ (cumulative volume) on-the-fly as the user modifies individual sandbox sets.
+
+#### **3. Atomic UI Orchestration (Detail View Refactor)**
+
+To ensure 60fps interaction during complex edits, the `WorkoutDetailView` was decomposed into specialized atomic units:
+
+- **Metric Layer (`WorkoutDetailOverview`)**: A high-contrast dashboard for session KPIs (Volume, Duration, Sets).
+- **Performance Layer (`WorkoutDetailExercises`)**: A hierarchical grid optimized for high-velocity data entry with auto-select focus logic.
+- **Command Layer (`WorkoutDetailToggleEdit`)**: A state-aware controller managing the transition between the Analytical (Read-only) and Recalibration (Edit) modes.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature             | File Location                                       | Technical Responsibility                                             |
+| ------------------- | --------------------------------------------------- | -------------------------------------------------------------------- |
+| **Diagnostic Hook** | `features/calculators/_hooks/use-calculators.ts`    | BMI WHO logic and physiological/performance mass decoupling.         |
+| **Sandbox Hook**    | `features/workouts/_hooks/use-workout-edit-flow.ts` | Draft state orchestration and real-time volume recalibration.        |
+| **Sync Service**    | `services/apiWorkouts.ts`                           | Two-phase update strategy with relational data sanitization.         |
+| **Detail View**     | `features/workouts/components/details/`             | Atomic refactor of the identity, metric, and performance layers.     |
+| **Type Integrity**  | `types/workouts.ts`                                 | Defining `GroupedWorkoutExercise` for strict UI-to-Database mapping. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   ├── calculators/
+│   │   ├── _hooks/use-calculators.ts  <-- UPDATED: Added BMI & Mass Decoupling
+│   │   └── components/BmiCalculator.tsx <-- NEW: Morphological diagnostic UI
+│   └── workouts/
+│       ├── _hooks/
+│       │   └── use-workout-edit-flow.ts <-- NEW: Recalibration sandbox logic
+│       └── components/details/          <-- NEW: Atomic Detail Components
+│           ├── WorkoutDetailView.tsx    <-- Orchestrator
+│           ├── WorkoutDetailHeader.tsx  <-- Identity
+│           ├── WorkoutDetailOverview.tsx <-- Metrics
+│           ├── WorkoutDetailToggleEdit.tsx <-- Commands
+│           └── WorkoutDetailExercises.tsx <-- Performance Matrix
+└── services/
+    └── apiWorkouts.ts                   <-- UPDATED: Atomic updateWorkout method
+
+```

@@ -5,7 +5,7 @@
  * @module features/workouts/components
  */
 
-import { useActiveWorkoutStore } from "../_hooks/use-active-workout-store";
+import { useActiveWorkoutStore } from "../../_hooks/use-active-workout-store";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ActiveSetRow } from "./ActiveSetRow";

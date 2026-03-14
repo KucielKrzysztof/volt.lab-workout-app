@@ -21,7 +21,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useActiveWorkoutBanner } from "../_hooks/use-active-workout-banner";
+import { useActiveWorkoutBanner } from "../../_hooks/use-active-workout-banner";
 
 /**
  * A floating, high-visibility banner component for active session tracking.

@@ -1,6 +1,6 @@
 import { BottomNav } from "@/features/navigation/components/BottomNav";
 import { DesktopNav } from "@/features/navigation/components/DesktopNav";
-import { ActiveWorkoutBanner } from "@/features/workouts/components/ActiveWorkoutBanner";
+import { ActiveWorkoutBanner } from "@/features/workouts/components/active/ActiveWorkoutBanner";
 import React from "react";
 
 /**
