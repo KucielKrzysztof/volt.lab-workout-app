@@ -32,6 +32,7 @@
 | **11-03-2026** | **[Strength Calculators](#update-11-03-2026)**                                          | Headless Math Engine, Wilks score, RPE Calibrator, One Rep Max calculator                                                                       |
 | **12-03-2026** | **[Session Identity, Dynamic Naming,Offline Resilience ](#update-12-03-2026)**          | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints, offlineFirst Protocol, Strategic Cache Calibration |
 | **13-03-2026** | **[Governance Hub & Compliance Orchestration](#update-13-03-2026)**                     | Tabbed Protocol Hub, Auth-TOS Integration, Legal Framework Calibration                                                                          |
+| **14-03-2026** | **[BMI Calculator & Workout Edition](#update-14-03-2026)**                              | BMI Diagnostic Engine, Recalibration Sandbox (Edit Engine), Atomic Detail Refactor, Real-time Volume Projection                                 |
 
 ---
 
