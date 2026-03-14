@@ -27,7 +27,7 @@ export const MoreClientView = () => {
 			<MoreSection desc="Training">
 				<MoreItem icon={ClipboardList} label="Workout Templates" href="/dashboard/templates" />
 				<MoreItem icon={Dumbbell} label="Exercises Database" href="/dashboard/exercises" />
-				<MoreItem icon={Calculator} label="Strength Calculators" href="/dashboard/calculators" />
+				<MoreItem icon={Calculator} label="Calculators" href="/dashboard/calculators" />
 			</MoreSection>
 
 			{/* ACCOUNT*/}

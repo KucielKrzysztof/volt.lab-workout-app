@@ -40,10 +40,15 @@ _Goal: Ensure laboratory operational stability and user guidance._
 - [x] Offline indicator - for users to know when they are offline.
 - [ ] "Lab Notes" (Changelog): A user-facing version of the \_DOCS.md to keep users informed about the latest updates and new features.
 
-### Privacy and Security
+### Training Intelligence & Analytics (Exercise Intelligence)
 
-- [x] COOKIES consent.
-- [ ] Terms of Service (TOS).
+_Goal: Deep data mining and progression visualization for every movement._
+
+- [ ] **Exercise Detail Workspace (`exercises/[id]`)**:
+- [ ] **Progression Engine (Recharts)**: Interactive charts showing **Estimated 1RM** trends using the Brzycki protocol.
+- [ ] **Volume Analytics**: Visualizing total tonnage and repetition volume over 3/6/12 month windows.
+- [ ] **Performance "Hall of Fame"**: Automated extraction of the Top 3 "Gold Medal" sets in the history of a specific exercise.
+- [ ] **Frequency Tracking**: Heatmap or stats showing how often a specific movement is executed within the current macrocycle.
 
 ## TODO IN FAR FUTURE
 

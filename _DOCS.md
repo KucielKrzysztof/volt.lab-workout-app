@@ -1110,3 +1110,70 @@ src/
            ├── TOSClientView.tsx    <-- NEW: Calibrated Legal Sections
            └── PrivacyClientView.tsx <-- UPDATED: Refactored for Hub
 ```
+
+---
+
+## (Update: 14-03-2026)
+
+### **BMI Diagnostic & Workout Recalibration Hub**
+
+This milestone established the Edit Workout feature and expanded the laboratory's diagnostic capabilities to include biological mass modeling (BMI calculator).
+
+#### **1. BMI Diagnostic Engine & Physiological Decoupling**
+
+We integrated morphological diagnostics into the `useCalculators` headless engine.
+
+- **WHO Classification Mapping**: Implemented a categorical diagnostic layer that maps raw BMI scores to World Health Organization (WHO) standards (Underweight $\rightarrow$ Obese III).
+- **Semantic Mass Separation**: Refactored the calculation logic to decouple `bodyWeight` (biological mass) from `weight` (mechanical external load). This ensures that Wilks and BMI protocols share a unified physiological source of truth without interfering with performance metrics.
+
+#### **2. Workout Recalibration Edit Engine**
+
+Developed a secure "Drafting" architecture for historical workout records, allowing for retroactive protocol adjustments.
+
+- **Edit Engine (`useWorkoutEditFlow`)**: Implemented a headless logic orchestrator that creates a decoupled clone of historical data. Users can perform "non-destructive" recalibration of weights and reps in a local sandbox before committing changes to the database.
+- **Data Sanitization & Projection**: The `updateWorkout` service implements a "Sanitization Filter" that strips nested relational metadata (e.g., joined exercise names) before persistence. This prevents schema cache violations and ensures atomic updates to the `workout_sets` table.
+- **Real-time Tonnage Projection**: Integrated a reactive memoization chain that recalculates $V_{total}$ (cumulative volume) on-the-fly as the user modifies individual sandbox sets.
+
+#### **3. Atomic UI Orchestration (Detail View Refactor)**
+
+To ensure 60fps interaction during complex edits, the `WorkoutDetailView` was decomposed into specialized atomic units:
+
+- **Metric Layer (`WorkoutDetailOverview`)**: A high-contrast dashboard for session KPIs (Volume, Duration, Sets).
+- **Performance Layer (`WorkoutDetailExercises`)**: A hierarchical grid optimized for high-velocity data entry with auto-select focus logic.
+- **Command Layer (`WorkoutDetailToggleEdit`)**: A state-aware controller managing the transition between the Analytical (Read-only) and Recalibration (Edit) modes.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature             | File Location                                       | Technical Responsibility                                             |
+| ------------------- | --------------------------------------------------- | -------------------------------------------------------------------- |
+| **Diagnostic Hook** | `features/calculators/_hooks/use-calculators.ts`    | BMI WHO logic and physiological/performance mass decoupling.         |
+| **Sandbox Hook**    | `features/workouts/_hooks/use-workout-edit-flow.ts` | Draft state orchestration and real-time volume recalibration.        |
+| **Sync Service**    | `services/apiWorkouts.ts`                           | Two-phase update strategy with relational data sanitization.         |
+| **Detail View**     | `features/workouts/components/details/`             | Atomic refactor of the identity, metric, and performance layers.     |
+| **Type Integrity**  | `types/workouts.ts`                                 | Defining `GroupedWorkoutExercise` for strict UI-to-Database mapping. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   ├── calculators/
+│   │   ├── _hooks/use-calculators.ts  <-- UPDATED: Added BMI & Mass Decoupling
+│   │   └── components/BmiCalculator.tsx <-- NEW: Morphological diagnostic UI
+│   └── workouts/
+│       ├── _hooks/
+│       │   └── use-workout-edit-flow.ts <-- NEW: Recalibration sandbox logic
+│       └── components/details/          <-- NEW: Atomic Detail Components
+│           ├── WorkoutDetailView.tsx    <-- Orchestrator
+│           ├── WorkoutDetailHeader.tsx  <-- Identity
+│           ├── WorkoutDetailOverview.tsx <-- Metrics
+│           ├── WorkoutDetailToggleEdit.tsx <-- Commands
+│           └── WorkoutDetailExercises.tsx <-- Performance Matrix
+└── services/
+    └── apiWorkouts.ts                   <-- UPDATED: Atomic updateWorkout method
+
+```

@@ -1,19 +1,19 @@
 /**
  * @fileoverview Core type definitions and configuration for laboratory calculators.
- * Defines the available protocols for training intensity and strength calibration.
  * @module features/calculators/types
  */
 
 /**
- * @typedef {("1rm" | "wilks" | "plates" | "rpe")} CalculatorType
+ * @typedef {("1rm" | "wilks" | "plates" | "rpe" | "bmi")} CalculatorType
  * @description
  * Available calculation engines within the VOLT.LAB ecosystem:
  * - `1rm`: Estimated One Rep Max using Brzycki's formula.
  * - `wilks`: Relative strength coefficient for powerlifting comparison.
  * - `plates`: Visual plate loading distribution (Pending Calibration).
- * - `rpe`: Intensity mapping based on Rate of Perceived Exertion.
+ * - `rpe`: Intensity mapping based on Rate of Perceived Exertion (Subjective Effort).
+ * - `bmi`: Body Mass Index and morphological classification based on WHO standards.
  */
-export type CalculatorType = "1rm" | "wilks" | "plates" | "rpe";
+export type CalculatorType = "1rm" | "wilks" | "plates" | "rpe" | "bmi";
 
 /**
  * @interface CalculatorOption
@@ -50,6 +50,11 @@ export const CALCULATOR_OPTIONS: CalculatorOption[] = [
 		value: "rpe",
 		label: "RPE / Reps Target",
 		description: "Calculate intensity based on perceived exertion.",
+	},
+	{
+		value: "bmi",
+		label: "BMI Index",
+		description: "Body Mass Index & Morphological Classification.",
 	},
 	/** * @todo Implement Plate Loader visual logic
 	 * { value: "plates", label: "Plate Loader", description: "Optimal plate distribution for a specific weight." }

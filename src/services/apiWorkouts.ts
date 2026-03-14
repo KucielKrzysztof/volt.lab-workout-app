@@ -5,6 +5,7 @@
  * @module services/apiWorkouts
  */
 
+import { WorkoutSet } from "@/types/workouts";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -202,5 +203,46 @@ export const workoutService = {
 		const { error } = await supabase.from("workouts").delete().eq("id", workoutId);
 
 		if (error) throw new Error(error.message || "Unexpected error");
+	},
+
+	/**
+	 * Updates an existing workout session and synchronizes its performance sets.
+	 * * @description
+	 * Executes a two-phase update strategy to ensure data consistency:
+	 * 1. **Header Recalibration**: Updates the primary workout record (e.g., recalculated total volume).
+	 * 2. **Set Reconciliation**: Performs an `upsert` operation on associated sets,
+	 * matching the input data against the physical database schema.
+	 * * @param {SupabaseClient} supabase - Authenticated Supabase client instance.
+	 * @param {string} workoutId - The unique UUID of the target workout session.
+	 * @param {number} volume - The updated cumulative tonnage moved during the session.
+	 * @param {WorkoutSet[]} sets - An array of performance sets to be synchronized with the database.
+	 * @returns {Promise<{success: boolean}>} Object indicating successful atomic completion of the update.
+	 * @throws {Error} Throws a PostgREST error if the header update or set upsert fails.
+	 */
+	updateWorkout: async (supabase: SupabaseClient, workoutId: string, volume: number, sets: WorkoutSet[]) => {
+		// Phase 1: Update session metadata (Header calibration)
+		const { error: workoutError } = await supabase.from("workouts").update({ total_volume: volume }).eq("id", workoutId);
+
+		if (workoutError) throw workoutError;
+
+		// Phase 2: Data Sanitization
+		// Projects the enriched UI models into objects compatible with the 'workout_sets' table schema.
+		// This strips joined exercise metadata to prevent schema cache violations.
+		const cleanSets = sets.map((s) => ({
+			id: s.id,
+			workout_id: workoutId,
+			exercise_id: s.exercise_id,
+			weight: Number(s.weight),
+			reps: Number(s.reps),
+			set_order: s.set_order,
+		}));
+
+		// Phase 3: Set Reconciliation (Upsert)
+		// Automatically updates existing records by ID or inserts new entries if the ID is absent.
+		const { error: setsError } = await supabase.from("workout_sets").upsert(cleanSets);
+
+		if (setsError) throw setsError;
+
+		return { success: true };
 	},
 };

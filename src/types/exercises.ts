@@ -5,6 +5,8 @@
  * @module types/exercises
  */
 
+import { WorkoutSet } from "./workouts";
+
 /**
  * Represents a read-only entity from the master exercise library.
  * * @description
@@ -57,4 +59,14 @@ export interface ActiveExercise {
 	exercise_id: string;
 	name: string;
 	sets: ActiveSet[];
+}
+
+/**
+ * Represents a collection of sets grouped by a specific movement
+ * for historical analysis and display.
+ */
+export interface GroupedWorkoutExercise {
+	name: string;
+	muscle_group: string;
+	sets: WorkoutSet[];
 }

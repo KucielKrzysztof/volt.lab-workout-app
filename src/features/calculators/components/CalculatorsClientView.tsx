@@ -14,13 +14,14 @@ import { CALCULATOR_OPTIONS, CalculatorType } from "../types";
 import { OneRepMaxCalculator } from "./OneRepMaxCalculator";
 import { WilksCalculator } from "./WilksCalculator";
 import { RpeCalculator } from "./RpeCalculator";
+import { BmiCalculator } from "./BmiCalculator";
 
 /**
  * CalculatorsClientView Component.
  * * @description
  * Acts as the "Control Hub" for training metrics. It provides a primary selection
  * interface (Protocol Selector) and dynamically renders the corresponding
- * calculation engine (1RM, Wilks, or RPE).
+ * calculation engine (1RM, Wilks, BMI or RPE).
  * * Logic flow:
  * 1. Tracks the `activeCalculator` state.
  * 2. Matches the state with `CALCULATOR_OPTIONS` to retrieve technical descriptions.
@@ -48,6 +49,8 @@ export const CalculatorsClientView = () => {
 				return <WilksCalculator description={activeOption?.description} />;
 			case "rpe":
 				return <RpeCalculator description={activeOption?.description} />;
+			case "bmi":
+				return <BmiCalculator description={activeOption?.description} />;
 
 			default:
 				return null;
