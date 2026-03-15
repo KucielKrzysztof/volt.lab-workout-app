@@ -33,6 +33,7 @@
 | **12-03-2026** | **[Session Identity, Dynamic Naming,Offline Resilience ](#update-12-03-2026)**          | Inline Rename Engine, Zustand Flat-State Mutation, Sanitization Logic, UX Interaction Hints, offlineFirst Protocol, Strategic Cache Calibration |
 | **13-03-2026** | **[Governance Hub & Compliance Orchestration](#update-13-03-2026)**                     | Tabbed Protocol Hub, Auth-TOS Integration, Legal Framework Calibration                                                                          |
 | **14-03-2026** | **[BMI Calculator & Workout Edition](#update-14-03-2026)**                              | BMI Diagnostic Engine, Recalibration Sandbox (Edit Engine), Atomic Detail Refactor, Real-time Volume Projection                                 |
+| **15-03-2026** | **[Account Decommissioning](#update-15-03-2026)**                                       | Administrative Delete Engine, Security-Checked Server Action, Cascading Relational Purge, Session Invalidation                                  |
 
 ---
 
@@ -1178,3 +1179,66 @@ src/
     └── apiWorkouts.ts                   <-- UPDATED: Atomic updateWorkout method
 
 ```
+
+## (Update: 15-03-2026)
+
+### **Account Decommissioning Protocol**
+
+This milestone finalized the "User Right to Erasure" (GDPR/Compliance) requirements by implementing a secure, administrative-level account deletion engine.
+
+#### **1. Identity-Validated Server Action**
+
+Implemented the `deleteUserAccount` as a protected Server Action. It follows a dual-layered security protocol to prevent unauthorized account termination:
+
+- **Identity Verification**: Uses a standard server-side client to verify that the requester's active session UUID matches the targeted decommissioning ID, effectively preventing ID spoofing.
+- **Administrative Privileges**: Once the identity is verified, the action utilizes a specialized `createAdminClient`. This factory uses the `SUPABASE_SERVICE_ROLE_KEY` (Secret Key) to bypass RLS and interact directly with the `auth.admin` management API.
+
+#### **2. Database Cascading Integrity**
+
+Leveraged PostgreSQL's relational power to ensure zero "orphaned" data records following user removal.
+
+- **Relational Constraints**: Configured `ON DELETE CASCADE` across the entire schema (`profiles`, `workouts`, `workout_sets`, `workout_templates`).
+- **Atomic Purge**: A single administrative call to delete the user in the `auth` schema now triggers a synchronous, atomic wipe of the entire user-related relational tree across all public tables.
+
+#### **3. Destructive UI Shield (Danger Zone)**
+
+Developed a high-visibility "Danger Zone" section within the Settings domain to manage high-stakes operations.
+
+- **Radix-Based Confirmation**: Integrated the Shadcn `AlertDialog` primitive to enforce an intentional, multi-step confirmation flow. This ensures that destructive actions are not triggered by accidental interactions.
+- **Session Invalidation**: Implemented a recursive cookie-purging logic within the Server Action. It scans for and deletes all Supabase-related auth tokens to ensure the local browser session is completely invalidated immediately after the account is decommissioned.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature                | File Location                                           | Technical Responsibility                                      |
+| ---------------------- | ------------------------------------------------------- | ------------------------------------------------------------- |
+| **Admin Factory**      | `src/core/supabase/admin.ts`                            | Privileged client instantiation with secret key management.   |
+| **Deletion Action**    | `src/features/auth/api/delete-account.ts`               | Identity-checked administrative deletion and cookie purging.  |
+| **Mutation Hook**      | `src/features/auth/_hooks/use-delete-account.ts`        | Managing async lifecycle, toast feedback, and global logout.  |
+| **Decommissioning UI** | `src/features/auth/components/DeleteAccountSection.tsx` | Presentational 'Danger Zone' with Radix confirmation gateway. |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── core/
+│   └── supabase/
+│       └── admin.ts              <-- NEW: Privileged administrative client factory
+├── features/
+│   ├── auth/
+│   │   ├── api/
+│   │   │   └── delete-account.ts <-- NEW: Administrative Server Action logic
+│   │   ├── _hooks/
+│   │   │   └── use-delete-account.ts <-- NEW: Mutation state management
+│   │   └── components/
+│   │       └── DeleteAccountSection.tsx <-- NEW: Destructive UI unit
+│   └── settings/
+│       └── components/
+│           └── SettingsClientView.tsx <-- UPDATED: Integrated Account Deletion
+
+```
+
+---
