@@ -34,6 +34,7 @@
 | **13-03-2026** | **[Governance Hub & Compliance Orchestration](#update-13-03-2026)**                     | Tabbed Protocol Hub, Auth-TOS Integration, Legal Framework Calibration                                                                          |
 | **14-03-2026** | **[BMI Calculator & Workout Edition](#update-14-03-2026)**                              | BMI Diagnostic Engine, Recalibration Sandbox (Edit Engine), Atomic Detail Refactor, Real-time Volume Projection                                 |
 | **15-03-2026** | **[Account Decommissioning](#update-15-03-2026)**                                       | Administrative Delete Engine, Security-Checked Server Action, Cascading Relational Purge, Session Invalidation                                  |
+| **16-03-2026** | **[Data Portability](#update-16-03-2026)**                                              | Relational Data Export (JSON)                                                                                                                   |
 
 ---
 
@@ -1238,6 +1239,50 @@ src/
 │   └── settings/
 │       └── components/
 │           └── SettingsClientView.tsx <-- UPDATED: Integrated Account Deletion
+
+```
+
+---
+
+## (Update: 16-03-2026)
+
+### **Data Portability**
+
+This milestone finalized the "Data Portability" protocols, establishing a high-performance engine for user data export.
+
+#### **1. Relational Data Portability Engine**
+
+Developed the `exportService` to facilitate a comprehensive extraction of the user's digital footprint.
+
+- **Parallel Aggregation Strategy**: Utilizes `Promise.all` to perform concurrent, independent fetches for `UserProfile`, full `Workout` history, and `WorkoutTemplateJoined` blueprints.
+- **PostgREST Optimization**: This approach bypasses schema cache limitations when direct Foreign Keys between public tables are absent, ensuring stable relational retrieval.
+- **Client-Side Serialization**: Implemented a headless `useDataExport` hook that orchestrates `Blob` creation and `ObjectURL` management, enabling high-speed JSON generation directly in the browser heap.
+
+---
+
+### **Technical Implementation Map**
+
+| Feature               | File Location                                         | Technical Responsibility                                                   |
+| --------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Export Service**    | `src/services/apiExport.ts`                           | Parallel data aggregation and strict `UserExportPayload` mapping.          |
+| **Portability Hook**  | `src/features/settings/_hooks/use-data-export.ts`     | Managing `Blob` lifecycle, memory revocation, and DOM-injection downloads. |
+| **UI Implementation** | `src/features/settings/components/DataExportCard.tsx` | Presentational trigger for the portability engine.                         |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   └── settings/
+│       ├── _hooks/
+│       │   └── use-data-export.ts <-- NEW: Headless portability logic
+│       └── components/
+│           ├── DataExportCard.tsx <-- NEW: Export UI Component
+│           └── SettingsClientView.tsx <-- UPDATED
+└── services/
+    └── apiExport.ts              <-- NEW: High-performance data aggregator
 
 ```
 

@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { useUser } from "@/core/providers/UserProvider";
 import { DeleteAccountSection } from "@/features/auth/components/DeleteAccount";
 import { Scale } from "lucide-react";
+import { DataExportCard } from "./DataExportCard";
 
 /**
  * SettingsClientView Component.
@@ -59,8 +60,16 @@ export const SettingsClientView = () => {
 				</Card>
 			</section>
 
+			{/* DATA EXPORT */}
+			<section className="space-y-3">
+				<h3 className="text-xs font-black uppercase tracking-widest opacity-50 px-1">Data Export</h3>
+				<DataExportCard userId={user.id} />
+			</section>
+
 			{/* ACCOUNT DELETION */}
-			<DeleteAccountSection userId={user.id} />
+			<section className="space-y-3">
+				<DeleteAccountSection userId={user.id} />
+			</section>
 		</div>
 	);
 };

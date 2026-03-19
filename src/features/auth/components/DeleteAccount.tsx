@@ -50,9 +50,9 @@ export const DeleteAccountSection = ({ userId }: DeleteAccountSectionProps) => {
 	const { mutate: deleteAccount, isPending } = useDeleteAccount(userId);
 
 	return (
-		<div className="p-4 border border-red-500/20 bg-red-500/5 rounded-2xl">
+		<div className="p-4 border border-red-500/20 bg-red-500/5 rounded-2xl text-center">
 			{/* Warning Header */}
-			<h3 className="text-destructive font-bold uppercase italic">Danger Zone</h3>
+			<h3 className="text-destructive font-bold uppercase italic ">Danger Zone</h3>
 			<p className="text-xs text-muted-foreground mt-1">Once you delete your account, there is no going back. Please be certain.</p>
 
 			{/* Confirmation Gateway */}
