@@ -35,6 +35,7 @@
 | **14-03-2026** | **[BMI Calculator & Workout Edition](#update-14-03-2026)**                              | BMI Diagnostic Engine, Recalibration Sandbox (Edit Engine), Atomic Detail Refactor, Real-time Volume Projection                                 |
 | **15-03-2026** | **[Account Decommissioning](#update-15-03-2026)**                                       | Administrative Delete Engine, Security-Checked Server Action, Cascading Relational Purge, Session Invalidation                                  |
 | **16-03-2026** | **[Data Portability](#update-16-03-2026)**                                              | Relational Data Export (JSON)                                                                                                                   |
+| **19-03-2026** | **[Bucket cleanup after account deletion](#update-19-03-2026)**                         | Automated Avatar Purge                                                                                                                          |
 
 ---
 
@@ -1285,5 +1286,21 @@ src/
     └── apiExport.ts              <-- NEW: High-performance data aggregator
 
 ```
+
+---
+
+#### **(Update: 19-03-2026)**
+
+### **Bucket cleanup after account deletion**
+
+Hardened the account removal process by integrating an automated cleanup of binary assets to ensure total data erasure and system hygiene.
+
+#### **1. Automated Avatar Purge**
+
+Implemented a pre-emptive storage cleanup phase within the `deleteUserAccount` Server Action to handle files not covered by PostgreSQL cascading deletes.
+
+- **Dangling Blob Prevention**: The protocol now explicitly fetches the `avatar_url` from the `public.profiles` table before the database-level purge occurs.
+- **Path-to-Filename Parsing**: Developed a logic to extract the unique filename from the public CDN URL, allowing the system to target the exact binary asset within the `avatars` bucket.
+- **Admin Storage Privileges**: Utilizes the `createAdminClient` to execute the `.remove()` operation. This ensures that asset deletion bypasses standard RLS restrictions, guaranteeing a successful purge even for unauthorized or restricted sessions.
 
 ---

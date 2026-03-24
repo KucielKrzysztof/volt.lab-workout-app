@@ -1,7 +1,7 @@
 /**
  * @fileoverview Account Decommissioning Logic.
  * Handles the secure and permanent removal of user accounts and associated
- * relational data within the Supabase ecosystem.
+ * relational data, and binary storage objects (avatars) within the Supabase ecosystem.
  * @module features/auth/api/deleteUserAccount
  */
 
@@ -17,10 +17,12 @@ import { cookies } from "next/headers";
  * This function orchestrates a multi-step decommissioning process:
  * 1. **Identity Verification**: Authenticates the requester against the
  * active session to prevent ID spoofing.
- * 2. **Administrative Deletion**: Triggers `auth.admin.deleteUser` via a
+ * 2. **Storage Cleanup**: Retrieves the user's `avatar_url` from the `profiles` table and
+ * purges the binary file from Supabase Storage to prevent "dangling blobs".
+ * 3. **Administrative Deletion**: Triggers `auth.admin.deleteUser` via a
  * privileged client, which initiates a PostgreSQL `ON DELETE CASCADE`
  * across all linked relational tables (profiles, workouts, etc.).
- * 3. **Session Purge**: Synchronously wipes authentication cookies to
+ * 4. **Session Purge**: Synchronously wipes authentication cookies to
  * invalidate the local client state.
  * * @security
  * - **Authorization Check**: Ensures `userId` matches the authenticated user's ID.
@@ -49,7 +51,23 @@ export async function deleteUserAccount(userId: string) {
 	// 2. INITIALIZE ADMIN: Access privileged administrative API
 	const adminSupabase = await createAdminClient();
 
-	// 3. ATOMIC DELETE: Triggers PostgreSQL cascading delete constraints
+	// 3. STORAGE PURGE: Remove avatar binary before database record is wiped
+	// We fetch from 'profiles' where 'avatar_url' is stored
+	const { data: profile } = await adminSupabase.from("profiles").select("avatar_url").eq("id", userId).single();
+
+	if (profile?.avatar_url) {
+		// Extract the filename from the public CDN link
+		const fileName = profile.avatar_url.split("/").pop();
+
+		if (fileName) {
+			/** * Administrative Storage Removal:
+			 * Bypasses RLS to ensure the file is deleted regardless of user state.
+			 */
+			await adminSupabase.storage.from("avatars").remove([`avatars/${fileName}`]);
+		}
+	}
+
+	// 4. ATOMIC DELETE: Triggers PostgreSQL cascading delete constraints
 	const { error } = await adminSupabase.auth.admin.deleteUser(userId);
 
 	if (error) {
@@ -57,7 +75,7 @@ export async function deleteUserAccount(userId: string) {
 		throw new Error("Critical: Failed to decommission account.");
 	}
 
-	// 4. CLEANUP: Purge local session cookies
+	// 5. CLEANUP: Purge local session cookies
 	const cookieStore = await cookies();
 
 	/** * Iterative Cookie Removal:
