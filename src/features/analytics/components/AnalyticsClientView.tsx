@@ -108,7 +108,7 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 						</div>
 					</AccordionTrigger>
 					<AccordionContent>
-						<ProgressChartsSection year={year} />
+						<ProgressChartsSection userId={userId} year={year} />
 					</AccordionContent>
 				</AccordionItem>
 
