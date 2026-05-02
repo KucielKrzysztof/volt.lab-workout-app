@@ -36,4 +36,21 @@ export const analyticsService = {
 
 		return (data || []).map((w) => w.started_at);
 	},
+
+	/* getExerciseProgression: async (supabase: SupabaseClient, userId: string, exerciseId: string) => {
+        const { data, error } = await supabase
+            .from("workout_sets")
+            .select(`
+                weight,
+                reps,
+                workouts ( started_at )
+            `)
+            .eq("exercise_id", exerciseId)
+            .innerJoin("workouts", "workout_id", "id") // Zakładając relację w DB
+            .eq("workouts.user_id", userId)
+            .order("workouts.started_at", { ascending: true });
+
+        if (error) throw error;
+        return data;
+    } */
 };
