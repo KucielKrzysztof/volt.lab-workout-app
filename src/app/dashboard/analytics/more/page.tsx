@@ -1,3 +1,4 @@
+import { AnalyticsMoreClientView } from "@/features/analytics/components/more/AnalyticsMoreClientView";
 import { getServerProfile } from "@/features/profile/api/get-server-profile";
 import { redirect } from "next/navigation";
 
@@ -12,14 +13,9 @@ export default async function AnalyticsPage() {
 	if (!user) {
 		redirect("/auth/login");
 	}
-	if (!user) {
+	if (!profile) {
 		redirect("/auth/login");
 	}
 
-	return (
-		<div userId={user.id} initialProfile={profile}>
-			{" "}
-			Hello world
-		</div>
-	);
+	return <AnalyticsMoreClientView /* userId={user.id} initialProfile={profile} */ />;
 }
