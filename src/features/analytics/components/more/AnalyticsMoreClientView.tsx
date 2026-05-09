@@ -7,17 +7,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Activity, TrendingUp, PieChart, BarChart3, Target, Zap } from "lucide-react";
+import { ChevronLeft, TrendingUp, BarChart3, Target, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { PageHeader } from "@/components/ui/PageHeader";
 
 import { ProgressionLineChart } from "../charts/ProgressionLineChart";
+import { Exercise } from "@/types/exercises";
+import { ExerciseSelectorModal } from "@/features/exercises/components/ExercisesSelectorModal";
 
 export const AnalyticsMoreClientView = () => {
 	const router = useRouter();
-	const [selectedExercise, setSelectedExercise] = useState("bench-press-id");
+	const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
 	return (
 		<div className="space-y-6 pb-24 animate-in fade-in duration-500">
@@ -31,16 +33,7 @@ export const AnalyticsMoreClientView = () => {
 				</div>
 			</div>
 			{/* Global Exercise Selector */}
-			<Select value={selectedExercise} onValueChange={setSelectedExercise}>
-				<SelectTrigger className="w-[180px] bg-secondary/10 border-white/5 font-black italic uppercase text-[10px]">
-					<SelectValue placeholder="Select Exercise" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value="bench-press-id">Bench Press</SelectItem>
-					<SelectItem value="squat-id">Back Squat</SelectItem>
-					<SelectItem value="deadlift-id">Deadlift</SelectItem>
-				</SelectContent>
-			</Select>
+			<ExerciseSelectorModal onSelect={setSelectedExercise} selectedExerciseName={selectedExercise?.name} />
 
 			{/* Main Diagnostic: Exercise Progression (Line Chart) */}
 			<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden">
