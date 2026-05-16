@@ -7,17 +7,28 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, TrendingUp, BarChart3, Target, Zap } from "lucide-react";
+import { ChevronLeft, TrendingUp, Target, Zap, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import { PageHeader } from "@/components/ui/PageHeader";
-
 import { ProgressionLineChart } from "../charts/ProgressionLineChart";
 import { Exercise } from "@/types/exercises";
 import { ExerciseSelectorModal } from "@/features/exercises/components/ExercisesSelectorModal";
-import { MuscleWeeklySetsBarChart } from "../charts/MuscleWeeklySetsBarChart";
 import { MuscleRadarChart } from "../charts/MuscleRadarChart";
+import { ActivityFrequencyChart, MonthlyFrequency } from "../charts/ActivityFrequencyChart";
+
+/**
+ * Mock dataset engineered to satisfy the MonthlyFrequency contract.
+ * Represents seasonal training volume across the current block.
+ */
+const MOCK_FREQUENCY_DATA: MonthlyFrequency[] = [
+	{ month: "JAN", count: 14 },
+	{ month: "FEB", count: 16 },
+	{ month: "MAR", count: 18 },
+	{ month: "APR", count: 15 },
+	{ month: "MAY", count: 22 },
+	{ month: "JUN", count: 12 },
+];
 
 export const AnalyticsMoreClientView = () => {
 	const router = useRouter();
@@ -48,33 +59,36 @@ export const AnalyticsMoreClientView = () => {
 				<ProgressionLineChart exerciseId={selectedExercise?.id || ""} />
 			</Card>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{/* Protocol 02:*/}
-				<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden">
-					<div className="flex items-center gap-2 mb-6">
-						<BarChart3 size={16} className="text-primary" />
-						<h4 className="text-xs font-black uppercase italic tracking-widest">Weekly Set Density</h4>
-					</div>
+			{/* Protocol 02:*/}
+			<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden group">
+				<div className="flex items-center gap-2 mb-6">
+					<BarChart3 size={16} className="text-primary" />
+					<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Temporal Consistency</h4>
+				</div>
 
-					<MuscleWeeklySetsBarChart />
-				</Card>
+				{/* Reused Recharts Bar Component */}
+				<ActivityFrequencyChart data={MOCK_FREQUENCY_DATA} />
 
-				{/* Protocol 03:  Total sets per muscle group (weekly) */}
-				<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden group">
-					<div className="absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+				<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
+					* Quantifying chronological workout frequency distribution.
+				</p>
+			</Card>
 
-					<div className="flex items-center gap-2 mb-6">
-						<Target size={16} className="text-primary" />
-						<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Bio-Distribution</h4>
-					</div>
+			{/* Protocol 03:  Total sets per muscle group (weekly) */}
+			<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden group">
+				<div className="absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity"></div>
 
-					<MuscleRadarChart />
+				<div className="flex items-center gap-2 mb-6">
+					<Target size={16} className="text-primary" />
+					<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Bio-Distribution</h4>
+				</div>
 
-					<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
-						* Based on aggregate volume metrics for the current cycle.
-					</p>
-				</Card>
-			</div>
+				<MuscleRadarChart />
+
+				<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
+					* Based on aggregate volume metrics for the current cycle.
+				</p>
+			</Card>
 		</div>
 	);
 };
