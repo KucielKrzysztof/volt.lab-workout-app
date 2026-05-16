@@ -34,11 +34,9 @@ interface ExerciseSelectorModalProps {
  * ExerciseSelectorModal Component.
  * * @description
  * Acts as the "Analytical Sights" for the laboratory.
- * 1. **Adaptive UI**: Switches between a 100dvh fullscreen view (mobile) and a
- * max-4xl centered panel (desktop) [cite: 22-03-2026].
- * 2. **Logic Reuse**: Injects 'useExercises' and 'useExerciseFilter' to maintain
+ * 1. **Logic Reuse**: Injects 'useExercises' and 'useExerciseFilter' to maintain
  * functional parity with the primary exercise library.
- * 3. **Performance Scrolling**: Implements a 'flex-1' overflow strategy to ensure
+ * 2. **Performance Scrolling**: Implements a 'flex-1' overflow strategy to ensure
  * the search and filters remain anchored while the list remains scrollable.
  * * @param {ExerciseSelectorModalProps} props - Component properties.
  */
