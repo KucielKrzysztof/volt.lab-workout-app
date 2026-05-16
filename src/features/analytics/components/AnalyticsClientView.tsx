@@ -9,7 +9,7 @@
 
 import { YearPicker } from "@/features/analytics/components/YearPicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CalendarDays, BarChart3, Trophy } from "lucide-react";
+import { CalendarDays, BarChart3, Trophy, ChevronRight } from "lucide-react";
 import { ActivitySection } from "./sections/ActivitySection";
 import { ProgressChartsSection } from "./sections/ProgressChartsSection";
 import { RecordsSection } from "./sections/RecordsSection";
@@ -19,6 +19,7 @@ import { UserProfile } from "@/types/profile";
 import { useAnalyticsDashboard } from "../_hooks/use-analytics-dashboard";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
+import Link from "next/link";
 
 interface AnalyticsClientViewProps {
 	userId: string;
@@ -124,6 +125,17 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 					</AccordionContent>
 				</AccordionItem>
 			</Accordion>
+			{/* SEE MORE */}
+
+			<div className="mt-6 flex justify-center border-t border-white/5 pt-4">
+				<Link
+					href="/dashboard/analytics/more"
+					className="group inline-flex items-center gap-2 text-[10px] font-black uppercase italic tracking-widest text-primary transition-all hover:gap-3"
+				>
+					See More
+					<ChevronRight size={12} className="transition-transform group-hover:scale-125" />
+				</Link>
+			</div>
 		</div>
 	);
 }

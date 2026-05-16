@@ -9,11 +9,9 @@ interface ProgressChartsSectionProps {
 	year: number;
 }
 
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMonthlyConsistency } from "../../_hooks/use-monthly-consistency";
-import { ActivityFrequencyChart, MonthlyFrequency } from "../charts/ActivityFrequencyChart";
+import { ActivityFrequencyChart } from "../charts/ActivityFrequencyChart";
 
 /**
  * ProgressChartsSection Component.
@@ -37,16 +35,6 @@ export const ProgressChartsSection = ({ userId, year }: ProgressChartsSectionPro
 				<div className="absolute top-0 left-0 w-1 h-full bg-primary/20" />
 
 				{isLoading ? <Skeleton className="h-[250px] w-full bg-primary/5" /> : <ActivityFrequencyChart data={frequencyData || []} />}
-
-				<div className="mt-6 flex justify-center border-t border-white/5 pt-4">
-					<Link
-						href="/dashboard/analytics/more"
-						className="group inline-flex items-center gap-2 text-[10px] font-black uppercase italic tracking-widest text-primary transition-all hover:gap-3"
-					>
-						See More
-						<ChevronRight size={12} className="transition-transform group-hover:scale-125" />
-					</Link>
-				</div>
 			</div>
 		</section>
 	);

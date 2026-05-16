@@ -7,17 +7,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Activity, TrendingUp, PieChart, BarChart3, Target, Zap } from "lucide-react";
+import { ChevronLeft, TrendingUp, Target, Zap, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/ui/PageHeader";
-
 import { ProgressionLineChart } from "../charts/ProgressionLineChart";
+import { Exercise } from "@/types/exercises";
+import { ExerciseSelectorModal } from "@/features/exercises/components/ExercisesSelectorModal";
+import { MuscleRadarChart } from "../charts/MuscleRadarChart";
+import { ActivityFrequencyChart, MonthlyFrequency } from "../charts/ActivityFrequencyChart";
+
+/**
+ * Mock dataset engineered to satisfy the MonthlyFrequency contract.
+ * Represents seasonal training volume across the current block.
+ */
+const MOCK_FREQUENCY_DATA: MonthlyFrequency[] = [
+	{ month: "JAN", count: 14 },
+	{ month: "FEB", count: 16 },
+	{ month: "MAR", count: 18 },
+	{ month: "APR", count: 15 },
+	{ month: "MAY", count: 22 },
+	{ month: "JUN", count: 12 },
+];
 
 export const AnalyticsMoreClientView = () => {
 	const router = useRouter();
-	const [selectedExercise, setSelectedExercise] = useState("bench-press-id");
+	const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
 	return (
 		<div className="space-y-6 pb-24 animate-in fade-in duration-500">
@@ -30,48 +45,50 @@ export const AnalyticsMoreClientView = () => {
 					<PageHeader title="Laboratory Hub" icon={<Zap className="text-primary" size={20} />} />
 				</div>
 			</div>
-			{/* Global Exercise Selector */}
-			<Select value={selectedExercise} onValueChange={setSelectedExercise}>
-				<SelectTrigger className="w-[180px] bg-secondary/10 border-white/5 font-black italic uppercase text-[10px]">
-					<SelectValue placeholder="Select Exercise" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value="bench-press-id">Bench Press</SelectItem>
-					<SelectItem value="squat-id">Back Squat</SelectItem>
-					<SelectItem value="deadlift-id">Deadlift</SelectItem>
-				</SelectContent>
-			</Select>
 
-			{/* Main Diagnostic: Exercise Progression (Line Chart) */}
+			{/* Global Exercise Selector */}
+			<ExerciseSelectorModal onSelect={setSelectedExercise} selectedExerciseName={selectedExercise?.name} />
+
+			{/* Protocol 01: Exercise Progression (Line Chart) */}
 			<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden">
-				<div className="absolute top-0 left-0 w-1 h-full bg-primary" />
 				<div className="flex items-center gap-2 mb-6">
 					<TrendingUp size={16} className="text-primary" />
 					<h4 className="text-xs font-black uppercase italic tracking-widest">Strength Progression </h4>
 				</div>
 				{/*  (LineChart) */}
-				<ProgressionLineChart exerciseId={selectedExercise} />
+				<ProgressionLineChart exerciseId={selectedExercise?.id || ""} />
 			</Card>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{/* Protocol 02: Total Tonnage per muscle group (weekly) */}
-				<Card className="p-6 bg-secondary/5 border-white/5 relative">
-					<div className="flex items-center gap-2 mb-6">
-						<BarChart3 size={16} className="text-primary" />
-						<h4 className="text-xs font-black uppercase italic tracking-widest">Placeholder</h4>
-					</div>
-					{/* <...Chart /> */}
-				</Card>
+			{/* Protocol 02:*/}
+			<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden group">
+				<div className="flex items-center gap-2 mb-6">
+					<BarChart3 size={16} className="text-primary" />
+					<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Temporal Consistency</h4>
+				</div>
 
-				{/* Protocol 03: Bio-Distribution (Radar/Pie Chart) -  to see if we maintain the proper balance between the exercised muscle groups  (year stats)*/}
-				<Card className="p-6 bg-secondary/5 border-white/5 relative">
-					<div className="flex items-center gap-2 mb-6">
-						<Target size={16} className="text-primary" />
-						<h4 className="text-xs font-black uppercase italic tracking-widest">Muscular Targeting</h4>
-					</div>
-					{/* <MuscleRadarChart /> */}
-				</Card>
-			</div>
+				{/* Reused Recharts Bar Component */}
+				<ActivityFrequencyChart data={MOCK_FREQUENCY_DATA} />
+
+				<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
+					* Quantifying chronological workout frequency distribution.
+				</p>
+			</Card>
+
+			{/* Protocol 03:  Total sets per muscle group (weekly) */}
+			<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden group">
+				<div className="absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+
+				<div className="flex items-center gap-2 mb-6">
+					<Target size={16} className="text-primary" />
+					<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Bio-Distribution</h4>
+				</div>
+
+				<MuscleRadarChart />
+
+				<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
+					* Based on aggregate volume metrics for the current cycle.
+				</p>
+			</Card>
 		</div>
 	);
 };
