@@ -17,6 +17,7 @@ import { ProgressionLineChart } from "../charts/ProgressionLineChart";
 import { Exercise } from "@/types/exercises";
 import { ExerciseSelectorModal } from "@/features/exercises/components/ExercisesSelectorModal";
 import { MuscleWeeklySetsBarChart } from "../charts/MuscleWeeklySetsBarChart";
+import { MuscleRadarChart } from "../charts/MuscleRadarChart";
 
 export const AnalyticsMoreClientView = () => {
 	const router = useRouter();
@@ -48,24 +49,30 @@ export const AnalyticsMoreClientView = () => {
 			</Card>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{/* Protocol 02: Total sets per muscle group (weekly) */}
+				{/* Protocol 02:*/}
 				<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden">
 					<div className="flex items-center gap-2 mb-6">
 						<BarChart3 size={16} className="text-primary" />
 						<h4 className="text-xs font-black uppercase italic tracking-widest">Weekly Set Density</h4>
 					</div>
 
-					{/* Wstrzyknięcie nowego komponentu horyzontalnego */}
 					<MuscleWeeklySetsBarChart />
 				</Card>
 
-				{/* Protocol 03: Bio-Distribution (Radar/Pie Chart) -  to see if we maintain the proper balance between the exercised muscle groups  (year stats)*/}
-				<Card className="p-6 bg-secondary/5 border-white/5 relative">
+				{/* Protocol 03:  Total sets per muscle group (weekly) */}
+				<Card className="p-6 bg-secondary/5 border-white/5 relative overflow-hidden group">
+					<div className="absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+
 					<div className="flex items-center gap-2 mb-6">
 						<Target size={16} className="text-primary" />
-						<h4 className="text-xs font-black uppercase italic tracking-widest">Muscular Targeting</h4>
+						<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Bio-Distribution</h4>
 					</div>
-					{/* <MuscleRadarChart /> */}
+
+					<MuscleRadarChart />
+
+					<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
+						* Based on aggregate volume metrics for the current cycle.
+					</p>
 				</Card>
 			</div>
 		</div>
