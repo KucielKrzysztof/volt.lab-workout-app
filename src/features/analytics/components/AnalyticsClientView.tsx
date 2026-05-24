@@ -19,7 +19,7 @@ import { UserProfile } from "@/types/profile";
 import { useAnalyticsDashboard } from "../_hooks/use-analytics-dashboard";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface AnalyticsClientViewProps {
 	userId: string;
@@ -127,15 +127,13 @@ export default function AnalyticsClientView({ userId, initialProfile }: Analytic
 			</Accordion>
 			{/* SEE MORE */}
 
-			<div className="mt-6 flex justify-center border-t border-white/5 pt-4">
-				<Link
-					href="/dashboard/analytics/more"
-					className="group inline-flex items-center gap-2 text-[10px] font-black uppercase italic tracking-widest text-primary transition-all hover:gap-3"
-				>
-					See More
-					<ChevronRight size={12} className="transition-transform group-hover:scale-125" />
-				</Link>
-			</div>
+			<Button
+				className="w-full flex gap-3 justify-between text-primary font-bold tracking-tight uppercase border-none bg-secondary/10 rounded-xl px-4 py-6 hover:bg-secondary/20 "
+				onClick={() => router.push(`/dashboard/analytics/more`)}
+			>
+				<span>See More</span>
+				<ChevronRight size={12} className="transition-transform group-hover:scale-125" />
+			</Button>
 		</div>
 	);
 }

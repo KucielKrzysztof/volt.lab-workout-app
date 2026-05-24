@@ -38,6 +38,8 @@
 | **19-03-2026** | **[Bucket cleanup after account deletion](#update-19-03-2026)**                         | Automated Avatar Purge                                                                                                                          |
 | **26-04-2026** | **[Analytics, monthly consistency](#update-26-04-2026)**                                | Recharts Integration, Monthly Consistency Logic, SSR Hydration Guards                                                                           |
 
+| **24-05-2026** | **[High-Density Diagnostics & Analytics Hub](#update-24-05-2026)** | Advanced Recharts (Radar/Line), SSR Memory Isolation, 7-Day Rolling Window, Relational Data Sniping |
+
 ---
 
 ## (Update: 19-02-2026)
@@ -1356,4 +1358,67 @@ src/
     └── apiAnalytics.ts <-- NEW: Specialized analytical SQL sniper
 ```
 
+## (Update: 24-05-2026)
+
+### **High-Density Diagnostics & Analytics Hub**
+
+This milestone transformed the secondary analytics view into a fully operational "Laboratory Hub." We deployed advanced data visualization engines, optimized relational queries for macro-cycle tracking, and patched a critical SSR memory leak to ensure enterprise-grade stability.
+
+#### **1. Advanced Visualization Engines (Recharts Integration)**
+
+We implemented a suite of high-precision diagnostic charts designed to track progressive overload and structural balance.
+
+- **`ProgressionLineChart` (Tonnage Engine)**: Transitioned from static 1RM estimation to tracking raw session volume. It features a dynamically scaling Y-axis and an advanced, monospace-formatted tooltip that renders the exact mechanical breakdown of every set (e.g., `SET 01: 100kg × 8`).
+- **`MuscleRadarChart` (Bio-Distribution)**: A structural balance scanner that utilizes a hexagonal `PolarGrid`. It automatically scales its `PolarRadiusAxis` based on the athlete's maximum volume to prevent vertex clipping.
+- **Adaptive `ExerciseSelectorModal**`: Engineered a responsive gateway that deploys as a `100dvh`edge-to-edge modal on mobile devices for maximum touch efficiency, while transforming into a centered`max-w-4xl` diagnostic panel on desktop viewports.
+
+#### **2. Optimized Relational Sniping (`apiMoreAnalytics`)**
+
+We engineered a new data access object specifically for high-density analytical calculations to prevent database N+1 bottlenecks.
+
+- **Single Fetch Paradigm**: The `getGlobalMetrics` method retrieves the entire relational tree (`workouts -> workout_sets -> exercises`) in a single query.
+- **7-Day Rolling Window**: Implemented an in-memory chronological filter. While the frequency bar chart aggregates data across the entire year, the Radar chart dynamically filters sets executed strictly within the last 7 days. This provides immediate, highly accurate feedback on current muscular fatigue and weekly allocations.
+- **Set Mechanics Preservation**: The progression engine now preserves individual `weight` and `reps` arrays during the date-grouping phase, passing them securely to the UI layer for granular tooltip rendering.
+
+#### **3. SSR Security & Memory Isolation (TanStack Query Patch)**
+
+We resolved a critical Next.js Server-Side Rendering (SSR) vulnerability related to Cross-Request State Pollution.
+
+- **Contextual Client Instantiation**: In the `use-advanced-analytics.ts` hooks, the `createClient()` call was moved from the global module scope directly into the execution context of the React hooks. This guarantees that concurrent user requests during SSR do not share the same Supabase authentication instance, effectively preventing session leakage.
+- **Zero-State Guards**: All visualization components are now equipped with "Laboratory Fallbacks" (e.g., "Insufficient Data: Execute protocol to initialize chart") to prevent Recharts from crashing when supplied with empty arrays for new users.
+
 ---
+
+### **Technical Implementation Map**
+
+| Feature                  | File Location                                                   | Technical Responsibility                                                                     |
+| ------------------------ | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **Advanced DAO**         | `src/services/apiMoreAnalytics.ts`                              | Single-fetch relational aggregation and 7-day rolling window calculations.                   |
+| **Isolated Hooks**       | `features/analytics/_hooks/use-advanced-analytics.ts`           | Secure SSR client scoping, cache management (`staleTime: 30m`), and query key orchestration. |
+| **View Orchestrator**    | `features/analytics/components/AnalyticsMoreClientView.tsx`     | Multi-protocol diagnostic grid with loading skeletons and active data hydration.             |
+| **Progression Engine**   | `features/analytics/components/charts/ProgressionLineChart.tsx` | Dynamic volume tracking with mechanical set-breakdown tooltips.                              |
+| **Distribution Scanner** | `features/analytics/components/charts/MuscleRadarChart.tsx`     | Absolute weekly set visualization with auto-scaling radius axes.                             |
+| **Adaptive Selector**    | `features/exercises/components/ExercisesSelectorModal.tsx`      | Device-aware dimensional scaling and strict internal Y-axis scrolling.                       |
+
+---
+
+### **Directory Structure Evolution**
+
+```text
+src/
+├── features/
+│   ├── analytics/
+│   │   ├── _hooks/
+│   │   │   └── use-advanced-analytics.ts    <-- NEW: SSR-Secured TanStack Hooks
+│   │   └── components/
+│   │       ├── AnalyticsMoreClientView.tsx  <-- UPDATED: Dynamic orchestrator
+│   │       └── charts/
+│   │           ├── ProgressionLineChart.tsx <-- NEW: Volume tracking & tooltips
+│   │           └── MuscleRadarChart.tsx     <-- NEW: 7-day bio-distribution
+│   └── exercises/
+│       └── components/
+│           └── ExercisesSelectorModal.tsx   <-- UPDATED: Fullscreen mobile logic
+└── services/
+    └── apiMoreAnalytics.ts                  <-- NEW: High-density SQL aggregations
+
+```

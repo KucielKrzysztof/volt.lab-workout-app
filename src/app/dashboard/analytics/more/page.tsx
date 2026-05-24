@@ -17,5 +17,5 @@ export default async function AnalyticsPage() {
 		redirect("/auth/login");
 	}
 
-	return <AnalyticsMoreClientView /* userId={user.id} initialProfile={profile} */ />;
+	return <AnalyticsMoreClientView userId={user.id} />;
 }

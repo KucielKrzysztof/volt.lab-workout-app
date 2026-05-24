@@ -13,7 +13,7 @@ export default async function AnalyticsPage() {
 	if (!user) {
 		redirect("/auth/login");
 	}
-	if (!user) {
+	if (!profile) {
 		redirect("/auth/login");
 	}
 

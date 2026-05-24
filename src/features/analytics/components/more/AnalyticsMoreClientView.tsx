@@ -1,38 +1,45 @@
 /**
  * @fileoverview High-Density Analytics Dashboard.
- * Orchestrates exercise-specific progression and global volume trends.
+ * Orchestrates exercise-specific progression, temporal frequency, and muscle distribution profiles.
+ * @module features/analytics/components/AnalyticsMoreClientView
  */
 
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, TrendingUp, Target, Zap, BarChart3 } from "lucide-react";
+import { ChevronLeft, TrendingUp, BarChart3, Target, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { ProgressionLineChart } from "../charts/ProgressionLineChart";
 import { Exercise } from "@/types/exercises";
+
+// Internal Component Dependencies
 import { ExerciseSelectorModal } from "@/features/exercises/components/ExercisesSelectorModal";
+import { ProgressionLineChart } from "../charts/ProgressionLineChart";
 import { MuscleRadarChart } from "../charts/MuscleRadarChart";
-import { ActivityFrequencyChart, MonthlyFrequency } from "../charts/ActivityFrequencyChart";
+import { ActivityFrequencyChart } from "../charts/ActivityFrequencyChart";
 
-/**
- * Mock dataset engineered to satisfy the MonthlyFrequency contract.
- * Represents seasonal training volume across the current block.
- */
-const MOCK_FREQUENCY_DATA: MonthlyFrequency[] = [
-	{ month: "JAN", count: 14 },
-	{ month: "FEB", count: 16 },
-	{ month: "MAR", count: 18 },
-	{ month: "APR", count: 15 },
-	{ month: "MAY", count: 22 },
-	{ month: "JUN", count: 12 },
-];
+// Data Hooks
+import { useExerciseProgression, useGlobalMetrics } from "../../_hooks/use-advanced-analytics";
 
-export const AnalyticsMoreClientView = () => {
+// Interfaces
+interface AnalyticsMoreClientViewProps {
+	userId: string;
+}
+
+export const AnalyticsMoreClientView = ({ userId }: AnalyticsMoreClientViewProps) => {
 	const router = useRouter();
-	const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+	const [selectedExercise, setSelectedExercise] = useState<Exercise | null>({
+		id: "3b4577d6-6515-4437-bbff-f1c3da5f6bd1",
+		name: "Bench Press",
+		muscle_group: "Chest",
+	});
+	const currentYear = new Date().getFullYear();
+
+	// TanStack Query Hooks connected to Supabase
+	const { data: progressionData, isLoading: isLoadingProgression } = useExerciseProgression(userId, selectedExercise?.id);
+	const { data: globalMetrics, isLoading: isLoadingGlobal } = useGlobalMetrics(userId, currentYear);
 
 	return (
 		<div className="space-y-6 pb-24 animate-in fade-in duration-500">
@@ -56,7 +63,11 @@ export const AnalyticsMoreClientView = () => {
 					<h4 className="text-xs font-black uppercase italic tracking-widest">Strength Progression </h4>
 				</div>
 				{/*  (LineChart) */}
-				<ProgressionLineChart exerciseId={selectedExercise?.id || ""} />
+				{isLoadingProgression ? (
+					<div className="h-64 w-full bg-primary/5 rounded-xl animate-pulse" />
+				) : (
+					<ProgressionLineChart data={progressionData || []} />
+				)}
 			</Card>
 
 			{/* Protocol 02:*/}
@@ -67,7 +78,11 @@ export const AnalyticsMoreClientView = () => {
 				</div>
 
 				{/* Reused Recharts Bar Component */}
-				<ActivityFrequencyChart data={MOCK_FREQUENCY_DATA} />
+				{isLoadingGlobal ? (
+					<div className="h-[250px] w-full bg-primary/5 rounded-xl animate-pulse" />
+				) : (
+					<ActivityFrequencyChart data={globalMetrics?.frequency || []} />
+				)}
 
 				<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
 					* Quantifying chronological workout frequency distribution.
@@ -83,10 +98,14 @@ export const AnalyticsMoreClientView = () => {
 					<h4 className="text-xs font-black uppercase italic tracking-widest text-primary">Protocol: Bio-Distribution</h4>
 				</div>
 
-				<MuscleRadarChart />
+				{isLoadingGlobal ? (
+					<div className="h-[300px] w-full bg-primary/5 rounded-xl animate-pulse" />
+				) : (
+					<MuscleRadarChart data={globalMetrics?.radar || []} />
+				)}
 
 				<p className="mt-4 text-[10px] text-muted-foreground uppercase leading-relaxed font-bold opacity-30 italic">
-					* Based on aggregate volume metrics for the current cycle.
+					* Based on absolute volume metrics from the last 7 days.
 				</p>
 			</Card>
 		</div>
