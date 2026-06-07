@@ -23,6 +23,7 @@ interface ProgressionLineChartProps {
  * * @description
  * High-performance line chart calibrated to track session-specific tonnage.
  * Features an advanced diagnostic tooltip rendering exact set mechanics.
+ * Implements dynamic horizontal scaling to ensure legibility on massive datasets.
  */
 export const ProgressionLineChart = ({ data }: ProgressionLineChartProps) => {
 	const [mounted, setMounted] = useState(false);
@@ -45,74 +46,76 @@ export const ProgressionLineChart = ({ data }: ProgressionLineChartProps) => {
 	}
 
 	return (
-		<div style={{ width: "100%", height: 300 }}>
-			<ResponsiveContainer width="100%" height="100%">
-				<LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-					<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="white" opacity={0.05} />
+		<div className="w-full overflow-x-auto overflow-y-hidden pb-10 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary/20 hover:[&::-webkit-scrollbar-thumb]:bg-primary/40 [&::-webkit-scrollbar-thumb]:rounded-full transition-colors cursor-grab active:cursor-grabbing">
+			<div style={{ minWidth: `max(100%, ${data.length * 45}px)`, height: 300 }}>
+				<ResponsiveContainer width="100%" height="100%">
+					<LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="white" opacity={0.05} />
 
-					<XAxis
-						dataKey="date"
-						fontSize={10}
-						axisLine={false}
-						tickLine={false}
-						className="font-black italic uppercase opacity-40 fill-foreground"
-						dy={10}
-					/>
+						<XAxis
+							dataKey="date"
+							fontSize={10}
+							axisLine={false}
+							tickLine={false}
+							className="font-black italic uppercase opacity-40 fill-foreground"
+							dy={10}
+						/>
 
-					<YAxis
-						fontSize={10}
-						axisLine={false}
-						tickLine={false}
-						className="font-bold opacity-40 fill-foreground"
-						domain={["auto", "auto"]}
-						tickFormatter={(value) => value.toLocaleString()}
-					/>
+						<YAxis
+							fontSize={10}
+							axisLine={false}
+							tickLine={false}
+							className="font-bold opacity-40 fill-foreground"
+							domain={["auto", "auto"]}
+							tickFormatter={(value) => value.toLocaleString()}
+						/>
 
-					<Tooltip
-						cursor={{ stroke: "var(--primary)", strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.5 }}
-						content={({ active, payload }) => {
-							if (active && payload && payload.length) {
-								const rawVolume = payload[0].value as number;
-								// Wyciągamy tablicę setsBreakdown z payloadu
-								const setsBreakdown = payload[0].payload.setsBreakdown;
+						<Tooltip
+							cursor={{ stroke: "var(--primary)", strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.5 }}
+							content={({ active, payload }) => {
+								if (active && payload && payload.length) {
+									const rawVolume = payload[0].value as number;
 
-								return (
-									<div className="bg-popover border border-border p-4 rounded-xl shadow-2xl backdrop-blur-md min-w-[160px]">
-										{/* Header: Data & Global Volume */}
-										<p className="text-[10px] font-black italic opacity-50 uppercase tracking-tighter">{payload[0].payload.date}</p>
-										<p className="text-xl font-black text-primary italic leading-tight mt-1">{rawVolume.toLocaleString()} KG</p>
-										<p className="text-[8px] font-bold uppercase tracking-widest opacity-30">Session Volume</p>
+									const setsBreakdown = payload[0].payload.setsBreakdown;
 
-										{/* Mechanics Breakdown: Loop through sets */}
-										{setsBreakdown && setsBreakdown.length > 0 && (
-											<div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1.5">
-												{setsBreakdown.map((set: any, idx: number) => (
-													<div key={idx} className="flex justify-between items-center text-[10px] font-mono">
-														<span className="font-bold">
-															{set.weight}kg <span className="opacity-50 mx-1">×</span> {set.reps}
-														</span>
-													</div>
-												))}
-											</div>
-										)}
-									</div>
-								);
-							}
-							return null;
-						}}
-					/>
+									return (
+										<div className="bg-popover border border-border p-4 rounded-xl shadow-2xl backdrop-blur-md min-w-[160px]">
+											{/* Header: Data & Global Volume */}
+											<p className="text-[10px] font-black italic opacity-50 uppercase tracking-tighter">{payload[0].payload.date}</p>
+											<p className="text-xl font-black text-primary italic leading-tight mt-1">{rawVolume.toLocaleString()} KG</p>
+											<p className="text-[8px] font-bold uppercase tracking-widest opacity-30">Session Volume</p>
 
-					<Line
-						type="monotone"
-						dataKey="volume"
-						stroke="var(--primary)"
-						strokeWidth={4}
-						dot={{ r: 4, fill: "var(--primary)", strokeWidth: 2, stroke: "black" }}
-						activeDot={{ r: 8, strokeWidth: 0 }}
-						animationDuration={1500}
-					/>
-				</LineChart>
-			</ResponsiveContainer>
+											{/* Mechanics Breakdown: Loop through sets */}
+											{setsBreakdown && setsBreakdown.length > 0 && (
+												<div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1.5">
+													{setsBreakdown.map((set: any, idx: number) => (
+														<div key={idx} className="flex justify-between items-center text-[10px] font-mono">
+															<span className="font-bold">
+																{set.weight}kg <span className="opacity-50 mx-1">×</span> {set.reps}
+															</span>
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									);
+								}
+								return null;
+							}}
+						/>
+
+						<Line
+							type="monotone"
+							dataKey="volume"
+							stroke="var(--primary)"
+							strokeWidth={4}
+							dot={{ r: 4, fill: "var(--primary)", strokeWidth: 2, stroke: "black" }}
+							activeDot={{ r: 8, strokeWidth: 0 }}
+							animationDuration={1500}
+						/>
+					</LineChart>
+				</ResponsiveContainer>
+			</div>
 		</div>
 	);
 };
