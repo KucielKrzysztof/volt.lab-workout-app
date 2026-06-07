@@ -39,6 +39,7 @@
 | **26-04-2026** | **[Analytics, monthly consistency](#update-26-04-2026)**                                | Recharts Integration, Monthly Consistency Logic, SSR Hydration Guards                                                                           |
 
 | **24-05-2026** | **[High-Density Diagnostics & Analytics Hub](#update-24-05-2026)** | Advanced Recharts (Radar/Line), SSR Memory Isolation, 7-Day Rolling Window, Relational Data Sniping |
+| **07-06-2026** | **[Dynamic Chart Scaling & UX](#update-07-06-2026)** | Horizontal Scroll, Custom Scrollbar, Dense Data Rendering |
 
 ---
 
@@ -1422,3 +1423,26 @@ src/
     └── apiMoreAnalytics.ts                  <-- NEW: High-density SQL aggregations
 
 ```
+
+---
+
+## (Update: 07-06-2026)
+
+### **Dynamic Chart Scaling & UX Adjustments**
+
+This update addressed a critical UX degradation issue where long-term performance trends (high volume of logged sessions) caused the `ProgressionLineChart` to become compressed and unreadable.
+
+#### **1. Horizontal Scroll for Recharts**
+
+We broke out of the strict container confines by implementing a dynamic scaling calculation for the X-axis.
+
+- **Dynamic Min-Width Calculation**: The internal wrapper now evaluates `minWidth: max(100%, data.length * 45px)`. This ensures the chart naturally occupies 100% of the screen for new exercises but automatically expands beyond the viewport, triggering a horizontal scroll, when the dataset grows massive.
+- **Data Density Calibration**: The multiplier was strategically calibrated to `45px` per data point. This creates a dense, highly analytical visual trend that maximizes the number of visible sessions on-screen while maintaining absolute clarity for the tooltip hover targets.
+
+### **Technical Implementation Map**
+
+| Feature            | File Location                                                   | Technical Responsibility                                                             |
+| ------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Scaling Engine** | `features/analytics/components/charts/ProgressionLineChart.tsx` | Inline width calculations (`max()`), overflow management, and CSS scrollbar styling. |
+
+---
